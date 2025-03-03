@@ -323,7 +323,7 @@ export default function Dashboard() {
           </div>
           
           {/* Recent Activity Card */}
-          <div className="bg-surface rounded-xl p-6 border border-primary/10">
+          <div className="bg-surface rounded-xl p-6 border border-primary/10 h-fit max-h-[500px] overflow-y-auto">
             <h2 className="text-xl font-semibold text-secondary mb-4">Recent Activity</h2>
             
             {isLoadingActivity ? (

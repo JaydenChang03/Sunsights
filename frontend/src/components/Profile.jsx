@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PencilIcon, CameraIcon, MapPinIcon, ChartBarIcon, PhotoIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import axios from '../config/axios';
@@ -21,49 +21,159 @@ const Profile = () => {
     recentActivity: [],
     achievements: []
   });
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  
+  // Use useCallback to memoize the fetchProfile function
+  const fetchProfile = useCallback(async () => {
     try {
       console.log('Fetching profile data...');
+      setLoading(true);
+      
       const response = await axios.get('/api/profile');
       console.log('Profile data received:', response.data);
+      
+      // Process the API response data
+      const profileData = response.data;
+      
+      // Parse JSON strings if they're returned as strings from the API
+      let stats = profileData.stats;
+      let recentActivity = profileData.recentActivity;
+      
+      // Handle potential JSON strings from the backend
+      if (typeof stats === 'string') {
+        try {
+          stats = JSON.parse(stats);
+        } catch (e) {
+          console.warn('Could not parse stats JSON:', e);
+          stats = { photos: 0, followers: 0, following: 0 };
+        }
+      }
+      
+      if (typeof recentActivity === 'string') {
+        try {
+          recentActivity = JSON.parse(recentActivity);
+        } catch (e) {
+          console.warn('Could not parse recentActivity JSON:', e);
+          recentActivity = [];
+        }
+      }
+      
+      // Ensure recentActivity is an array
+      if (!Array.isArray(recentActivity)) {
+        recentActivity = [];
+      }
+      
+      // Set the profile state with properly formatted data
       setProfile({
-        ...response.data,
+        name: profileData.name || '',
+        title: profileData.title || '',
+        location: profileData.location || '',
+        bio: profileData.bio || '',
+        avatar_url: profileData.avatar_url || '',
+        cover_url: profileData.cover_url || '',
+        stats: stats || { photos: 0, followers: 0, following: 0 },
+        recentActivity: recentActivity,
         achievements: [
           { id: 1, title: 'Early Adopter', description: 'Joined Sunsights in its early days', icon: ClockIcon },
           { id: 2, title: 'Photo Enthusiast', description: 'Analyzed 10+ photos', icon: PhotoIcon },
           { id: 3, title: 'Community Member', description: 'Connected with other photographers', icon: UserGroupIcon }
-        ],
-        recentActivity: [
-          { id: 1, description: 'Analyzed a new photo', time: '2 hours ago' },
-          { id: 2, description: 'Updated profile information', time: '1 day ago' },
-          { id: 3, description: 'Joined Sunsights', time: '1 week ago' }
         ]
       });
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      if (error.response) {
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-      }
-      toast.error('Failed to load profile data');
+      console.error('Error in profile component:', error);
+      toast.error('Failed to load profile data. Please try again later.');
+      
+      // Set minimal default data if API call fails
+      setProfile({
+        name: 'User',
+        title: 'Sunsights User',
+        location: 'Unknown',
+        bio: 'No bio available',
+        avatar_url: '',
+        cover_url: '',
+        stats: {
+          photos: 0,
+          followers: 0,
+          following: 0
+        },
+        achievements: [
+          { id: 1, title: 'New User', description: 'Joined Sunsights', icon: ClockIcon }
+        ],
+        recentActivity: [
+          { id: 1, description: 'Joined Sunsights', time: 'Recently' }
+        ]
+      });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleSave = async () => {
     try {
-      await axios.put('/api/profile', profile);
       setIsEditing(false);
+      
+      // Format the data for the API
+      const dataToSend = {
+        name: profile.name,
+        title: profile.title,
+        location: profile.location,
+        bio: profile.bio,
+        avatar_url: profile.avatar_url,
+        cover_url: profile.cover_url,
+        stats: profile.stats,
+        recentActivity: profile.recentActivity
+      };
+      
+      // Send the update to the API
+      await axios.put('/api/profile', dataToSend);
       toast.success('Profile updated successfully');
+      
+      // Refresh the profile data
+      fetchProfile();
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
+      toast.error('Failed to update profile. Please try again later.');
+    }
+  };
+
+  // Handle image upload
+  const handleImageUpload = async (event, type) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Create a FormData object to send the file
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    try {
+      toast.loading('Uploading image...');
+      
+      // In a real app, you would upload to a server endpoint
+      // For now, we'll simulate by creating a local URL
+      const imageUrl = URL.createObjectURL(file);
+      
+      // Update the profile with the new image URL
+      if (type === 'avatar') {
+        setProfile({
+          ...profile,
+          avatar_url: imageUrl
+        });
+      } else if (type === 'cover') {
+        setProfile({
+          ...profile,
+          cover_url: imageUrl
+        });
+      }
+      
+      toast.dismiss();
+      toast.success('Image updated');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.dismiss();
+      toast.error('Failed to upload image');
     }
   };
 
@@ -74,10 +184,24 @@ const Profile = () => {
         <div className="bg-surface rounded-xl shadow-lg overflow-hidden border border-primary/10">
           {/* Cover Photo */}
           <div className="h-48 bg-gradient-to-r from-primary to-primary-dark relative">
-            <button className="absolute bottom-4 right-4 bg-surface/80 backdrop-blur-sm text-secondary px-4 py-2 rounded-lg hover:bg-surface transition-all flex items-center gap-2 group">
+            {profile.cover_url && (
+              <img 
+                src={profile.cover_url} 
+                alt="Cover" 
+                className="w-full h-full object-cover"
+              />
+            )}
+            <input
+              type="file"
+              id="cover-upload"
+              className="hidden"
+              accept="image/*"
+              onChange={(e) => handleImageUpload(e, 'cover')}
+            />
+            <label htmlFor="cover-upload" className="absolute bottom-4 right-4 bg-surface/80 backdrop-blur-sm text-secondary px-4 py-2 rounded-lg hover:bg-surface transition-all flex items-center gap-2 group cursor-pointer">
               <CameraIcon className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
               <span>Edit Cover</span>
-            </button>
+            </label>
           </div>
 
           {/* Profile Content */}
@@ -90,9 +214,16 @@ const Profile = () => {
                   alt="Profile"
                   className="w-32 h-32 rounded-xl object-cover border-4 border-surface shadow-xl group-hover:border-accent/20 transition-colors"
                 />
-                <button className="absolute bottom-2 right-2 bg-accent text-primary-dark p-2 rounded-lg hover:bg-accent-dark transition-all">
+                <input
+                  type="file"
+                  id="avatar-upload"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, 'avatar')}
+                />
+                <label htmlFor="avatar-upload" className="absolute bottom-2 right-2 bg-accent text-primary-dark p-2 rounded-lg hover:bg-accent-dark transition-all cursor-pointer">
                   <CameraIcon className="h-4 w-4" />
-                </button>
+                </label>
               </div>
             </div>
 
@@ -210,16 +341,22 @@ const Profile = () => {
             <ClockIcon className="h-6 w-6 text-accent" />
             Recent Activity
           </h3>
-          <div className="space-y-4">
-            {profile.recentActivity.map((activity) => (
-              <div key={activity.id} className="bg-background p-4 rounded-lg border border-primary/10 hover:border-accent/20 transition-all flex items-center justify-between group">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 rounded-full bg-accent group-hover:scale-150 transition-transform"></div>
-                  <span className="text-secondary/80">{activity.description}</span>
+          <div className="space-y-4 max-h-64 overflow-y-auto">
+            {profile.recentActivity && profile.recentActivity.length > 0 ? (
+              profile.recentActivity.map((activity, index) => (
+                <div key={activity.id || index} className="bg-background p-4 rounded-lg border border-primary/10 hover:border-accent/20 transition-all flex items-center justify-between group">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 rounded-full bg-accent group-hover:scale-150 transition-transform"></div>
+                    <span className="text-secondary/80">{activity.description}</span>
+                  </div>
+                  <div className="text-secondary/50 text-sm">{activity.time}</div>
                 </div>
-                <div className="text-secondary/50 text-sm">{activity.time}</div>
+              ))
+            ) : (
+              <div className="bg-background p-4 rounded-lg border border-primary/10 text-center text-secondary/50">
+                No recent activity
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

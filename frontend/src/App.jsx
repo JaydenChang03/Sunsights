@@ -70,12 +70,14 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Auth route - if user is logged in, redirect to dashboard */}
         <Route path="/auth" element={
           user ? <Navigate to="/dashboard" replace /> : <Auth onAuthSuccess={handleAuthSuccess} />
         } />
         
+        {/* Root route - always redirect to auth if not logged in */}
         <Route path="/" element={
-          <Navigate to={user ? "/dashboard" : "/auth"} replace />
+          <Navigate to="/auth" replace />
         } />
 
         <Route path="/dashboard" element={
@@ -118,9 +120,9 @@ function App() {
           </ProtectedRoute>
         }/>
 
-        {/* Redirect all other routes to /auth if not authenticated, or to /dashboard if authenticated */}
+        {/* Redirect all other routes to /auth */}
         <Route path="*" element={
-          user ? <Navigate to="/dashboard" replace /> : <Navigate to="/auth" replace />
+          <Navigate to="/auth" replace />
         } />
       </Routes>
       <Toaster position="top-right" />
