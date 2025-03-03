@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunsights ERD</title>
+    <link rel="stylesheet" href="erd.css">
+</head>
+<body>
+    <div class="erd-container">
+        <svg class="relationships" width="100%" height="100%" style="position: absolute; top: 0; left: 0; z-index: 1;">
+            <!-- Users to Files -->
+            <line x1="330" y1="80" x2="830" y2="80" class="relationship-line" />
+            <text x="340" y="75" class="cardinality">1</text>
+            <text x="810" y="75" class="cardinality">N</text>
+
+            <!-- Users to Comments -->
+            <line x1="180" y1="150" x2="180" y2="550" class="relationship-line" />
+            <text x="165" y="170" class="cardinality">1</text>
+            <text x="165" y="530" class="cardinality">N</text>
+
+            <!-- Files to Comments -->
+            <line x1="930" y1="150" x2="930" y2="550" class="relationship-line" />
+            <text x="915" y="170" class="cardinality">1</text>
+            <text x="915" y="530" class="cardinality">N</text>
+
+            <!-- Comments to Analysis -->
+            <line x1="330" y1="600" x2="450" y2="600" class="relationship-line" />
+            <text x="340" y="595" class="cardinality">1</text>
+            <text x="430" y="595" class="cardinality">N</text>
+
+            <!-- Analysis to Logs -->
+            <line x1="730" y1="600" x2="830" y2="600" class="relationship-line" />
+            <text x="740" y="595" class="cardinality">N</text>
+            <text x="810" y="595" class="cardinality">1</text>
+        </svg>
+
+        <!-- Users Entity -->
+        <div class="entity" id="users">
+            <div class="entity-header">Users</div>
+            <div class="entity-content">
+                <div class="field">id</div>
+                <div class="field">username</div>
+                <div class="field">email</div>
+                <div class="field">password_hash</div>
+                <div class="field">role</div>
+                <div class="field">created_at</div>
+                <div class="field">last_login</div>
+            </div>
+        </div>
+
+        <!-- UploadedFiles Entity -->
+        <div class="entity" id="files">
+            <div class="entity-header">UploadedFiles</div>
+            <div class="entity-content">
+                <div class="field">id</div>
+                <div class="field">user_id</div>
+                <div class="field">filename</div>
+                <div class="field">file_type</div>
+                <div class="field">status</div>
+                <div class="field">uploaded_at</div>
+            </div>
+        </div>
+
+        <!-- Comments Entity -->
+        <div class="entity" id="comments">
+            <div class="entity-header">Comments</div>
+            <div class="entity-content">
+                <div class="field">id</div>
+                <div class="field">user_id</div>
+                <div class="field">file_id</div>
+                <div class="field">content</div>
+                <div class="field">created_at</div>
+            </div>
+        </div>
+
+        <!-- CommentAnalysis Entity -->
+        <div class="entity" id="analysis">
+            <div class="entity-header">CommentAnalysis</div>
+            <div class="entity-content">
+                <div class="field">id</div>
+                <div class="field">comment_id</div>
+                <div class="field">sentiment_score</div>
+                <div class="field">emotion</div>
+                <div class="field">priority</div>
+                <div class="field">analyzed_at</div>
+            </div>
+        </div>
+
+        <!-- ActivityLogs Entity -->
+        <div class="entity" id="logs">
+            <div class="entity-header">ActivityLogs</div>
+            <div class="entity-content">
+                <div class="field">id</div>
+                <div class="field">user_id</div>
+                <div class="field">action</div>
+                <div class="field">description</div>
+                <div class="field">logged_at</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

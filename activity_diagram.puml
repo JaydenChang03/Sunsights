@@ -1,0 +1,75 @@
+@startuml SunsightsActivityDiagram
+
+title Sunsights Comment Analysis System - Activity Diagram
+
+skinparam ActivityBorderColor Black
+skinparam ArrowColor Black
+skinparam ActivityDiamondBorderColor Black
+skinparam ActivityStartColor Green
+skinparam ActivityEndColor Red
+skinparam ActivityBarColor Black
+skinparam ArrowThickness 1.5
+
+|Authentication|
+start
+:Access Website;
+
+if (Logged In?) then (no)
+  :Display Login Form;
+  :Enter Credentials;
+  if (Valid Credentials?) then (yes)
+    :Authentication Successful;
+  else (no)
+    :Show Error Message;
+    stop
+  endif
+else (yes)
+endif
+
+|Main System|
+:Display Dashboard;
+
+|Analysis Selection|
+split
+  :'Single Comment' Selected;
+  |Comment Analysis|
+  :Display Comment Form;
+  :Enter Comment;
+  :Process Single Comment;
+  :Generate Analysis Report;
+split again
+  :'Bulk Upload' Selected;
+  |File Processing|
+  :Show File Upload Interface;
+  :Select and Upload File;
+  if (Valid CSV/Excel?) then (yes)
+    :Process File Contents;
+    :Generate Bulk Analysis;
+  else (no)
+    :Display Format Error;
+    :Request Valid File;
+    detach
+  endif
+end split
+
+|Results View|
+:Display Analysis Results;
+
+fork
+  :View Sentiment\nAnalysis;
+fork again
+  :View Emotion\nChart;
+fork again
+  :View Priority\nStats;
+fork again
+  :View Activity\nSummary;
+end fork
+
+|Final Actions|
+:Update Dashboard;
+:Generate Reports;
+:Enable Download;
+
+stop
+
+@enduml

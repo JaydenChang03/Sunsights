@@ -1,0 +1,68 @@
+{
+  "totalAnalyses": 819,
+  "bulkUploads": 10,
+  "averageSentiment": 75,
+  "lastAnalysisTime": "2025-03-03 10:15:42",
+  "activities": [
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-03 10:15:42",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy",
+      "time": "2025-03-03 10:15:37",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 comments from customerComments.xlsx",
+      "time": "2025-03-03 10:15:21",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 101 comments from customerComments.xlsx",
+      "time": "2025-03-03 10:14:38",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 101 comments from customerComments.xlsx",
+      "time": "2025-03-03 10:14:30",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 100 comments from customerComments.xlsx",
+      "time": "2025-03-03 10:12:13",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 100 comments from customerComments.xlsx",
+      "time": "2025-03-03 10:11:47",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 100 comments from customerComments.xlsx",
+      "time": "2025-03-03 10:11:34",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 100 comments from customerComments.xlsx",
+      "time": "2025-03-03 10:10:51",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 100 comments from customerComments.xlsx",
+      "time": "2025-03-03 10:10:48",
+      "type": "success"
+    }
+  ]
+}

@@ -1,0 +1,208 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Add color palette */
+  --color-primary: #606c38;
+  --color-primary-dark: #283618;
+  --color-light: #fefae0;
+  --color-accent: #dda15e;
+  --color-accent-dark: #bc6c25;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--color-light); /* Update background color */
+}
+
+@layer base {
+  body {
+    @apply bg-[#fefae0] text-[#283618]; /* Update with our new colors */
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300;
+  }
+  
+  .input-field {
+    @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500;
+  }
+  
+  .btn-primary {
+    @apply px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200;
+  }
+}
+
+/* Custom scrollbar for Webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-[#fefae0];
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-[#606c38] rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-[#283618];
+}
+
+/* Fade in animation */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Image Carousel Animation */
+.carousel-container {
+  position: relative;
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: rgba(96, 108, 56, 0.05);
+}
+
+.carousel-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  animation: carousel 15s infinite;
+}
+
+.carousel-image[data-index="0"] {
+  animation-delay: -0s;
+}
+
+.carousel-image[data-index="1"] {
+  animation-delay: -5s;
+}
+
+.carousel-image[data-index="2"] {
+  animation-delay: -10s;
+}
+
+.carousel-dot {
+  transition: all 0.5s ease-in-out;
+  cursor: pointer;
+  transform: scale(0.8);
+}
+
+.carousel-dot:hover {
+  transform: scale(1.2);
+  background-color: rgba(96, 108, 56, 0.8); /* primary color with 0.8 opacity */
+}
+
+@keyframes carousel {
+  0%, 25% {
+    opacity: 0;
+    z-index: 1;
+  }
+  33%, 58% {
+    opacity: 1;
+    z-index: 2;
+  }
+  66%, 100% {
+    opacity: 0;
+    z-index: 1;
+  }
+}
+
+/* Dot Animation */
+.carousel-dot[data-index="0"] {
+  animation: dotHighlight 15s infinite;
+}
+
+.carousel-dot[data-index="1"] {
+  animation: dotHighlight 15s infinite -5s;
+}
+
+.carousel-dot[data-index="2"] {
+  animation: dotHighlight 15s infinite -10s;
+}
+
+@keyframes dotHighlight {
+  0%, 25% {
+    transform: scale(0.8);
+    background-color: rgba(96, 108, 56, 0.6);
+  }
+  33%, 58% {
+    transform: scale(1.2);
+    background-color: rgba(96, 108, 56, 1);
+  }
+  66%, 100% {
+    transform: scale(0.8);
+    background-color: rgba(96, 108, 56, 0.6);
+  }
+}
+
+.carousel-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+  animation: carousel 15s infinite;
+  pointer-events: none; /* Prevent text from blocking interactions */
+}
+
+.carousel-text[data-index="0"] {
+  animation-delay: -0s;
+}
+
+.carousel-text[data-index="1"] {
+  animation-delay: -5s;
+}
+
+.carousel-text[data-index="2"] {
+  animation-delay: -10s;
+}
+
+/* Update your existing carousel animation */
+@keyframes carousel {
+  0%, 25% {
+    opacity: 0;
+    z-index: 1;
+  }
+  33%, 58% {
+    opacity: 1;
+    z-index: 2;
+  }
+  66%, 100% {
+    opacity: 0;
+    z-index: 1;
+  }
+}

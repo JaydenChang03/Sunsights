@@ -1,0 +1,81 @@
+@startuml SunsightsUseCaseDiagram
+
+title Website Use Case Diagram
+
+skinparam packageStyle rectangle
+left to right direction
+
+' Define actors
+:User: as user
+:Admin: as admin
+
+' Main features arranged vertically
+rectangle "Analytics" {
+  usecase "View Analytics\nDashboard" as UC1
+  usecase "View Detailed\nAnalytics" as E2 #pink
+}
+
+rectangle "Views" {
+  usecase "View Sentiment\nAnalysis" as UC3
+  usecase "View Emotions\nChart" as UC6
+  usecase "View Activity\nSummary" as UC7
+  usecase "View Priority\nStats" as UC8
+}
+
+rectangle "Profile" {
+  usecase "Manage Profile" as UC2
+  usecase "Update Profile\nDetails" as E1 #pink
+}
+
+rectangle "Authentication" {
+  usecase "Login/Register" as UC4
+  usecase "Reset Password" as UC5
+  usecase "Forgot Password" as E3 #pink
+  usecase "Verify Reset\nToken" as E4 #pink
+}
+
+rectangle "Analysis" {
+  usecase "Analyze Single\nComment" as UC9
+  usecase "Generate Analysis\nReport" as E6 #pink
+}
+
+rectangle "File Upload" {
+  usecase "Upload Bulk\nFile" as UC10
+  usecase "Process CSV/Excel\nFile" as E5 #pink
+}
+
+' Layout hints
+UC10 -[hidden]right- E5
+admin -[hidden]left- UC10
+
+' User relationships
+user --> UC1
+user --> UC2
+user --> UC3
+user --> UC4
+user --> UC5
+user --> UC6
+user --> UC7
+user --> UC8
+user --> UC9
+user --> UC10
+
+' Admin relationships
+UC1 <-- admin
+UC2 <-- admin
+UC3 <-- admin
+
+' Include/Extend relationships
+UC2 ..> E1 : <<extend>>
+UC1 ..> E2 : <<include>>
+UC5 ..> E3 : <<extend>>
+UC5 ..> E4 : <<include>>
+UC10 ..> E5 : <<include>>
+UC9 ..> E6 : <<include>>
+
+skinparam usecase {
+    BackgroundColor lightblue
+    BorderColor black
+}
+
+@enduml
