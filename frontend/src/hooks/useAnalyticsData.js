@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000';
+import { useState, useEffect, useCallback } from 'react';
+import axios from '../config/axios';
 
 export default function useAnalyticsData(timeRange = '7d', category = 'all') {
   const [data, setData] = useState(null);
@@ -10,49 +8,78 @@ export default function useAnalyticsData(timeRange = '7d', category = 'all') {
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
   // Fetch data based on time range and category
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      // Use the proper axios instance with authentication
       const params = { range: timeRange, category };
       
-      const [sentiment, emotions, priority, activity] = await Promise.all([
-        axios.get(`${API_URL}/api/analytics/sentiment`, { params }),
-        axios.get(`${API_URL}/api/analytics/emotions`, { params }),
-        axios.get(`${API_URL}/api/analytics/priority`, { params }),
-        axios.get(`${API_URL}/api/analytics/activity`, { params })
+      // Use Promise.all to fetch all data in parallel
+      const [
+        summaryResponse,
+        sentimentResponse, 
+        emotionsResponse, 
+        priorityResponse, 
+        activityResponse
+      ] = await Promise.all([
+        axios.get(`/api/analytics/summary`, { params }),
+        axios.get(`/api/analytics/sentiment`, { params }),
+        axios.get(`/api/analytics/emotions`, { params }),
+        axios.get(`/api/analytics/priority`, { params }),
+        axios.get(`/api/analytics/activity`, { params })
       ]);
 
+      // Use the actual data from the API instead of hardcoded values
       setData({
-        sentiment: sentiment.data,
-        emotions: emotions.data,
-        priority: priority.data,
-        activity: activity.data,
-        summary: {
-          totalAnalyses: 1234,
-          averageSentiment: 76,
-          responseRate: 92,
-          responseTime: 2.4
+        sentiment: sentimentResponse.data,
+        emotions: emotionsResponse.data,
+        priority: priorityResponse.data,
+        activity: activityResponse.data,
+        summary: summaryResponse.data || {
+          totalAnalyses: 0,
+          averageSentiment: 0,
+          responseRate: 0,
+          responseTime: 0
         }
       });
+      
       setLastUpdated(new Date());
     } catch (err) {
-      setError(err.message);
       console.error('Error fetching analytics data:', err);
+      setError(err.message || 'Failed to fetch analytics data');
+      
+      // Keep any existing data if there's an error
+      if (!data) {
+        setData({
+          sentiment: { labels: [], datasets: [] },
+          emotions: { labels: [], datasets: [] },
+          priority: { labels: [], datasets: [] },
+          activity: [],
+          summary: {
+            totalAnalyses: 0,
+            averageSentiment: 0,
+            responseRate: 0,
+            responseTime: 0
+          }
+        });
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange, category]);
 
   // Initial fetch
   useEffect(() => {
     fetchData();
-  }, [timeRange, category]);
+  }, [fetchData]);
 
-  // Set up polling for real-time updates (every 30 seconds)
+  // Set up polling for real-time updates (every 60 seconds)
   useEffect(() => {
-    const interval = setInterval(fetchData, 30000);
+    const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
-  }, [timeRange, category]);
+  }, [fetchData]);
 
   return {
     data,

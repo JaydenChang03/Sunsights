@@ -1,15 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { ArrowPathIcon, DocumentTextIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import axios from '../config/axios'
-
-// API base URL
-const API_URL = 'http://localhost:5000'
 
 export default function BulkAnalysis() {
   const [file, setFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(null)
+  const fileInputRef = useRef(null)
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
@@ -36,6 +34,9 @@ export default function BulkAnalysis() {
     formData.append('file', file)
 
     try {
+      // Add a small delay to ensure the file is properly attached to the FormData
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
       const response = await axios.post(`/api/analytics/analyze-bulk`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -46,6 +47,11 @@ export default function BulkAnalysis() {
     } catch (error) {
       console.error('Error:', error)
       toast.error(error.response?.data?.error || 'Failed to analyze file')
+      
+      // Reset the file input if there's an error
+      if (fileInputRef.current) {
+        fileInputRef.current.value = null
+      }
     } finally {
       setLoading(false)
     }
@@ -80,6 +86,7 @@ export default function BulkAnalysis() {
                         className="sr-only"
                         accept=".csv,.xls,.xlsx"
                         onChange={handleFileChange}
+                        ref={fileInputRef}
                       />
                     </label>
                     <p className="pl-1">or drag and drop</p>

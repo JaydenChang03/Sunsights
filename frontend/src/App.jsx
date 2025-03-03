@@ -75,11 +75,7 @@ function App() {
         } />
         
         <Route path="/" element={
-          <ProtectedRoute>
-            <Layout onLogout={handleLogout}>
-              <Home />
-            </Layout>
-          </ProtectedRoute>
+          <Navigate to={user ? "/dashboard" : "/auth"} replace />
         } />
 
         <Route path="/dashboard" element={
