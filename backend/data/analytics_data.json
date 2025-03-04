@@ -1,9 +1,33 @@
 {
-  "totalAnalyses": 4043,
-  "bulkUploads": 37,
+  "totalAnalyses": 4451,
+  "bulkUploads": 41,
   "averageSentiment": 75,
-  "lastAnalysisTime": "2025-03-04 11:06:44",
+  "lastAnalysisTime": "2025-03-04 11:14:28",
   "activities": [
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-04 11:14:28",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-04 11:13:39",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-04 11:13:27",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-04 11:08:54",
+      "type": "success"
+    },
     {
       "title": "Bulk Analysis Completed",
       "description": "Processed 102 valid comments from customerComments.xlsx",
@@ -38,30 +62,6 @@
       "title": "Bulk Analysis Completed",
       "description": "Processed 257 comments from 1734603425092-757345783-CP1_SV List_ Sep2024(1) (3).xlsx",
       "time": "2025-03-04 10:53:36",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy",
-      "time": "2025-03-04 10:10:33",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 10:07:37",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:48:47",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:46:24",
       "type": "success"
     }
   ]

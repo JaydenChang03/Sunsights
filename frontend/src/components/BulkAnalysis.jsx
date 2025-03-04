@@ -178,7 +178,7 @@ export default function BulkAnalysis() {
                   Upload CSV or Excel file
                 </label>
                 <div 
-                  className={`relative mt-1 flex justify-center px-6 pt-5 pb-6 border-2 ${dragActive ? 'border-accent' : 'border-primary'} ${dragActive ? 'bg-accent/10' : 'bg-primary/20'} border-dashed rounded-md hover:border-accent transition-colors duration-300`}
+                  className={`relative mt-1 flex justify-center px-6 pt-5 pb-6 border-2 ${dragActive ? 'border-accent' : 'border-primary'} ${dragActive ? 'bg-accent/10' : 'bg-primary/20'} border-dashed rounded-md hover:border-accent hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
@@ -201,11 +201,12 @@ export default function BulkAnalysis() {
                   <div className="space-y-1 text-center">
                     <motion.div
                       animate={dragActive ? { y: [0, -5, 0], transition: { repeat: Infinity, duration: 1.5 } } : {}}
+                      className="group"
                     >
-                      <ArrowUpTrayIcon className="mx-auto h-12 w-12 text-accent" />
+                      <ArrowUpTrayIcon className="mx-auto h-12 w-12 text-accent group-hover:text-accent-dark transition-colors duration-300" />
                     </motion.div>
                     <div className="flex text-sm text-secondary">
-                      <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-accent hover:text-accent-dark focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-accent">
+                      <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-accent hover:text-accent-dark focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-accent transition-colors duration-300">
                         <span>Upload a file</span>
                         <input
                           id="file-upload"
@@ -219,7 +220,9 @@ export default function BulkAnalysis() {
                       </label>
                       <p className="pl-1">or drag and drop</p>
                     </div>
-                    <p className="text-xs text-secondary/70">CSV or Excel files only</p>
+                    <p className="text-xs text-secondary/70">
+                      CSV or Excel files only
+                    </p>
                   </div>
                 </div>
                 {file && (
@@ -235,26 +238,25 @@ export default function BulkAnalysis() {
               </motion.div>
 
               <motion.button
-                variants={itemVariants}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-black bg-accent hover:bg-accent-dark hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-all duration-300 transform hover:scale-105"
                 onClick={analyzeBulk}
                 disabled={loading || !file}
-                className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-dark bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 transition-all duration-150"
+                whileHover={{ scale: loading ? 1 : 1.03 }}
+                whileTap={{ scale: loading ? 1 : 0.98 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
               >
                 {loading ? (
-                  <>
-                    <ArrowPathIcon className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                    <span>Processing...</span>
-                    <motion.div 
-                      className="absolute bottom-0 left-0 h-1 bg-accent-dark rounded-b-md"
-                      variants={progressVariants}
-                      initial="initial"
-                      animate="animate"
-                    />
-                  </>
+                  <div className="flex items-center">
+                    <ArrowPathIcon className="animate-spin -ml-1 mr-2 h-5 w-5 text-black" />
+                    <span>Analyzing...</span>
+                  </div>
                 ) : (
-                  'Analyze File'
+                  <div className="flex items-center">
+                    <ChartBarIcon className="mr-2 h-5 w-5" />
+                    <span>Analyze File</span>
+                  </div>
                 )}
               </motion.button>
 
@@ -321,7 +323,7 @@ export default function BulkAnalysis() {
                     )}
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                      <div className="bg-primary/10 rounded-lg p-4">
+                      <div className="bg-primary/10 rounded-lg p-4 hover:bg-primary/20 transition-colors duration-300 hover:shadow-md">
                         <p className="text-sm text-secondary/70">Total Comments</p>
                         <p className="text-2xl font-bold text-secondary">{results.total_comments}</p>
                         {results.valid_comments !== undefined && (
@@ -330,11 +332,11 @@ export default function BulkAnalysis() {
                           </p>
                         )}
                       </div>
-                      <div className="bg-primary/10 rounded-lg p-4">
+                      <div className="bg-primary/10 rounded-lg p-4 hover:bg-primary/20 transition-colors duration-300 hover:shadow-md">
                         <p className="text-sm text-secondary/70">Average Sentiment</p>
                         <p className="text-2xl font-bold text-accent">{results.average_sentiment}</p>
                       </div>
-                      <div className="bg-primary/10 rounded-lg p-4">
+                      <div className="bg-primary/10 rounded-lg p-4 hover:bg-primary/20 transition-colors duration-300 hover:shadow-md">
                         <p className="text-sm text-secondary/70">Priority Distribution</p>
                         <div className="flex items-center space-x-2 mt-2">
                           <span className="inline-block w-3 h-3 bg-red-500 rounded-full"></span>
@@ -366,7 +368,8 @@ export default function BulkAnalysis() {
                             </thead>
                             <tbody className="divide-y divide-primary/10">
                               {results.sample_results.map((item, index) => (
-                                <tr key={index} className={index % 2 === 0 ? 'bg-primary/5' : ''}>
+                                <tr key={index} className={index % 2 === 0 ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-primary/10'} 
+                                   style={{ transition: 'background-color 0.2s ease' }}>
                                   <td className="px-4 py-2 text-sm text-secondary">{item.text}</td>
                                   <td className="px-4 py-2 text-sm">
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -395,7 +398,7 @@ export default function BulkAnalysis() {
                     
                     <div className="mt-6 flex justify-end">
                       <button
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent"
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-black bg-accent hover:bg-accent-dark hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-all duration-300 transform hover:scale-105"
                         onClick={() => setResults(null)}
                       >
                         Analyze Another File

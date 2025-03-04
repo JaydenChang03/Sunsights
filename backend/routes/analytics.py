@@ -356,6 +356,29 @@ def analyze_bulk():
         # Calculate average sentiment
         average_sentiment = round((total_sentiment_score / total_valid_comments) * 100) if total_valid_comments > 0 else 0
         
+        # Ensure diverse sample results by selecting from different emotions and priorities
+        diverse_samples = []
+        emotion_priorities = {}
+        
+        # Group results by emotion and priority
+        for result in valid_results:
+            key = f"{result['emotion']}_{result['priority']}"
+            if key not in emotion_priorities:
+                emotion_priorities[key] = []
+            emotion_priorities[key].append(result)
+        
+        # Select one from each group if available
+        for key, items in emotion_priorities.items():
+            if items and len(diverse_samples) < 5:  # Limit to 5 samples
+                diverse_samples.append(items[0])
+        
+        # If we still need more samples, add from valid_results
+        if len(diverse_samples) < 5 and len(valid_results) > len(diverse_samples):
+            remaining_needed = 5 - len(diverse_samples)
+            # Get results not already in diverse_samples
+            remaining_results = [r for r in valid_results if r not in diverse_samples]
+            diverse_samples.extend(remaining_results[:remaining_needed])
+        
         # Update analytics data
         analytics_data = load_data()
         analytics_data['totalAnalyses'] += total_valid_comments
@@ -388,7 +411,7 @@ def analyze_bulk():
                 'low': low_priority
             },
             'invalid_examples': invalid_comments[:5] if invalid_comments else [],
-            'sample_results': valid_results[:5] if valid_results else []
+            'sample_results': diverse_samples if diverse_samples else valid_results[:5]
         })
     except Exception as e:
         logging.error(f"Error in analyze_bulk: {str(e)}")
