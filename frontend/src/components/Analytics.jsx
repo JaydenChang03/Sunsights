@@ -33,7 +33,6 @@ ChartJS.register(
 
 export default function Analytics() {
   const [timeRange, setTimeRange] = useState('7d');
-  const [category, setCategory] = useState('all');
   const [drilldownData, setDrilldownData] = useState(null);
   
   const { 
@@ -42,7 +41,7 @@ export default function Analytics() {
     error, 
     lastUpdated, 
     refetch 
-  } = useAnalyticsData(timeRange, category);
+  } = useAnalyticsData(timeRange);
 
   // Chart configuration
   const chartOptions = {
@@ -107,8 +106,6 @@ export default function Analytics() {
         <FilterBar
           timeRange={timeRange}
           setTimeRange={setTimeRange}
-          category={category}
-          setCategory={setCategory}
           lastUpdated={lastUpdated}
           onRefresh={refetch}
           loading={loading}

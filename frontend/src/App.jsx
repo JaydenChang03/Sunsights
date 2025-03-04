@@ -8,7 +8,6 @@ import Dashboard from './components/Dashboard'
 import SingleAnalysis from './components/SingleAnalysis'
 import BulkAnalysis from './components/BulkAnalysis'
 import Analytics from './components/Analytics'
-import Profile from './components/Profile'
 import Auth from './components/Auth'
 
 const ProtectedRoute = ({ children }) => {
@@ -111,14 +110,6 @@ function App() {
             </Layout>
           </ProtectedRoute>
         } />
-
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Layout onLogout={handleLogout}>
-              <Profile />
-            </Layout>
-          </ProtectedRoute>
-        }/>
 
         {/* Redirect all other routes to /auth */}
         <Route path="*" element={

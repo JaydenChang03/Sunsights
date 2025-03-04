@@ -1,20 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from '../config/axios';
 
-export default function useAnalyticsData(timeRange = '7d', category = 'all') {
+export default function useAnalyticsData(timeRange = '7d') {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
-  // Fetch data based on time range and category
+  // Fetch data based on time range
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
       // Use the proper axios instance with authentication
-      const params = { range: timeRange, category };
+      const params = { range: timeRange };
       
       // Use Promise.all to fetch all data in parallel
       const [
@@ -68,7 +68,7 @@ export default function useAnalyticsData(timeRange = '7d', category = 'all') {
     } finally {
       setLoading(false);
     }
-  }, [timeRange, category]);
+  }, [timeRange]);
 
   // Initial fetch
   useEffect(() => {

@@ -4,8 +4,6 @@ import { FunnelIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 export default function FilterBar({ 
   timeRange, 
   setTimeRange, 
-  category, 
-  setCategory, 
   lastUpdated,
   onRefresh,
   loading 
@@ -15,14 +13,6 @@ export default function FilterBar({
     { value: '7d', label: 'Last 7 Days' },
     { value: '30d', label: 'Last 30 Days' },
     { value: '90d', label: 'Last 90 Days' }
-  ];
-
-  const categories = [
-    { value: 'all', label: 'All Categories' },
-    { value: 'product', label: 'Product' },
-    { value: 'service', label: 'Service' },
-    { value: 'support', label: 'Support' },
-    { value: 'billing', label: 'Billing' }
   ];
 
   return (
@@ -38,17 +28,6 @@ export default function FilterBar({
             {timeRanges.map((range) => (
               <option key={range.value} value={range.value}>
                 {range.label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="bg-gray-700 text-gray-100 rounded-md border-gray-600 focus:border-amber-500 focus:ring-amber-500"
-          >
-            {categories.map((cat) => (
-              <option key={cat.value} value={cat.value}>
-                {cat.label}
               </option>
             ))}
           </select>
