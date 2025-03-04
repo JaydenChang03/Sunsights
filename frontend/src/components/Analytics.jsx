@@ -198,7 +198,7 @@ export default function Analytics() {
               {/* Recent Activity */}
               <div className="bg-surface rounded-xl p-6 border border-primary/10 hover:border-accent/20 transition-all duration-300">
                 <h2 className="text-xl font-semibold text-secondary mb-6">Recent Activity</h2>
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
                   {data?.activity.map((activity, index) => (
                     <div key={index} className="flex items-center justify-between p-4 bg-background rounded-lg border border-primary/10 hover:border-accent/20 transition-all duration-300">
                       <div>

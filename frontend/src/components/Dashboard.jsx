@@ -269,7 +269,7 @@ export default function Dashboard() {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Enter text to analyze sentiment and emotion..."
-                className="w-full h-32 p-3 bg-background border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 text-primary"
+                className="w-full h-32 p-3 bg-background border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 text-white placeholder-white/70"
               />
             </div>
             <div className="flex justify-end">
