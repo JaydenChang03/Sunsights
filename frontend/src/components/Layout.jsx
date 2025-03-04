@@ -41,7 +41,7 @@ const Layout = ({ children, onLogout }) => {
         <div className="relative p-6 border-b border-primary/20 backdrop-blur-sm">
           <div className="flex items-center gap-4 group">
             <div className="relative overflow-hidden rounded-lg logo-glow">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary-dark opacity-0 group-hover:opacity-30 transition-opacity duration-700 animate-pulse"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary-dark opacity-0 group-hover:opacity-30 transition-opacity duration-700"></div>
               <img 
                 src="/sunsightsLogo.png" 
                 alt="Sunsights" 
@@ -92,9 +92,9 @@ const Layout = ({ children, onLogout }) => {
                 {/* Text with improved visibility */}
                 <span className="font-medium menu-text">{item.name}</span>
                 
-                {/* Active indicator with improved visibility */}
+                {/* Active indicator with blinking animation */}
                 {active && (
-                  <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-accent" aria-hidden="true"></span>
+                  <span className="absolute right-3 w-1.5 h-1.5 rounded-full active-indicator-dot" aria-hidden="true"></span>
                 )}
               </Link>
             );

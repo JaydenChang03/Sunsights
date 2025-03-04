@@ -113,27 +113,36 @@
   animation: activePulse 3s infinite;
 }
 
-/* Logo animation */
-@keyframes logoGlow {
+/* Active indicator dot blinking animation */
+@keyframes dotBlink {
   0% {
-    filter: drop-shadow(0 0 2px rgba(221, 161, 94, 0.3));
+    opacity: 0.7;
+    transform: scale(1);
   }
   50% {
-    filter: drop-shadow(0 0 4px rgba(221, 161, 94, 0.4));
+    opacity: 1;
+    transform: scale(1.2);
   }
   100% {
-    filter: drop-shadow(0 0 2px rgba(221, 161, 94, 0.3));
+    opacity: 0.7;
+    transform: scale(1);
   }
 }
 
-.logo-glow {
-  animation: logoGlow 3s ease-in-out infinite;
+.active-indicator-dot {
+  animation: dotBlink 2s ease-in-out infinite;
+  background-color: #dda15e;
 }
 
-/* Logo hover effect - subtle but noticeable */
+/* Logo styling - NO animation */
+.logo-glow {
+  filter: drop-shadow(0 0 3px rgba(221, 161, 94, 0.3));
+  transition: filter 0.3s ease;
+}
+
+/* Logo hover effect - subtle but noticeable, no animation */
 .logo-glow:hover {
   filter: drop-shadow(0 0 6px rgba(221, 161, 94, 0.6)) !important;
-  transition: filter 0.3s ease;
 }
 
 /* Icon subtle animation on hover */
@@ -213,7 +222,7 @@
   .sidebar-bg-animation::after,
   .menu-item-hover:hover,
   .active-menu-item,
-  .logo-glow,
+  .active-indicator-dot,
   .stagger-fade-in > * {
     animation: none !important;
     transition: none !important;
