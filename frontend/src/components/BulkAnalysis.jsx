@@ -240,6 +240,48 @@ export default function BulkAnalysis() {
               </motion.button>
 
               <AnimatePresence>
+                {loading && (
+                  <motion.div
+                    className="mt-6 flex flex-col items-center justify-center"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <motion.img 
+                      src="/loadingCat.gif" 
+                      alt="Loading..." 
+                      className="w-40 h-40 rounded-lg shadow-lg border-2 border-accent/30"
+                      animate={{ 
+                        scale: [1, 1.05, 1],
+                        rotate: [0, 2, 0, -2, 0]
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                    <motion.p 
+                      className="mt-4 text-accent font-medium text-center"
+                      animate={{ 
+                        opacity: [0.7, 1, 0.7]
+                      }}
+                      transition={{ 
+                        duration: 1.5, 
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      Analyzing your data...
+                      <br />
+                      <span className="text-sm text-secondary/70">This may take a moment</span>
+                    </motion.p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
                 {results && (
                   <motion.div 
                     className="mt-6 space-y-4"

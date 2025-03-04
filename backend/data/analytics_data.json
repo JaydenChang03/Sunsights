@@ -1,9 +1,21 @@
 {
-  "totalAnalyses": 1435,
-  "bulkUploads": 16,
+  "totalAnalyses": 1639,
+  "bulkUploads": 18,
   "averageSentiment": 75,
-  "lastAnalysisTime": "2025-03-04 09:19:24",
+  "lastAnalysisTime": "2025-03-04 09:37:11",
   "activities": [
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 comments from customerComments.xlsx",
+      "time": "2025-03-04 09:37:11",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 comments from customerComments.xlsx",
+      "time": "2025-03-04 09:36:49",
+      "type": "success"
+    },
     {
       "title": "Bulk Analysis Completed",
       "description": "Processed 102 comments from customerComments.xlsx",
@@ -50,18 +62,6 @@
       "title": "Text Analysis Completed",
       "description": "Sentiment: NEGATIVE, Emotion: anger",
       "time": "2025-03-03 10:48:27",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-03 10:43:16",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-03 10:43:13",
       "type": "success"
     }
   ]
