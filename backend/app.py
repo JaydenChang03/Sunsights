@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import timedelta
-from flask import jsonify, Flask, request
+from flask import jsonify, Flask, request, session
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -50,10 +50,20 @@ app.config['SECRET_KEY'] = 'your-secret-key'  # Change this in production
 
 # JWT Configuration
 app.config['JWT_SECRET_KEY'] = 'your-secret-key'  # Change this in production
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)  # Increased from 1 day to 30 days
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
 app.config['JWT_HEADER_NAME'] = 'Authorization'
 app.config['JWT_HEADER_TYPE'] = 'Bearer'
+
+# Add permanent session configuration to prevent database shutdown
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=31)  # Set session lifetime to 31 days
+app.config['SESSION_PERMANENT'] = True  # Make sessions permanent
+
+# Add database keepalive configuration
+app.config['SQLALCHEMY_POOL_RECYCLE'] = 280  # Recycle connections before MySQL's default timeout of 300 seconds
+app.config['SQLALCHEMY_POOL_TIMEOUT'] = 20  # Wait 20 seconds for a connection before timing out
+app.config['SQLALCHEMY_POOL_PRE_PING'] = True  # Test connections with a ping before using them
+
 jwt = JWTManager(app)
 
 # Configure upload folder
@@ -168,6 +178,19 @@ app.register_blueprint(profile, url_prefix='/api')
 @app.route('/')
 def home():
     return jsonify({"message": "Welcome to the Sunsights API!"})
+
+# Session test route
+@app.route('/api/session-test')
+def session_test():
+    if 'visits' in session:
+        session['visits'] = session.get('visits') + 1
+    else:
+        session['visits'] = 1
+    return jsonify({
+        "message": "Session is working",
+        "visits": session.get('visits', 0),
+        "session_lifetime_days": app.config['PERMANENT_SESSION_LIFETIME'].days
+    })
 
 # Handle OPTIONS requests
 @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])

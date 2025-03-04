@@ -206,3 +206,15 @@ body {
     z-index: 1;
   }
 }
+
+/* Custom dropdown styling for analytics filter */
+.analytics-filter-dropdown {
+  background-color: #1e231f !important; /* background color */
+  color: #e9edc9 !important; /* secondary color for text */
+  border-color: rgba(96, 108, 56, 0.2) !important; /* primary with opacity */
+}
+
+.analytics-filter-dropdown option {
+  background-color: #1e231f !important; /* background color */
+  color: #e9edc9 !important; /* secondary color for text */
+}

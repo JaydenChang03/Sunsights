@@ -183,9 +183,9 @@ export default function Dashboard() {
   const getPriorityColor = (priority) => {
     if (!priority) return 'bg-gray-200';
     switch (priority.toLowerCase()) {
-      case 'high': return 'bg-red-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-green-500';
+      case 'high': return 'bg-green-700';
+      case 'medium': return 'bg-green-500';
+      case 'low': return 'bg-green-300';
       default: return 'bg-gray-200';
     }
   };
@@ -208,11 +208,11 @@ export default function Dashboard() {
   const getActivityTypeColor = (type) => {
     const typeColors = {
       success: 'bg-green-500',
-      warning: 'bg-yellow-500',
-      info: 'bg-blue-500',
-      error: 'bg-red-500'
+      warning: 'bg-green-400',
+      info: 'bg-green-600',
+      error: 'bg-green-700'
     };
-    return typeColors[type] || 'bg-gray-500';
+    return typeColors[type] || 'bg-green-300';
   };
 
   return (
