@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { ArrowPathIcon, DocumentTextIcon, ArrowUpTrayIcon, ChartBarIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import axios from '../config/axios'
@@ -11,6 +11,12 @@ export default function BulkAnalysis() {
   const [dragActive, setDragActive] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const fileInputRef = useRef(null)
+
+  // Preload the loading animation image
+  useEffect(() => {
+    const preloadImage = new Image();
+    preloadImage.src = '/loadingCat.gif';
+  }, []);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
@@ -66,21 +72,23 @@ export default function BulkAnalysis() {
     }
 
     setLoading(true)
+    setResults(null)
+    
     const formData = new FormData()
-    formData.append('file', file)
+    const blob = new Blob([file], { type: file.type })
+    formData.append('file', blob, file.name)
 
     try {
-      // Add a small delay to ensure the file is properly attached to the FormData
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 300))
       
       const response = await axios.post(`/api/analytics/analyze-bulk`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 60000 // 60 seconds
       })
       setResults(response.data)
       
-      // Check if there were any invalid comments
       if (response.data.invalid_comments > 0) {
         toast.warning(`${response.data.invalid_comments} comments were skipped because they were not suitable for analysis.`, 
           { duration: 5000 })
@@ -90,7 +98,6 @@ export default function BulkAnalysis() {
     } catch (error) {
       console.error('Error:', error)
       
-      // Handle specific error for irrelevant content
       if (error.response?.status === 400 && error.response?.data?.error?.includes('No valid comments')) {
         toast.error('Your file does not contain any valid comments for sentiment analysis.', { duration: 5000 })
         
@@ -101,7 +108,6 @@ export default function BulkAnalysis() {
         toast.error(error.response?.data?.error || 'Failed to analyze file')
       }
       
-      // Reset the file input if there's an error
       if (fileInputRef.current) {
         fileInputRef.current.value = null
       }
@@ -112,7 +118,6 @@ export default function BulkAnalysis() {
     }
   }
 
-  // Animation variants for framer-motion
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -239,7 +244,12 @@ export default function BulkAnalysis() {
 
               <motion.button
                 className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-black bg-accent hover:bg-accent-dark hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-all duration-300 transform hover:scale-105"
-                onClick={analyzeBulk}
+                onClick={() => {
+                  setLoading(true);
+                  setTimeout(() => {
+                    analyzeBulk();
+                  }, 10);
+                }}
                 disabled={loading || !file}
                 whileHover={{ scale: loading ? 1 : 1.03 }}
                 whileTap={{ scale: loading ? 1 : 0.98 }}
@@ -267,12 +277,13 @@ export default function BulkAnalysis() {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.2 }}
                   >
                     <motion.img 
                       src="/loadingCat.gif" 
                       alt="Loading..." 
                       className="w-40 h-40 object-contain rounded-lg shadow-lg border-2 border-accent/30"
+                      initial={{ opacity: 1 }}
                       animate={{ 
                         scale: [1, 1.05, 1],
                       }}
