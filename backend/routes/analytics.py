@@ -263,12 +263,18 @@ def analyze_bulk():
         logging.info(f"Saved file to temporary location: {temp_path}")
         
         # Read the file based on its extension
-        if file.filename.endswith('.csv'):
-            df = pd.read_csv(temp_path)
-            logging.info(f"Read CSV file with {len(df)} rows")
-        else:  # Excel file
-            df = pd.read_excel(temp_path)
-            logging.info(f"Read Excel file with {len(df)} rows")
+        try:
+            if file.filename.endswith('.csv'):
+                df = pd.read_csv(temp_path)
+                logging.info(f"Read CSV file with {len(df)} rows")
+            else:  # Excel file
+                df = pd.read_excel(temp_path)
+                logging.info(f"Read Excel file with {len(df)} rows")
+        except Exception as e:
+            # Clean up the temporary file
+            os.remove(temp_path)
+            os.rmdir(temp_dir)
+            return jsonify({'error': f'Failed to read file: {str(e)}'}), 400
             
         # Clean up the temporary file
         os.remove(temp_path)
@@ -276,10 +282,10 @@ def analyze_bulk():
         
         # Look for a column that might contain comments
         comment_column = None
-        possible_columns = ['comment', 'comments', 'text', 'feedback', 'review', 'message']
+        possible_columns = ['comment', 'comments', 'text', 'feedback', 'review', 'message', 'description']
         
         for col in df.columns:
-            if col.lower() in possible_columns:
+            if any(possible_name in col.lower() for possible_name in possible_columns):
                 comment_column = col
                 break
                 
@@ -302,16 +308,27 @@ def analyze_bulk():
             
         # Analyze each comment
         results = []
+        valid_results = []
+        invalid_comments = []
         high_priority = 0
         medium_priority = 0
         low_priority = 0
         total_sentiment_score = 0
+        total_valid_comments = 0
         
         for comment in comments:
             if comment and len(comment.strip()) > 0:
                 try:
                     analysis = analyze_text(comment)
+                    
+                    if analysis is None:
+                        # Comment was deemed invalid for analysis
+                        invalid_comments.append(comment[:100] + ('...' if len(comment) > 100 else ''))
+                        continue
+                        
                     results.append(analysis)
+                    valid_results.append(analysis)
+                    total_valid_comments += 1
                     
                     # Update priority counts
                     if analysis['priority'] == 'High':
@@ -326,20 +343,29 @@ def analyze_bulk():
                     total_sentiment_score += sentiment_score
                 except Exception as e:
                     logging.error(f"Error analyzing comment: {str(e)}")
+                    invalid_comments.append(comment[:100] + ('...' if len(comment) > 100 else ''))
+        
+        # Check if we have any valid comments
+        if total_valid_comments == 0:
+            return jsonify({
+                'error': 'No valid comments for sentiment analysis found in the file',
+                'details': 'The file appears to contain irrelevant content that cannot be analyzed for sentiment.',
+                'invalid_examples': invalid_comments[:5]  # Show a few examples of invalid content
+            }), 400
         
         # Calculate average sentiment
-        average_sentiment = round((total_sentiment_score / total_comments) * 100) if total_comments > 0 else 0
+        average_sentiment = round((total_sentiment_score / total_valid_comments) * 100) if total_valid_comments > 0 else 0
         
         # Update analytics data
         analytics_data = load_data()
-        analytics_data['totalAnalyses'] += total_comments
+        analytics_data['totalAnalyses'] += total_valid_comments
         analytics_data['bulkUploads'] += 1
         analytics_data['lastAnalysisTime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
         # Add to activities
         analytics_data['activities'].insert(0, {
             'title': 'Bulk Analysis Completed',
-            'description': f'Processed {total_comments} comments from {file.filename}',
+            'description': f'Processed {total_valid_comments} valid comments from {file.filename}',
             'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'type': 'success'
         })
@@ -353,12 +379,16 @@ def analyze_bulk():
         # Return results
         return jsonify({
             'total_comments': total_comments,
+            'valid_comments': total_valid_comments,
+            'invalid_comments': len(invalid_comments),
             'average_sentiment': f'{average_sentiment}%',
             'priority_distribution': {
                 'high': high_priority,
                 'medium': medium_priority,
                 'low': low_priority
-            }
+            },
+            'invalid_examples': invalid_comments[:5] if invalid_comments else [],
+            'sample_results': valid_results[:5] if valid_results else []
         })
     except Exception as e:
         logging.error(f"Error in analyze_bulk: {str(e)}")

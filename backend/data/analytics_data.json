@@ -1,9 +1,45 @@
 {
-  "totalAnalyses": 2966,
-  "bulkUploads": 31,
+  "totalAnalyses": 4043,
+  "bulkUploads": 37,
   "averageSentiment": 75,
-  "lastAnalysisTime": "2025-03-04 10:10:33",
+  "lastAnalysisTime": "2025-03-04 11:06:44",
   "activities": [
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-04 11:06:44",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-04 11:06:19",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-04 11:06:07",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 257 comments from 1734603425092-757345783-CP1_SV List_ Sep2024(1) (3).xlsx",
+      "time": "2025-03-04 10:59:53",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 257 comments from 1734603425092-757345783-CP1_SV List_ Sep2024(1) (3).xlsx",
+      "time": "2025-03-04 10:53:44",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 257 comments from 1734603425092-757345783-CP1_SV List_ Sep2024(1) (3).xlsx",
+      "time": "2025-03-04 10:53:36",
+      "type": "success"
+    },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: POSITIVE, Emotion: joy",
@@ -26,42 +62,6 @@
       "title": "Bulk Analysis Completed",
       "description": "Processed 102 comments from customerComments.xlsx",
       "time": "2025-03-04 09:46:24",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:46:13",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:46:03",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:41:40",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:41:32",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:40:14",
-      "type": "success"
-    },
-    {
-      "title": "Bulk Analysis Completed",
-      "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:39:51",
       "type": "success"
     }
   ]

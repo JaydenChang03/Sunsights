@@ -83,13 +83,51 @@ emotion_model = pipeline(
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def is_valid_comment(text):
+    """
+    Determine if a text is valid for sentiment analysis.
+    
+    Args:
+        text (str): The text to validate
+        
+    Returns:
+        bool: True if the text is valid for sentiment analysis, False otherwise
+    """
+    if not isinstance(text, str):
+        return False
+        
+    # Remove whitespace
+    cleaned_text = text.strip()
+    
+    # Check if text is empty
+    if not cleaned_text:
+        return False
+        
+    # Check if text is too short (less than 3 words)
+    if len(cleaned_text.split()) < 3:
+        return False
+        
+    # Check if text contains at least one letter
+    if not any(c.isalpha() for c in cleaned_text):
+        return False
+        
+    # Check if text appears to be just a name or simple identifier
+    # Names typically don't have punctuation or multiple words
+    if len(cleaned_text.split()) <= 2 and all(word[0].isupper() for word in cleaned_text.split()):
+        return False
+        
+    return True
+
 def get_priority_level(sentiment_score, emotion):
     """Determine priority level based on sentiment and emotion."""
-    if sentiment_score < 0.3:  # Very negative sentiment
+    # More nuanced priority determination
+    if sentiment_score < 0.25:  # Very negative sentiment
         return "High"
-    elif emotion in ['anger', 'sadness'] and sentiment_score < 0.5:
+    elif emotion in ['anger', 'sadness', 'fear'] and sentiment_score < 0.45:
         return "High"
-    elif sentiment_score < 0.4 or emotion in ['anger', 'sadness']:
+    elif sentiment_score < 0.35 or emotion in ['anger', 'sadness']:
+        return "Medium"
+    elif emotion in ['fear', 'surprise'] and sentiment_score < 0.6:
         return "Medium"
     else:
         return "Low"
@@ -97,6 +135,10 @@ def get_priority_level(sentiment_score, emotion):
 def analyze_text(text):
     """Analyze a single piece of text."""
     try:
+        # First check if the text is valid for analysis
+        if not is_valid_comment(text):
+            return None
+            
         # Sentiment Analysis
         sentiment_result = sentiment_model(text)[0]
         
@@ -111,7 +153,8 @@ def analyze_text(text):
             'sentiment': sentiment_result['label'],
             'score': sentiment_result['score'],
             'emotion': emotion_result['label'].lower(),
-            'priority': priority
+            'priority': priority,
+            'text': text[:100] + ('...' if len(text) > 100 else '')  # Include truncated text for reference
         }
     except Exception as e:
         logger.error(f"Error analyzing text: {str(e)}")

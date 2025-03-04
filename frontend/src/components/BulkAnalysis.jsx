@@ -79,15 +79,34 @@ export default function BulkAnalysis() {
         },
       })
       setResults(response.data)
+      
+      // Check if there were any invalid comments
+      if (response.data.invalid_comments > 0) {
+        toast.warning(`${response.data.invalid_comments} comments were skipped because they were not suitable for analysis.`, 
+          { duration: 5000 })
+      }
+      
       toast.success('Bulk analysis completed!')
     } catch (error) {
       console.error('Error:', error)
-      toast.error(error.response?.data?.error || 'Failed to analyze file')
+      
+      // Handle specific error for irrelevant content
+      if (error.response?.status === 400 && error.response?.data?.error?.includes('No valid comments')) {
+        toast.error('Your file does not contain any valid comments for sentiment analysis.', { duration: 5000 })
+        
+        if (error.response?.data?.invalid_examples?.length > 0) {
+          console.log('Examples of invalid content:', error.response.data.invalid_examples)
+        }
+      } else {
+        toast.error(error.response?.data?.error || 'Failed to analyze file')
+      }
       
       // Reset the file input if there's an error
       if (fileInputRef.current) {
         fileInputRef.current.value = null
       }
+      setFile(null)
+      setUploadSuccess(false)
     } finally {
       setLoading(false)
     }
@@ -283,172 +302,105 @@ export default function BulkAnalysis() {
               <AnimatePresence>
                 {results && (
                   <motion.div 
-                    className="mt-6 space-y-4"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-8 bg-surface rounded-lg shadow-md p-6 border border-primary/20"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <motion.div 
-                      className="bg-surface rounded-lg p-6 border border-primary/30 shadow-md"
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.2, type: "spring", stiffness: 300, damping: 24 }}
-                    >
-                      <motion.div 
-                        className="flex items-center mb-4"
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                      >
-                        <ChartBarIcon className="h-5 w-5 text-accent mr-2" />
-                        <h3 className="text-lg font-medium text-secondary">
-                          Analysis Results
-                        </h3>
-                      </motion.div>
-                      <div className="space-y-4">
-                        <motion.div 
-                          className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                          variants={containerVariants}
-                          initial="hidden"
-                          animate="visible"
-                        >
-                          <motion.div 
-                            className="bg-primary-dark p-4 rounded-lg shadow border border-primary/20 overflow-hidden relative"
-                            variants={itemVariants}
-                            whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
-                          >
-                            <motion.div 
-                              className="absolute bottom-0 left-0 h-1 bg-accent-dark rounded-b-md"
-                              initial={{ width: 0 }}
-                              animate={{ width: '100%' }}
-                              transition={{ delay: 0.5, duration: 0.8 }}
-                            />
-                            <p className="text-sm font-medium text-secondary/70">Total Comments</p>
-                            <motion.p 
-                              className="mt-1 text-2xl font-semibold text-accent"
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: 0.6, type: "spring" }}
-                            >
-                              {results.total_comments}
-                            </motion.p>
-                          </motion.div>
-                          <motion.div 
-                            className="bg-primary-dark p-4 rounded-lg shadow border border-primary/20 overflow-hidden relative"
-                            variants={itemVariants}
-                            whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
-                          >
-                            <motion.div 
-                              className="absolute bottom-0 left-0 h-1 bg-accent rounded-b-md"
-                              initial={{ width: 0 }}
-                              animate={{ width: '100%' }}
-                              transition={{ delay: 0.7, duration: 0.8 }}
-                            />
-                            <p className="text-sm font-medium text-secondary/70">Average Sentiment</p>
-                            <motion.p 
-                              className="mt-1 text-2xl font-semibold text-accent"
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: 0.8, type: "spring" }}
-                            >
-                              {results.average_sentiment}
-                            </motion.p>
-                          </motion.div>
-                        </motion.div>
-                        
-                        <motion.div 
-                          className="bg-primary-dark p-4 rounded-lg shadow border border-primary/20"
-                          initial={{ opacity: 1, y: 0 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.9, type: "spring", stiffness: 300, damping: 24 }}
-                        >
-                          <h4 className="text-sm font-medium text-secondary/70 mb-2">Priority Distribution</h4>
-                          <div className="space-y-4">
-                            <motion.div 
-                              className="relative pt-1"
-                              initial={{ opacity: 1 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.9 }}
-                            >
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-sm text-secondary">High Priority</span>
-                                <motion.span 
-                                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-accent-dark/20 text-accent"
-                                  initial={{ scale: 1 }}
-                                  animate={{ scale: 1 }}
-                                  transition={{ delay: 1, type: "spring" }}
-                                >
-                                  {results.priority_distribution?.high || 0}
-                                </motion.span>
-                              </div>
-                              <div className="overflow-hidden h-2 text-xs flex rounded bg-primary/30">
-                                <motion.div 
-                                  className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-accent-dark"
-                                  initial={{ width: `${(results.priority_distribution?.high / results.total_comments) * 100}%` }}
-                                  animate={{ width: `${(results.priority_distribution?.high / results.total_comments) * 100}%` }}
-                                  transition={{ delay: 1, duration: 1 }}
-                                />
-                              </div>
-                            </motion.div>
-                            
-                            <motion.div 
-                              className="relative pt-1"
-                              initial={{ opacity: 1 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 1.1 }}
-                            >
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-sm text-secondary">Medium Priority</span>
-                                <motion.span 
-                                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-accent/20 text-accent"
-                                  initial={{ scale: 1 }}
-                                  animate={{ scale: 1 }}
-                                  transition={{ delay: 1.2, type: "spring" }}
-                                >
-                                  {results.priority_distribution?.medium || 0}
-                                </motion.span>
-                              </div>
-                              <div className="overflow-hidden h-2 text-xs flex rounded bg-primary/30">
-                                <motion.div 
-                                  className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-accent"
-                                  initial={{ width: `${(results.priority_distribution?.medium / results.total_comments) * 100}%` }}
-                                  animate={{ width: `${(results.priority_distribution?.medium / results.total_comments) * 100}%` }}
-                                  transition={{ delay: 1.2, duration: 1 }}
-                                />
-                              </div>
-                            </motion.div>
-                            
-                            <motion.div 
-                              className="relative pt-1"
-                              initial={{ opacity: 1 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 1.3 }}
-                            >
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-sm text-secondary">Low Priority</span>
-                                <motion.span 
-                                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-secondary"
-                                  initial={{ scale: 1 }}
-                                  animate={{ scale: 1 }}
-                                  transition={{ delay: 1.4, type: "spring" }}
-                                >
-                                  {results.priority_distribution?.low || 0}
-                                </motion.span>
-                              </div>
-                              <div className="overflow-hidden h-2 text-xs flex rounded bg-primary/30">
-                                <motion.div 
-                                  className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary"
-                                  initial={{ width: `${(results.priority_distribution?.low / results.total_comments) * 100}%` }}
-                                  animate={{ width: `${(results.priority_distribution?.low / results.total_comments) * 100}%` }}
-                                  transition={{ delay: 1.4, duration: 1 }}
-                                />
-                              </div>
-                            </motion.div>
-                          </div>
-                        </motion.div>
+                    <h3 className="text-lg font-semibold text-secondary mb-4 flex items-center">
+                      <ChartBarIcon className="h-5 w-5 text-accent mr-2" />
+                      Analysis Results
+                    </h3>
+                    
+                    {results.invalid_comments > 0 && (
+                      <div className="mb-4 p-3 bg-warning/10 border border-warning/30 rounded-md">
+                        <p className="text-sm text-warning-dark">
+                          <span className="font-medium">Note:</span> {results.invalid_comments} items were skipped because they were not suitable for sentiment analysis.
+                        </p>
                       </div>
-                    </motion.div>
+                    )}
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div className="bg-primary/10 rounded-lg p-4">
+                        <p className="text-sm text-secondary/70">Total Comments</p>
+                        <p className="text-2xl font-bold text-secondary">{results.total_comments}</p>
+                        {results.valid_comments !== undefined && (
+                          <p className="text-xs text-secondary/70 mt-1">
+                            {results.valid_comments} valid for analysis
+                          </p>
+                        )}
+                      </div>
+                      <div className="bg-primary/10 rounded-lg p-4">
+                        <p className="text-sm text-secondary/70">Average Sentiment</p>
+                        <p className="text-2xl font-bold text-accent">{results.average_sentiment}</p>
+                      </div>
+                      <div className="bg-primary/10 rounded-lg p-4">
+                        <p className="text-sm text-secondary/70">Priority Distribution</p>
+                        <div className="flex items-center space-x-2 mt-2">
+                          <span className="inline-block w-3 h-3 bg-red-500 rounded-full"></span>
+                          <span className="text-sm text-secondary">{results.priority_distribution.high} High</span>
+                        </div>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="inline-block w-3 h-3 bg-yellow-500 rounded-full"></span>
+                          <span className="text-sm text-secondary">{results.priority_distribution.medium} Medium</span>
+                        </div>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="inline-block w-3 h-3 bg-green-500 rounded-full"></span>
+                          <span className="text-sm text-secondary">{results.priority_distribution.low} Low</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {results.sample_results && results.sample_results.length > 0 && (
+                      <div className="mt-6">
+                        <h4 className="text-md font-medium text-secondary mb-3">Sample Results</h4>
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-primary/20">
+                            <thead>
+                              <tr>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-secondary/70 uppercase tracking-wider">Text</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-secondary/70 uppercase tracking-wider">Sentiment</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-secondary/70 uppercase tracking-wider">Emotion</th>
+                                <th className="px-4 py-2 text-left text-xs font-medium text-secondary/70 uppercase tracking-wider">Priority</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-primary/10">
+                              {results.sample_results.map((item, index) => (
+                                <tr key={index} className={index % 2 === 0 ? 'bg-primary/5' : ''}>
+                                  <td className="px-4 py-2 text-sm text-secondary">{item.text}</td>
+                                  <td className="px-4 py-2 text-sm">
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                      item.sentiment === 'POSITIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                    }`}>
+                                      {item.sentiment}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-2 text-sm text-secondary capitalize">{item.emotion}</td>
+                                  <td className="px-4 py-2 text-sm">
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                      item.priority === 'High' ? 'bg-red-100 text-red-800' : 
+                                      item.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
+                                      'bg-green-100 text-green-800'
+                                    }`}>
+                                      {item.priority}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="mt-6 flex justify-end">
+                      <button
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent"
+                        onClick={() => setResults(null)}
+                      >
+                        Analyze Another File
+                      </button>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
