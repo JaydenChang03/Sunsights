@@ -251,10 +251,9 @@ export default function BulkAnalysis() {
                     <motion.img 
                       src="/loadingCat.gif" 
                       alt="Loading..." 
-                      className="w-40 h-40 rounded-lg shadow-lg border-2 border-accent/30"
+                      className="w-40 h-40 object-contain rounded-lg shadow-lg border-2 border-accent/30"
                       animate={{ 
                         scale: [1, 1.05, 1],
-                        rotate: [0, 2, 0, -2, 0]
                       }}
                       transition={{ 
                         duration: 2,
@@ -320,7 +319,7 @@ export default function BulkAnalysis() {
                             whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
                           >
                             <motion.div 
-                              className="absolute bottom-0 left-0 h-1 bg-accent rounded-b-md"
+                              className="absolute bottom-0 left-0 h-1 bg-accent-dark rounded-b-md"
                               initial={{ width: 0 }}
                               animate={{ width: '100%' }}
                               transition={{ delay: 0.5, duration: 0.8 }}
@@ -360,14 +359,15 @@ export default function BulkAnalysis() {
                         
                         <motion.div 
                           className="bg-primary-dark p-4 rounded-lg shadow border border-primary/20"
-                          variants={itemVariants}
-                          whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                          initial={{ opacity: 1, y: 0 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.9, type: "spring", stiffness: 300, damping: 24 }}
                         >
                           <h4 className="text-sm font-medium text-secondary/70 mb-2">Priority Distribution</h4>
                           <div className="space-y-4">
                             <motion.div 
                               className="relative pt-1"
-                              initial={{ opacity: 0 }}
+                              initial={{ opacity: 1 }}
                               animate={{ opacity: 1 }}
                               transition={{ delay: 0.9 }}
                             >
@@ -375,7 +375,7 @@ export default function BulkAnalysis() {
                                 <span className="text-sm text-secondary">High Priority</span>
                                 <motion.span 
                                   className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-accent-dark/20 text-accent"
-                                  initial={{ scale: 0 }}
+                                  initial={{ scale: 1 }}
                                   animate={{ scale: 1 }}
                                   transition={{ delay: 1, type: "spring" }}
                                 >
@@ -385,7 +385,7 @@ export default function BulkAnalysis() {
                               <div className="overflow-hidden h-2 text-xs flex rounded bg-primary/30">
                                 <motion.div 
                                   className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-accent-dark"
-                                  initial={{ width: 0 }}
+                                  initial={{ width: `${(results.priority_distribution?.high / results.total_comments) * 100}%` }}
                                   animate={{ width: `${(results.priority_distribution?.high / results.total_comments) * 100}%` }}
                                   transition={{ delay: 1, duration: 1 }}
                                 />
@@ -394,7 +394,7 @@ export default function BulkAnalysis() {
                             
                             <motion.div 
                               className="relative pt-1"
-                              initial={{ opacity: 0 }}
+                              initial={{ opacity: 1 }}
                               animate={{ opacity: 1 }}
                               transition={{ delay: 1.1 }}
                             >
@@ -402,7 +402,7 @@ export default function BulkAnalysis() {
                                 <span className="text-sm text-secondary">Medium Priority</span>
                                 <motion.span 
                                   className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-accent/20 text-accent"
-                                  initial={{ scale: 0 }}
+                                  initial={{ scale: 1 }}
                                   animate={{ scale: 1 }}
                                   transition={{ delay: 1.2, type: "spring" }}
                                 >
@@ -412,7 +412,7 @@ export default function BulkAnalysis() {
                               <div className="overflow-hidden h-2 text-xs flex rounded bg-primary/30">
                                 <motion.div 
                                   className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-accent"
-                                  initial={{ width: 0 }}
+                                  initial={{ width: `${(results.priority_distribution?.medium / results.total_comments) * 100}%` }}
                                   animate={{ width: `${(results.priority_distribution?.medium / results.total_comments) * 100}%` }}
                                   transition={{ delay: 1.2, duration: 1 }}
                                 />
@@ -421,7 +421,7 @@ export default function BulkAnalysis() {
                             
                             <motion.div 
                               className="relative pt-1"
-                              initial={{ opacity: 0 }}
+                              initial={{ opacity: 1 }}
                               animate={{ opacity: 1 }}
                               transition={{ delay: 1.3 }}
                             >
@@ -429,7 +429,7 @@ export default function BulkAnalysis() {
                                 <span className="text-sm text-secondary">Low Priority</span>
                                 <motion.span 
                                   className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-secondary"
-                                  initial={{ scale: 0 }}
+                                  initial={{ scale: 1 }}
                                   animate={{ scale: 1 }}
                                   transition={{ delay: 1.4, type: "spring" }}
                                 >
@@ -439,7 +439,7 @@ export default function BulkAnalysis() {
                               <div className="overflow-hidden h-2 text-xs flex rounded bg-primary/30">
                                 <motion.div 
                                   className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary"
-                                  initial={{ width: 0 }}
+                                  initial={{ width: `${(results.priority_distribution?.low / results.total_comments) * 100}%` }}
                                   animate={{ width: `${(results.priority_distribution?.low / results.total_comments) * 100}%` }}
                                   transition={{ delay: 1.4, duration: 1 }}
                                 />

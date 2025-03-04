@@ -1,67 +1,67 @@
 {
-  "totalAnalyses": 1639,
-  "bulkUploads": 18,
+  "totalAnalyses": 2863,
+  "bulkUploads": 30,
   "averageSentiment": 75,
-  "lastAnalysisTime": "2025-03-04 09:37:11",
+  "lastAnalysisTime": "2025-03-04 09:48:47",
   "activities": [
     {
       "title": "Bulk Analysis Completed",
       "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:37:11",
+      "time": "2025-03-04 09:48:47",
       "type": "success"
     },
     {
       "title": "Bulk Analysis Completed",
       "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:36:49",
+      "time": "2025-03-04 09:46:24",
       "type": "success"
     },
     {
       "title": "Bulk Analysis Completed",
       "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:19:24",
+      "time": "2025-03-04 09:46:13",
       "type": "success"
     },
     {
       "title": "Bulk Analysis Completed",
       "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:14:38",
+      "time": "2025-03-04 09:46:03",
       "type": "success"
     },
     {
       "title": "Bulk Analysis Completed",
       "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:10:56",
+      "time": "2025-03-04 09:41:40",
       "type": "success"
     },
     {
       "title": "Bulk Analysis Completed",
       "description": "Processed 102 comments from customerComments.xlsx",
-      "time": "2025-03-04 09:10:54",
+      "time": "2025-03-04 09:41:32",
       "type": "success"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: love",
-      "time": "2025-03-04 08:34:48",
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 comments from customerComments.xlsx",
+      "time": "2025-03-04 09:40:14",
       "type": "success"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: joy",
-      "time": "2025-03-03 11:09:14",
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 comments from customerComments.xlsx",
+      "time": "2025-03-04 09:39:51",
       "type": "success"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy",
-      "time": "2025-03-03 10:53:44",
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 comments from customerComments.xlsx",
+      "time": "2025-03-04 09:39:43",
       "type": "success"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-03 10:48:27",
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 comments from customerComments.xlsx",
+      "time": "2025-03-04 09:39:31",
       "type": "success"
     }
   ]
