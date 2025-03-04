@@ -1,0 +1,230 @@
+/* Advanced sidebar animations and effects */
+
+/* Subtle background animation */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.sidebar-bg-animation {
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+  position: relative;
+}
+
+/* Animated particles effect */
+.sidebar-bg-animation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 35%, rgba(221, 161, 94, 0.05) 2px, transparent 2px),
+    radial-gradient(circle at 75% 44%, rgba(221, 161, 94, 0.05) 2px, transparent 2px),
+    radial-gradient(circle at 46% 52%, rgba(221, 161, 94, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 35% 85%, rgba(221, 161, 94, 0.05) 2px, transparent 2px),
+    radial-gradient(circle at 62% 67%, rgba(221, 161, 94, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 82% 77%, rgba(221, 161, 94, 0.05) 2px, transparent 2px);
+  background-size: 150px 150px;
+  opacity: 0.5;
+  z-index: 0;
+  animation: particleFloat 60s linear infinite;
+  pointer-events: none; /* Ensure particles don't interfere with clicks */
+}
+
+@keyframes particleFloat {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 150px 150px;
+  }
+}
+
+/* Menu item hover effect - improved for better visibility */
+.menu-item-hover {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Remove the before pseudo-element that might be causing visibility issues */
+.menu-item-hover::before {
+  content: none;
+}
+
+/* Simplified hover effect with solid background instead of gradient */
+.menu-item-hover:hover {
+  background-color: rgba(96, 108, 56, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+/* Ensure text and icons ALWAYS stay visible with high contrast */
+.menu-text,
+.icon-container svg {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 5;
+  position: relative;
+}
+
+/* Active menu item styling */
+.active-menu-item {
+  position: relative;
+  box-shadow: 0 2px 8px rgba(96, 108, 56, 0.15);
+  background: linear-gradient(to right, rgba(96, 108, 56, 0.8), rgba(96, 108, 56, 0.7)) !important;
+}
+
+.active-menu-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 100%;
+  background-color: #dda15e;
+  box-shadow: 0 0 8px rgba(221, 161, 94, 0.4);
+  pointer-events: none;
+}
+
+/* Subtle pulse animation for active menu item */
+@keyframes activePulse {
+  0% {
+    box-shadow: 0 2px 8px rgba(96, 108, 56, 0.15);
+  }
+  50% {
+    box-shadow: 0 2px 10px rgba(96, 108, 56, 0.25);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(96, 108, 56, 0.15);
+  }
+}
+
+.active-menu-item {
+  animation: activePulse 3s infinite;
+}
+
+/* Logo animation */
+@keyframes logoGlow {
+  0% {
+    filter: drop-shadow(0 0 2px rgba(221, 161, 94, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 4px rgba(221, 161, 94, 0.4));
+  }
+  100% {
+    filter: drop-shadow(0 0 2px rgba(221, 161, 94, 0.3));
+  }
+}
+
+.logo-glow {
+  animation: logoGlow 3s ease-in-out infinite;
+}
+
+/* Logo hover effect - subtle but noticeable */
+.logo-glow:hover {
+  filter: drop-shadow(0 0 6px rgba(221, 161, 94, 0.6)) !important;
+  transition: filter 0.3s ease;
+}
+
+/* Icon subtle animation on hover */
+.icon-container svg {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.menu-item-hover:hover .icon-container svg {
+  transform: translateY(-1px);
+  color: #dda15e !important;
+}
+
+/* Staggered animation for menu items on load */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-fade-in > * {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.stagger-fade-in > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-fade-in > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-fade-in > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-fade-in > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-fade-in > *:nth-child(5) { animation-delay: 0.5s; }
+
+/* Logout button special effect */
+.logout-btn-hover {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Remove the before pseudo-element that might be causing visibility issues */
+.logout-btn-hover::before {
+  content: none;
+}
+
+.logout-btn-hover:hover {
+  background-color: rgba(255, 100, 100, 0.1);
+}
+
+/* 3D push effect on click - subtle feedback */
+.menu-item-hover:active,
+.logout-btn-hover:active {
+  transform: scale(0.98) !important;
+  transition: transform 0.1s ease;
+}
+
+/* Subtle background noise texture */
+.sidebar-bg-animation::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.015;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-bg-animation,
+  .sidebar-bg-animation::before,
+  .sidebar-bg-animation::after,
+  .menu-item-hover:hover,
+  .active-menu-item,
+  .logo-glow,
+  .stagger-fade-in > * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  .menu-item-hover:hover,
+  .active-menu-item,
+  .logout-btn-hover:hover {
+    border: 2px solid CanvasText;
+  }
+}
