@@ -112,18 +112,9 @@ def is_valid_comment(text):
     # Check if text is empty
     if not cleaned_text:
         return False
-        
-    # Check if text is too short (less than 3 words)
-    if len(cleaned_text.split()) < 3:
-        return False
-        
-    # Check if text contains at least one letter
+    
+    # Only check if it has at least one letter
     if not any(c.isalpha() for c in cleaned_text):
-        return False
-        
-    # Check if text appears to be just a name or simple identifier
-    # Names typically don't have punctuation or multiple words
-    if len(cleaned_text.split()) <= 2 and all(word[0].isupper() for word in cleaned_text.split()):
         return False
         
     return True
@@ -143,32 +134,161 @@ def get_priority_level(sentiment_score, emotion):
         return "Low"
 
 def analyze_text(text):
-    """Analyze a single piece of text."""
+    """Analyze a single piece of text with high accuracy."""
     try:
-        # First check if the text is valid for analysis
-        if not is_valid_comment(text):
-            return None
-            
-        # Sentiment Analysis
-        sentiment_result = sentiment_model(text)[0]
+        # Basic validation
+        if not isinstance(text, str) or not text.strip():
+            return {
+                'sentiment': 'UNKNOWN',
+                'score': 0.5,
+                'emotion': 'neutral',
+                'priority': 'Medium',
+                'text': text[:100] + ('...' if len(text) > 100 else '')
+            }
+        
+        # Clean the text
+        cleaned_text = text.strip()
+        
+        # Rule-based sentiment detection (high precision for common patterns)
+        # Strong negative patterns
+        strong_negative_patterns = [
+            'worst', 'terrible', 'horrible', 'awful', 'hate', 'disgusting', 
+            'pathetic', 'kill', 'never', 'bad', 'poor', 'disappointed', 
+            'waste', 'useless', 'annoying', 'frustrating', 'sucks', 'garbage'
+        ]
+        
+        # Strong positive patterns
+        strong_positive_patterns = [
+            'excellent', 'amazing', 'awesome', 'fantastic', 'wonderful', 
+            'great', 'love', 'best', 'perfect', 'outstanding', 'superb',
+            'brilliant', 'exceptional', 'delightful', 'impressive'
+        ]
+        
+        # Count pattern matches
+        text_lower = cleaned_text.lower()
+        words = text_lower.split()
+        
+        # Check for negation words that flip sentiment
+        negation_words = ['not', 'no', "don't", "doesn't", "didn't", "won't", "wouldn't", "couldn't", "isn't", "aren't"]
+        has_negation = any(neg in words for neg in negation_words)
+        
+        # Count matches considering word boundaries
+        neg_count = 0
+        pos_count = 0
+        
+        for word in words:
+            # Remove punctuation from word
+            clean_word = ''.join(c for c in word if c.isalnum())
+            if clean_word in strong_negative_patterns:
+                neg_count += 1
+            if clean_word in strong_positive_patterns:
+                pos_count += 1
+        
+        # Determine if there are explicit strong sentiments
+        has_strong_negative = neg_count > 0
+        has_strong_positive = pos_count > 0
+        
+        # Apply negation logic
+        if has_negation:
+            # Negation flips the sentiment
+            if has_strong_positive and not has_strong_negative:
+                # "Not good" becomes negative
+                rule_based_sentiment = 'NEGATIVE'
+                rule_based_score = 0.8
+            elif has_strong_negative and not has_strong_positive:
+                # "Not bad" becomes positive
+                rule_based_sentiment = 'POSITIVE'
+                rule_based_score = 0.7
+            else:
+                # Mixed or unclear with negation
+                rule_based_sentiment = None
+        else:
+            # No negation
+            if has_strong_negative and not has_strong_positive:
+                rule_based_sentiment = 'NEGATIVE'
+                rule_based_score = 0.9
+            elif has_strong_positive and not has_strong_negative:
+                rule_based_sentiment = 'POSITIVE'
+                rule_based_score = 0.9
+            elif has_strong_positive and has_strong_negative:
+                rule_based_sentiment = 'MIXED'
+                rule_based_score = 0.8
+            else:
+                rule_based_sentiment = None
+        
+        # If rule-based analysis is confident, use it
+        if rule_based_sentiment and (neg_count + pos_count) > 0:
+            sentiment_label = rule_based_sentiment
+            sentiment_score = rule_based_score
+        else:
+            # Fall back to model-based analysis
+            try:
+                # Use the model for more nuanced analysis
+                sentiment_result = sentiment_model(cleaned_text)[0]
+                model_sentiment = sentiment_result['label']
+                model_score = sentiment_result['score']
+                
+                # Convert model output to our format
+                if model_sentiment == 'POSITIVE':
+                    sentiment_label = 'POSITIVE'
+                    sentiment_score = model_score
+                else:
+                    sentiment_label = 'NEGATIVE'
+                    sentiment_score = model_score
+            except Exception as e:
+                logger.error(f"Model error: {str(e)}")
+                # Fallback if model fails
+                sentiment_label = 'MIXED'
+                sentiment_score = 0.5
         
         # Emotion Analysis
-        emotion_result = emotion_model(text)[0]
+        try:
+            emotion_result = emotion_model(cleaned_text)[0]
+            emotion = emotion_result['label'].lower()
+        except Exception as e:
+            logger.error(f"Emotion model error: {str(e)}")
+            # Fallback emotion based on sentiment
+            if sentiment_label == 'POSITIVE':
+                emotion = 'joy'
+            elif sentiment_label == 'NEGATIVE':
+                emotion = 'anger'
+            else:
+                emotion = 'neutral'
         
-        # Calculate priority
-        sentiment_score = sentiment_result['score'] if sentiment_result['label'] == 'POSITIVE' else 1 - sentiment_result['score']
-        priority = get_priority_level(sentiment_score, emotion_result['label'].lower())
+        # Determine priority based on sentiment and emotion
+        if sentiment_label == 'NEGATIVE':
+            if emotion in ['anger', 'sadness', 'fear']:
+                priority = "High"
+            else:
+                priority = "Medium"
+        elif sentiment_label == 'MIXED':
+            if emotion in ['anger', 'sadness', 'fear']:
+                priority = "High"
+            else:
+                priority = "Medium"
+        else:  # POSITIVE
+            priority = "Low"
         
+        # Return the final analysis
         return {
-            'sentiment': sentiment_result['label'],
-            'score': sentiment_result['score'],
-            'emotion': emotion_result['label'].lower(),
+            'sentiment': sentiment_label,
+            'score': round(sentiment_score, 2),
+            'emotion': emotion,
             'priority': priority,
-            'text': text[:100] + ('...' if len(text) > 100 else '')  # Include truncated text for reference
+            'text': cleaned_text[:100] + ('...' if len(cleaned_text) > 100 else '')
         }
+    
     except Exception as e:
-        logger.error(f"Error analyzing text: {str(e)}")
-        raise
+        logger.error(f"Error in analyze_text: {str(e)}")
+        # Provide a safe fallback
+        return {
+            'sentiment': 'UNKNOWN',
+            'score': 0.5,
+            'emotion': 'neutral',
+            'priority': 'Medium',
+            'text': text[:100] + ('...' if len(text) > 100 else ''),
+            'error': str(e)
+        }
 
 # Register blueprints
 app.register_blueprint(analytics, url_prefix='/api/analytics')

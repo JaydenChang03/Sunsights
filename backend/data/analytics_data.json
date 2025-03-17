@@ -1,67 +1,67 @@
 {
-  "totalAnalyses": 4974,
+  "totalAnalyses": 5024,
   "bulkUploads": 46,
   "averageSentiment": 75,
-  "lastAnalysisTime": "2025-03-17 10:28:27",
+  "lastAnalysisTime": "2025-03-17 11:44:35",
   "activities": [
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: sadness",
-      "time": "2025-03-17 10:28:27",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: sadness",
-      "time": "2025-03-17 10:27:40",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: sadness",
-      "time": "2025-03-17 10:27:28",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-17 11:44:35",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-17 10:27:11",
+      "time": "2025-03-17 11:44:29",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-17 11:44:11",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: NEGATIVE, Emotion: sadness",
-      "time": "2025-03-17 10:26:55",
+      "time": "2025-03-17 11:11:30",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: joy",
+      "time": "2025-03-17 11:05:34",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: POSITIVE, Emotion: joy",
-      "time": "2025-03-17 10:07:18",
+      "time": "2025-03-17 11:01:17",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy",
-      "time": "2025-03-17 10:01:38",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-17 10:52:27",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy",
-      "time": "2025-03-17 10:01:28",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-17 10:50:14",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: anger",
-      "time": "2025-03-17 10:01:27",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-17 10:50:08",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: anger",
-      "time": "2025-03-17 10:01:24",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-17 10:50:05",
       "type": "success"
     }
   ]

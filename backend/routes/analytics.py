@@ -182,6 +182,10 @@ def analyze_single():
         # Analyze the text
         result = analyze_text(text)
         
+        # Check if analysis was successful
+        if result is None:
+            return jsonify({'error': 'Could not analyze text. Text may be invalid.'}), 400
+            
         # Update analytics data
         analytics_data = load_data()
         analytics_data['totalAnalyses'] += 1

@@ -176,7 +176,12 @@ export default function Dashboard() {
   // Helper function to get color based on sentiment
   const getSentimentColor = (sentiment) => {
     if (!sentiment) return 'text-secondary';
-    return sentiment === 'POSITIVE' ? 'text-green-500' : 'text-red-500';
+    switch (sentiment) {
+      case 'POSITIVE': return 'text-green-500';
+      case 'NEGATIVE': return 'text-red-500';
+      case 'MIXED': return 'text-amber-500';
+      default: return 'text-secondary';
+    }
   };
 
   // Helper function to get color based on priority
@@ -302,6 +307,7 @@ export default function Dashboard() {
                     <p className="text-sm text-secondary">Score:</p>
                     <p className="font-medium text-primary">
                       {Math.round(analysisResult.sentiment_score * 100)}%
+                      {analysisResult.sentiment === 'MIXED' && <span className="ml-2 text-xs text-amber-500">(Mixed)</span>}
                     </p>
                   </div>
                   <div>
