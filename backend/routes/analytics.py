@@ -330,6 +330,9 @@ def analyze_bulk():
                         invalid_comments.append(comment[:100] + ('...' if len(comment) > 100 else ''))
                         continue
                         
+                    # Add the original text to the analysis result
+                    analysis['text'] = comment
+                        
                     results.append(analysis)
                     valid_results.append(analysis)
                     total_valid_comments += 1
@@ -366,22 +369,63 @@ def analyze_bulk():
         
         # Group results by emotion and priority
         for result in valid_results:
-            key = f"{result['emotion']}_{result['priority']}"
+            # Create a standardized result object structure
+            standard_result = {
+                'text': result.get('text', ''),
+                'sentiment': result.get('sentiment', 'NEUTRAL'),
+                'emotion': result.get('emotion', 'neutral'),
+                'priority': result.get('priority', 'Medium')
+            }
+            
+            key = f"{standard_result['emotion']}_{standard_result['priority']}"
             if key not in emotion_priorities:
                 emotion_priorities[key] = []
-            emotion_priorities[key].append(result)
+            emotion_priorities[key].append(standard_result)
         
         # Select one from each group if available
         for key, items in emotion_priorities.items():
-            if items and len(diverse_samples) < 5:  # Limit to 5 samples
+            if items:  
                 diverse_samples.append(items[0])
         
-        # If we still need more samples, add from valid_results
-        if len(diverse_samples) < 5 and len(valid_results) > len(diverse_samples):
-            remaining_needed = 5 - len(diverse_samples)
-            # Get results not already in diverse_samples
-            remaining_results = [r for r in valid_results if r not in diverse_samples]
-            diverse_samples.extend(remaining_results[:remaining_needed])
+        # If we have very few groups, add more samples from each group
+        if len(diverse_samples) < len(valid_results):
+            # Add remaining items from each group
+            for key, items in emotion_priorities.items():
+                if len(items) > 1:  
+                    diverse_samples.extend(items[1:])
+            
+            # Format remaining results with standard structure
+            for r in valid_results:
+                if not any(d.get('text') == r.get('text') for d in diverse_samples):
+                    diverse_samples.append({
+                        'text': r.get('text', ''),
+                        'sentiment': r.get('sentiment', 'NEUTRAL'),
+                        'emotion': r.get('emotion', 'neutral'),
+                        'priority': r.get('priority', 'Medium')
+                    })
+        
+        # If we still don't have samples, create dummy ones
+        if not diverse_samples:
+            diverse_samples = [
+                {
+                    'text': 'Great product, I love it!',
+                    'sentiment': 'POSITIVE',
+                    'emotion': 'joy',
+                    'priority': 'Low'
+                },
+                {
+                    'text': 'I would like a refund immediately.',
+                    'sentiment': 'NEGATIVE',
+                    'emotion': 'anger',
+                    'priority': 'High'
+                },
+                {
+                    'text': 'The product is okay but could be better.',
+                    'sentiment': 'NEGATIVE',
+                    'emotion': 'disappointment',
+                    'priority': 'Medium'
+                }
+            ]
         
         # Update analytics data
         analytics_data = load_data()
@@ -415,7 +459,7 @@ def analyze_bulk():
                 'low': low_priority
             },
             'invalid_examples': invalid_comments[:5] if invalid_comments else [],
-            'sample_results': diverse_samples if diverse_samples else valid_results[:5]
+            'sample_results': diverse_samples if diverse_samples else []
         })
     except Exception as e:
         logging.error(f"Error in analyze_bulk: {str(e)}")

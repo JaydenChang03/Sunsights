@@ -1,9 +1,45 @@
 {
-  "totalAnalyses": 5275,
-  "bulkUploads": 47,
+  "totalAnalyses": 5798,
+  "bulkUploads": 53,
   "averageSentiment": 75,
-  "lastAnalysisTime": "2025-03-20 13:47:20",
+  "lastAnalysisTime": "2025-03-20 14:25:55",
   "activities": [
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-20 14:25:55",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-20 14:18:01",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-20 14:05:52",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-20 13:56:35",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 13 valid comments from 3-BizAcademia assessment - SocialStyle Qn.xls",
+      "time": "2025-03-20 13:51:50",
+      "type": "success"
+    },
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-20 13:50:32",
+      "type": "success"
+    },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: MIXED, Emotion: neutral",
@@ -26,42 +62,6 @@
       "title": "Text Analysis Completed",
       "description": "Sentiment: NEGATIVE, Emotion: anger",
       "time": "2025-03-20 13:47:03",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:47:00",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:46:56",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:46:47",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: sadness",
-      "time": "2025-03-20 13:42:40",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:42:35",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:42:26",
       "type": "success"
     }
   ]

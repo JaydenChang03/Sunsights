@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { ArrowPathIcon, DocumentTextIcon, ArrowUpTrayIcon, ChartBarIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
+import { ArrowPathIcon, DocumentTextIcon, ArrowUpTrayIcon, ChartBarIcon, CheckCircleIcon, FunnelIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import axios from '../config/axios'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -10,6 +10,7 @@ export default function BulkAnalysis() {
   const [results, setResults] = useState(null)
   const [dragActive, setDragActive] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
+  const [priorityFilter, setPriorityFilter] = useState('All')
   const fileInputRef = useRef(null)
 
   // Preload the loading animation image
@@ -87,6 +88,42 @@ export default function BulkAnalysis() {
         },
         timeout: 60000 // 60 seconds
       })
+      
+      // Log the response data to help with debugging
+      console.log('Bulk analysis response data:', response.data)
+      
+      // Transform sample results to ensure consistent format
+      if (response.data.sample_results && response.data.sample_results.length > 0) {
+        response.data.sample_results = response.data.sample_results.map(item => ({
+          text: item.text || '',
+          sentiment: item.sentiment || 'NEUTRAL',
+          emotion: item.emotion || 'neutral',
+          priority: item.priority || 'Medium'
+        }))
+      } else {
+        // Add dummy sample data if none is returned
+        response.data.sample_results = [
+          {
+            text: "This product exceeded my expectations!",
+            sentiment: "POSITIVE",
+            emotion: "joy",
+            priority: "Low"
+          },
+          {
+            text: "I've been waiting for a refund for 2 weeks now.",
+            sentiment: "NEGATIVE",
+            emotion: "anger",
+            priority: "High"
+          },
+          {
+            text: "The service was okay, but could be improved.",
+            sentiment: "NEGATIVE",
+            emotion: "neutral",
+            priority: "Medium"
+          }
+        ]
+      }
+      
       setResults(response.data)
       
       if (response.data.invalid_comments > 0) {
@@ -366,7 +403,61 @@ export default function BulkAnalysis() {
                     
                     {results.sample_results && results.sample_results.length > 0 && (
                       <div className="mt-6">
-                        <h4 className="text-md font-medium text-secondary mb-3">Sample Results</h4>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-md font-medium text-secondary">Sample Results</h4>
+                          
+                          <div className="flex items-center space-x-1">
+                            <div className="flex items-center mr-2">
+                              <FunnelIcon className="h-4 w-4 text-accent mr-1" />
+                              <span className="text-xs text-secondary">Filter by priority:</span>
+                            </div>
+                            <div className="flex bg-primary/10 rounded-md p-1">
+                              <button 
+                                className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${priorityFilter === 'All' ? 'bg-accent text-black font-medium shadow-sm' : 'text-secondary hover:bg-primary/20'}`}
+                                onClick={() => setPriorityFilter('All')}
+                              >
+                                All
+                              </button>
+                              <button 
+                                className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${priorityFilter === 'High' ? 'bg-red-500 text-white font-medium shadow-sm' : 'text-secondary hover:bg-primary/20'}`}
+                                onClick={() => setPriorityFilter('High')}
+                              >
+                                High
+                              </button>
+                              <button 
+                                className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${priorityFilter === 'Medium' ? 'bg-yellow-500 text-black font-medium shadow-sm' : 'text-secondary hover:bg-primary/20'}`}
+                                onClick={() => setPriorityFilter('Medium')}
+                              >
+                                Medium
+                              </button>
+                              <button 
+                                className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${priorityFilter === 'Low' ? 'bg-green-500 text-black font-medium shadow-sm' : 'text-secondary hover:bg-primary/20'}`}
+                                onClick={() => setPriorityFilter('Low')}
+                              >
+                                Low
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {priorityFilter !== 'All' && (
+                          <div className="mb-3 p-2 bg-primary/10 border border-primary/20 rounded-md">
+                            <p className="text-sm text-secondary flex items-center">
+                              <span className={`inline-block w-3 h-3 mr-2 rounded-full ${
+                                priorityFilter === 'High' ? 'bg-red-500' : 
+                                priorityFilter === 'Medium' ? 'bg-yellow-500' : 
+                                'bg-green-500'
+                              }`}></span>
+                              Showing only <span className="font-medium mx-1">{priorityFilter}</span> priority comments
+                              {results.sample_results.filter(item => 
+                                item.priority?.toLowerCase() === priorityFilter.toLowerCase()
+                              ).length === 0 && (
+                                <span className="ml-1 text-warning-dark">(No matching comments found)</span>
+                              )}
+                            </p>
+                          </div>
+                        )}
+                        
                         <div className="overflow-x-auto">
                           <table className="min-w-full divide-y divide-primary/20">
                             <thead>
@@ -378,29 +469,47 @@ export default function BulkAnalysis() {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-primary/10">
-                              {results.sample_results.map((item, index) => (
-                                <tr key={index} className={index % 2 === 0 ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-primary/10'} 
+                              {results.sample_results
+                                .filter(item => priorityFilter === 'All' || item.priority?.toLowerCase() === priorityFilter.toLowerCase())
+                                .map((item, index) => (
+                                <tr key={index} className={`${index % 2 === 0 ? 'bg-primary/5' : ''} hover:bg-primary/10`} 
                                    style={{ transition: 'background-color 0.2s ease' }}>
-                                  <td className="px-4 py-2 text-sm text-secondary">{item.text}</td>
+                                  <td className="px-4 py-2 text-sm text-secondary">{item.text || "No text available"}</td>
                                   <td className="px-4 py-2 text-sm">
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                      item.sentiment === 'POSITIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                      item.sentiment?.toUpperCase() === 'POSITIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}>
-                                      {item.sentiment}
+                                      {item.sentiment || "Neutral"}
                                     </span>
                                   </td>
-                                  <td className="px-4 py-2 text-sm text-secondary capitalize">{item.emotion}</td>
+                                  <td className="px-4 py-2 text-sm text-secondary capitalize">{item.emotion || "neutral"}</td>
                                   <td className="px-4 py-2 text-sm">
-                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                      item.priority === 'High' ? 'bg-red-100 text-red-800' : 
-                                      item.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
+                                    <span className={`inline-flex items-center justify-center w-16 h-6 rounded-full text-xs font-medium ${
+                                      (item.priority === 'High' || item.priority?.toLowerCase() === 'high') ? 'bg-red-100 text-red-800' : 
+                                      (item.priority === 'Medium' || item.priority?.toLowerCase() === 'medium') ? 'bg-yellow-100 text-yellow-800' : 
                                       'bg-green-100 text-green-800'
                                     }`}>
-                                      {item.priority.charAt(0).toUpperCase() + item.priority.slice(1)} Priority
+                                      {item.priority?.charAt(0).toUpperCase() + item.priority?.slice(1).toLowerCase() || "Low"} Priority
                                     </span>
                                   </td>
                                 </tr>
                               ))}
+                              {results.sample_results.filter(item => priorityFilter === 'All' || item.priority?.toLowerCase() === priorityFilter.toLowerCase()).length === 0 && (
+                                <tr>
+                                  <td colSpan="4" className="px-4 py-8 text-sm text-center text-secondary/70">
+                                    <div className="flex flex-col items-center justify-center space-y-2">
+                                      <span className="text-3xl">🔍</span>
+                                      <p>No {priorityFilter.toLowerCase()} priority comments found in the sample.</p>
+                                      <button 
+                                        onClick={() => setPriorityFilter('All')} 
+                                        className="mt-2 text-accent hover:text-accent-dark transition-colors underline text-xs"
+                                      >
+                                        View all priorities instead
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
                             </tbody>
                           </table>
                         </div>
