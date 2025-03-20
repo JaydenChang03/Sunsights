@@ -1,67 +1,67 @@
 {
-  "totalAnalyses": 5259,
+  "totalAnalyses": 5275,
   "bulkUploads": 47,
   "averageSentiment": 75,
-  "lastAnalysisTime": "2025-03-20 13:37:32",
+  "lastAnalysisTime": "2025-03-20 13:47:20",
   "activities": [
     {
       "title": "Text Analysis Completed",
+      "description": "Sentiment: MIXED, Emotion: neutral",
+      "time": "2025-03-20 13:47:20",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
       "description": "Sentiment: POSITIVE, Emotion: joy",
-      "time": "2025-03-20 13:37:32",
+      "time": "2025-03-20 13:47:13",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: MIXED, Emotion: neutral",
-      "time": "2025-03-20 13:37:26",
+      "description": "Sentiment: MIXED, Emotion: sadness",
+      "time": "2025-03-20 13:47:08",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: MIXED, Emotion: neutral",
-      "time": "2025-03-20 13:37:26",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-20 13:47:03",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-20 13:47:00",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-20 13:46:56",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger",
+      "time": "2025-03-20 13:46:47",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: NEGATIVE, Emotion: sadness",
-      "time": "2025-03-20 13:37:21",
+      "time": "2025-03-20 13:42:40",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:37:17",
+      "time": "2025-03-20 13:42:35",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:37:10",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:33:33",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:33:13",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: sadness",
-      "time": "2025-03-20 13:32:52",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:32:40",
+      "time": "2025-03-20 13:42:26",
       "type": "success"
     }
   ]

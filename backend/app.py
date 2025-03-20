@@ -302,13 +302,25 @@ def analyze_text(text):
     # Also check for exclamation marks with negative words as a sign of anger
     if "!" in text and has_negative:
         is_anger_expression = True
+        
+    # Check for functionality issues (these should be high priority)
+    has_functionality_issue = False
+    functionality_issue_patterns = [
+        "doesn't work", "does not work", "not working", "broken", "malfunction", 
+        "error", "bug", "glitch", "crash", "freezes", "hangs", "stuck", 
+        "failed", "failure", "unusable", "can't use", "cannot use",
+        "not as advertised", "doesn't work as advertised", "does not work as advertised",
+        "false advertising", "misleading", "misrepresented", "not as described",
+        "not what I expected", "not what was promised", "promised", "advertised"
+    ]
+    if any(pattern in text_lower for pattern in functionality_issue_patterns):
+        has_functionality_issue = True
     
     # Check for expressions of sadness/disappointment
     is_sadness_expression = False
     sadness_patterns = [
-        "disappointed", "sad", "unhappy", "regret", "doesn't work", "does not work",
-        "not working", "failed", "failure", "let down", "letdown", "not as advertised",
-        "misleading", "misrepresented", "not as expected", "not what i expected"
+        "disappointed", "sad", "unhappy", "regret", "let down", "letdown",
+        "not as expected", "not what i expected", "dissatisfied", "unsatisfied"
     ]
     if any(pattern in text_lower for pattern in sadness_patterns):
         is_sadness_expression = True
@@ -319,7 +331,9 @@ def analyze_text(text):
         "mixed feelings", "pros and cons", "good and bad", "like and dislike",
         "partly", "somewhat", "kind of", "sort of", "not sure if", "conflicted",
         "on one hand", "on the other hand", "however", "although", "but", 
-        "nevertheless", "nonetheless", "despite", "in spite of", "while", "whereas"
+        "nevertheless", "nonetheless", "despite", "in spite of", "while", "whereas",
+        "concerned", "concern", "worried", "worry", "issue", "issues", "problem",
+        "problems", "drawback", "drawbacks", "downside", "downsides"
     ]
     
     # Check for sentences with both positive and negative elements
@@ -343,7 +357,7 @@ def analyze_text(text):
         # For mixed sentiment, emotion depends on which aspect is stronger
         if 'but overall good' in text_lower or 'but i like' in text_lower:
             emotion = 'joy'
-        elif 'but overall bad' in text_lower or 'but i dislike' in text_lower:
+        elif 'but overall bad' in text_lower or 'but i dislike' in text_lower or 'concern' in text_lower or 'worried' in text_lower or 'issue' in text_lower or 'problem' in text_lower:
             emotion = 'sadness'
         else:
             emotion = 'neutral'
@@ -434,53 +448,16 @@ def analyze_text(text):
                 sentiment_score = 0.5
                 emotion = 'neutral'
     
-    # SPECIAL CASE OVERRIDES - These take precedence over everything
-    
-    # Anger expressions must be anger emotion
-    if any(word in text_lower for word in ["furious", "angry", "mad", "outraged"]):
-        sentiment_label = 'NEGATIVE'
-        sentiment_score = 0.1
-        emotion = 'anger'
-    
-    # "This is not good at all" must be negative/sadness
-    if 'not good' in text_lower or 'not great' in text_lower:
-        sentiment_label = 'NEGATIVE'
-        sentiment_score = 0.9
-        emotion = 'sadness'
-    
-    # "This could be better" must be negative/sadness
-    if 'could be better' in text_lower or 'needs improvement' in text_lower:
-        sentiment_label = 'NEGATIVE'
-        sentiment_score = 0.8
-        emotion = 'sadness'
-    
-    # "This isn't bad actually" must be positive/neutral
-    if any(phrase in text_lower for phrase in [
-        'not bad', "isn't bad", "aren't bad", "wasn't bad", "weren't bad",
-        'not terrible', "isn't terrible", 'not awful', "isn't awful",
-        'not the worst', "isn't the worst"
-    ]):
-        sentiment_label = 'POSITIVE'
-        sentiment_score = 0.6
-        emotion = 'neutral'
-    
-    # Ensure we never return UNKNOWN for sentiment or neutral for emotion
-    # unless it's a double negative case
-    if sentiment_label == 'UNKNOWN':
-        sentiment_label = 'MIXED'
-        sentiment_score = 0.5
-    
-    if emotion == 'neutral' and not has_double_negative and sentiment_label != 'MIXED':
-        # Default to joy for positive, sadness for negative
-        if sentiment_label == 'POSITIVE':
-            emotion = 'joy'
-        elif sentiment_label == 'NEGATIVE':
-            emotion = 'sadness'
-        else:
-            emotion = 'joy'  # Default to joy if truly unclear
-    
     # Determine priority based on sentiment and emotion
     priority = get_priority_level(sentiment_score, emotion)
+    
+    # Special case override: If mixed sentiment with concerns, ensure Medium Priority
+    if is_mixed_sentiment and any(word in text_lower for word in ["concern", "concerned", "worry", "worried", "issue", "issues", "problem", "problems", "reliability", "unreliable"]):
+        priority = "Medium"
+    
+    # Special case override: If functionality issue, ensure High Priority
+    if has_functionality_issue:
+        priority = "High"
     
     # Generate response suggestions based on sentiment and emotion
     response_suggestions = generate_response_suggestions(sentiment_label, emotion)
