@@ -153,7 +153,11 @@ def generate_response_suggestions(sentiment, emotion):
     elif sentiment == 'NEGATIVE':
         suggestions.append("We're sorry to hear about your experience.")
         suggestions.append("Thank you for bringing this to our attention.")
-    else:  # MIXED or UNKNOWN
+    elif sentiment == 'MIXED':
+        suggestions.append("Thank you for your balanced feedback.")
+        suggestions.append("We appreciate your thoughtful assessment.")
+        suggestions.append("Thank you for sharing both the positives and areas for improvement.")
+    else:  # UNKNOWN
         suggestions.append("Thank you for your feedback.")
         suggestions.append("We appreciate you taking the time to share your thoughts.")
     
@@ -176,9 +180,16 @@ def generate_response_suggestions(sentiment, emotion):
     elif emotion == 'love':
         suggestions.append("We're thrilled that you love our service!")
         suggestions.append("Your enthusiasm means a lot to us.")
+    elif emotion == 'neutral' and sentiment == 'MIXED':
+        suggestions.append("We'd love to hear more about what aspects you liked and what could be improved.")
+        suggestions.append("Your balanced perspective helps us improve our service.")
+        suggestions.append("Could you tell us more about which aspects met your expectations and which didn't?")
     
-    # Add a follow-up question
-    suggestions.append("Is there anything specific we can help you with?")
+    # Add a follow-up question based on sentiment
+    if sentiment == 'MIXED':
+        suggestions.append("Which aspects would you like us to prioritize improving?")
+    else:
+        suggestions.append("Is there anything specific we can help you with?")
     
     # Return 3 suggestions at most
     return suggestions[:3]
@@ -267,10 +278,42 @@ def analyze_text(text):
     if any(pattern in text_lower for pattern in love_patterns):
         is_love_expression = True
     
+    # Check for mixed sentiment expressions
+    is_mixed_sentiment = False
+    mixed_patterns = [
+        "mixed feelings", "pros and cons", "good and bad", "like and dislike",
+        "partly", "somewhat", "kind of", "sort of", "not sure if", "conflicted",
+        "on one hand", "on the other hand", "however", "although", "but", 
+        "nevertheless", "nonetheless", "despite", "in spite of", "while", "whereas"
+    ]
+    
+    # Check for sentences with both positive and negative elements
+    has_both_positive_and_negative = has_positive and has_negative
+    
+    # Detect mixed sentiment if there are mixed patterns or both positive and negative elements
+    if any(pattern in text_lower for pattern in mixed_patterns) or has_both_positive_and_negative:
+        is_mixed_sentiment = True
+    
     # DETERMINE SENTIMENT
     
+    # Special case for mixed sentiment
+    if is_mixed_sentiment:
+        sentiment_label = 'MIXED'
+        # Calculate sentiment score based on balance of positive/negative
+        if has_positive and has_negative:
+            # If both present, use a middle score with slight bias toward negative
+            sentiment_score = 0.45
+        else:
+            sentiment_score = 0.5
+        # For mixed sentiment, emotion depends on which aspect is stronger
+        if 'but overall good' in text_lower or 'but i like' in text_lower:
+            emotion = 'joy'
+        elif 'but overall bad' in text_lower or 'but i dislike' in text_lower:
+            emotion = 'sadness'
+        else:
+            emotion = 'neutral'
     # Special case for expressions of surprise
-    if is_surprise_expression:
+    elif is_surprise_expression:
         sentiment_label = 'POSITIVE'
         sentiment_score = 0.9
         emotion = 'surprise'
@@ -376,7 +419,7 @@ def analyze_text(text):
         sentiment_label = 'MIXED'
         sentiment_score = 0.5
     
-    if emotion == 'neutral' and not has_double_negative:
+    if emotion == 'neutral' and not has_double_negative and sentiment_label != 'MIXED':
         # Default to joy for positive, sadness for negative
         if sentiment_label == 'POSITIVE':
             emotion = 'joy'
@@ -388,6 +431,8 @@ def analyze_text(text):
     # Determine priority based on sentiment and emotion
     if sentiment_label == 'NEGATIVE':
         priority = 'high'
+    elif sentiment_label == 'MIXED':
+        priority = 'medium'  # Mixed sentiment should always be medium priority
     elif sentiment_label == 'POSITIVE' and sentiment_score > 0.8:
         priority = 'low'
     else:

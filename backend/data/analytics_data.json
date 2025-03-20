@@ -1,68 +1,68 @@
 {
-  "totalAnalyses": 5211,
+  "totalAnalyses": 5225,
   "bulkUploads": 47,
   "averageSentiment": 75,
-  "lastAnalysisTime": "2025-03-20 11:32:49",
+  "lastAnalysisTime": "2025-03-20 11:40:00",
   "activities": [
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: fear",
-      "time": "2025-03-20 11:32:49",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: love",
-      "time": "2025-03-20 11:31:41",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: surprise",
-      "time": "2025-03-20 11:30:08",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy",
-      "time": "2025-03-20 11:27:28",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy",
-      "time": "2025-03-20 11:27:20",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: UNKNOWN, Emotion: neutral",
-      "time": "2025-03-20 11:27:07",
+      "description": "Sentiment: MIXED, Emotion: neutral",
+      "time": "2025-03-20 11:40:00",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: NEGATIVE, Emotion: sadness",
-      "time": "2025-03-20 11:26:53",
+      "time": "2025-03-20 11:36:27",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: POSITIVE, Emotion: neutral",
-      "time": "2025-03-20 11:26:37",
+      "time": "2025-03-20 11:36:01",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: NEGATIVE, Emotion: sadness",
-      "time": "2025-03-20 11:26:26",
+      "time": "2025-03-20 11:35:35",
       "type": "success"
     },
     {
-      "title": "Analysis Error",
-      "description": "name 'generate_response_suggestions' is not define...",
-      "time": "2025-03-20 11:23:13",
-      "type": "error"
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: sadness",
+      "time": "2025-03-20 11:35:15",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy",
+      "time": "2025-03-20 11:34:45",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: sadness",
+      "time": "2025-03-20 11:34:22",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: love",
+      "time": "2025-03-20 11:34:11",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: surprise",
+      "time": "2025-03-20 11:33:59",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: surprise",
+      "time": "2025-03-20 11:33:57",
+      "type": "success"
     }
   ]
 }

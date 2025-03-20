@@ -78,6 +78,8 @@ export default function SingleAnalysis() {
         return 'text-primary-light';
       case 'NEGATIVE':
         return 'text-accent-dark';
+      case 'MIXED':
+        return 'text-yellow-400';
       case 'UNKNOWN':
         return 'text-gray-400';
       default:
