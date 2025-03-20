@@ -320,7 +320,7 @@ export default function Dashboard() {
                     <p className="text-sm text-secondary">Priority:</p>
                     <div className="flex items-center">
                       <span className={`inline-block w-3 h-3 rounded-full mr-2 ${getPriorityColor(analysisResult.priority)}`}></span>
-                      <span className="font-medium text-primary">{analysisResult.priority}</span>
+                      <span className="font-medium text-primary">{analysisResult.priority.charAt(0).toUpperCase() + analysisResult.priority.slice(1)} Priority</span>
                     </div>
                   </div>
                 </div>

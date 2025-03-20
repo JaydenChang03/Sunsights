@@ -212,7 +212,7 @@ def analyze_single():
                 'sentiment': result['sentiment'],
                 'sentiment_score': result.get('sentiment_score', 0.5),
                 'emotion': result['emotion'],
-                'priority': result.get('priority', 'medium')
+                'priority': result.get('priority', 'Medium')
             }
         })
     except Exception as e:
@@ -343,7 +343,7 @@ def analyze_bulk():
                         low_priority += 1
                         
                     # Update sentiment score
-                    sentiment_score = analysis['score'] if analysis['sentiment'] == 'POSITIVE' else 1 - analysis['score']
+                    sentiment_score = analysis.get('sentiment_score', 0.5)
                     total_sentiment_score += sentiment_score
                 except Exception as e:
                     logging.error(f"Error analyzing comment: {str(e)}")

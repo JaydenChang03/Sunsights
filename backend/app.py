@@ -121,15 +121,22 @@ def is_valid_comment(text):
 
 def get_priority_level(sentiment_score, emotion):
     """Determine priority level based on sentiment and emotion."""
-    # More nuanced priority determination
-    if sentiment_score < 0.25:  # Very negative sentiment
+    # Anger and strong negative emotions are always High priority
+    if emotion == 'anger' or emotion == 'fear':
         return "High"
-    elif emotion in ['anger', 'sadness', 'fear'] and sentiment_score < 0.45:
+    # Very negative sentiment is High priority
+    elif sentiment_score < 0.3:
         return "High"
-    elif sentiment_score < 0.35 or emotion in ['anger', 'sadness']:
+    # Moderately negative sentiment with negative emotions are High priority
+    elif sentiment_score < 0.4 and emotion in ['sadness', 'disgust']:
+        return "High"
+    # Moderately negative sentiment or certain emotions are Medium priority
+    elif sentiment_score < 0.5 or emotion in ['sadness', 'fear']:
         return "Medium"
-    elif emotion in ['fear', 'surprise'] and sentiment_score < 0.6:
+    # Neutral sentiment with surprise is Medium priority
+    elif emotion == 'surprise' and 0.4 <= sentiment_score <= 0.6:
         return "Medium"
+    # Everything else is Low priority
     else:
         return "Low"
 
@@ -283,9 +290,17 @@ def analyze_text(text):
     anger_patterns = [
         "furious", "angry", "mad", "outraged", "terrible service", "awful service", 
         "horrible service", "unacceptable", "ridiculous", "infuriating", "frustrated",
-        "annoyed", "irritated", "upset", "appalling"
+        "annoyed", "irritated", "upset", "appalling", "terrible", "horrible", "awful",
+        "worst", "hate", "disgusting", "pathetic", "useless", "waste", "poor service",
+        "bad service", "poor quality", "bad quality", "disappointed", "disappointing",
+        "complaint", "complain", "unsatisfied", "dissatisfied", "not happy", "unhappy",
+        "never again", "never use", "never buy", "never shop", "never return", "never recommend"
     ]
+    # Check if any anger pattern is in the text
     if any(pattern in text_lower for pattern in anger_patterns):
+        is_anger_expression = True
+    # Also check for exclamation marks with negative words as a sign of anger
+    if "!" in text and has_negative:
         is_anger_expression = True
     
     # Check for expressions of sadness/disappointment
@@ -345,7 +360,7 @@ def analyze_text(text):
     # Special case for expressions of anger
     elif is_anger_expression:
         sentiment_label = 'NEGATIVE'
-        sentiment_score = 0.9
+        sentiment_score = 0.1  # Very negative sentiment score for anger
         emotion = 'anger'
     # Special case for expressions of sadness/disappointment
     elif is_sadness_expression:
@@ -424,7 +439,7 @@ def analyze_text(text):
     # Anger expressions must be anger emotion
     if any(word in text_lower for word in ["furious", "angry", "mad", "outraged"]):
         sentiment_label = 'NEGATIVE'
-        sentiment_score = 0.9
+        sentiment_score = 0.1
         emotion = 'anger'
     
     # "This is not good at all" must be negative/sadness
@@ -465,14 +480,7 @@ def analyze_text(text):
             emotion = 'joy'  # Default to joy if truly unclear
     
     # Determine priority based on sentiment and emotion
-    if sentiment_label == 'NEGATIVE':
-        priority = 'high'
-    elif sentiment_label == 'MIXED':
-        priority = 'medium'  # Mixed sentiment should always be medium priority
-    elif sentiment_label == 'POSITIVE' and sentiment_score > 0.8:
-        priority = 'low'
-    else:
-        priority = 'medium'
+    priority = get_priority_level(sentiment_score, emotion)
     
     # Generate response suggestions based on sentiment and emotion
     response_suggestions = generate_response_suggestions(sentiment_label, emotion)

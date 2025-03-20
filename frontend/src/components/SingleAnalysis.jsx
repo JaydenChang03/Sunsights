@@ -36,7 +36,7 @@ const PriorityBadge = ({ priority }) => {
 
   return (
     <span className={`px-3 py-1 rounded-full text-sm font-medium border ${colors[priority] || 'bg-primary-light/20 text-primary-light border-primary-light/30'}`}>
-      {priority} Priority
+      {priority.charAt(0).toUpperCase() + priority.slice(1)} Priority
     </span>
   )
 }
