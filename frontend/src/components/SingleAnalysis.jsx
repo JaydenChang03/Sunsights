@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ArrowPathIcon, ChatBubbleBottomCenterTextIcon, HeartIcon, FaceSmileIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import { ArrowPathIcon, ChatBubbleBottomCenterTextIcon, HeartIcon, FaceSmileIcon, ExclamationTriangleIcon, QuestionMarkCircleIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import axios from '../config/axios'
 
@@ -11,9 +11,17 @@ const EmotionIcon = ({ emotion }) => {
     case 'joy':
       return <FaceSmileIcon className="h-6 w-6 text-accent" />
     case 'love':
-      return <HeartIcon className="h-6 w-6 text-accent-dark" />
+      return <HeartIcon className="h-6 w-6 text-pink-400" />
     case 'anger':
       return <ExclamationTriangleIcon className="h-6 w-6 text-red-400" />
+    case 'neutral':
+      return <QuestionMarkCircleIcon className="h-6 w-6 text-gray-400" />
+    case 'surprise':
+      return <SparklesIcon className="h-6 w-6 text-yellow-400" />
+    case 'sadness':
+      return <ChatBubbleBottomCenterTextIcon className="h-6 w-6 text-blue-400" />
+    case 'fear':
+      return <ExclamationTriangleIcon className="h-6 w-6 text-purple-400" />
     default:
       return <FaceSmileIcon className="h-6 w-6 text-primary-light" />
   }
@@ -65,7 +73,16 @@ export default function SingleAnalysis() {
   }
 
   const getSentimentColor = (sentiment) => {
-    return sentiment === 'POSITIVE' ? 'text-primary-light' : 'text-accent-dark'
+    switch(sentiment) {
+      case 'POSITIVE':
+        return 'text-primary-light';
+      case 'NEGATIVE':
+        return 'text-accent-dark';
+      case 'UNKNOWN':
+        return 'text-gray-400';
+      default:
+        return 'text-cream';
+    }
   }
 
   return (
@@ -169,6 +186,20 @@ export default function SingleAnalysis() {
                   <h4 className="text-sm font-medium text-cream/80 mb-2">Analyzed Text</h4>
                   <p className="text-cream/90 text-sm italic">"{results.text}"</p>
                 </div>
+
+                {/* Response Suggestions */}
+                {results.response_suggestions && results.response_suggestions.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="text-sm font-medium text-cream/80 mb-3">Response Suggestions</h4>
+                    <div className="space-y-2">
+                      {results.response_suggestions.map((suggestion, index) => (
+                        <div key={index} className="bg-surface rounded-lg p-3 border border-primary-light/20 hover:border-accent/30 transition-colors duration-200">
+                          <p className="text-cream/90 text-sm">{suggestion}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

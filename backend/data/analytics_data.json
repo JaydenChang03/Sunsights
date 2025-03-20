@@ -1,68 +1,68 @@
 {
-  "totalAnalyses": 5024,
-  "bulkUploads": 46,
+  "totalAnalyses": 5210,
+  "bulkUploads": 47,
   "averageSentiment": 75,
-  "lastAnalysisTime": "2025-03-17 11:44:35",
+  "lastAnalysisTime": "2025-03-20 11:31:41",
   "activities": [
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-17 11:44:35",
+      "description": "Sentiment: POSITIVE, Emotion: love",
+      "time": "2025-03-20 11:31:41",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-17 11:44:29",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-17 11:44:11",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: sadness",
-      "time": "2025-03-17 11:11:30",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: joy",
-      "time": "2025-03-17 11:05:34",
+      "description": "Sentiment: POSITIVE, Emotion: surprise",
+      "time": "2025-03-20 11:30:08",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: POSITIVE, Emotion: joy",
-      "time": "2025-03-17 11:01:17",
+      "time": "2025-03-20 11:27:28",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-17 10:52:27",
+      "description": "Sentiment: POSITIVE, Emotion: joy",
+      "time": "2025-03-20 11:27:20",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-17 10:50:14",
+      "description": "Sentiment: UNKNOWN, Emotion: neutral",
+      "time": "2025-03-20 11:27:07",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-17 10:50:08",
+      "description": "Sentiment: NEGATIVE, Emotion: sadness",
+      "time": "2025-03-20 11:26:53",
       "type": "success"
     },
     {
       "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-17 10:50:05",
+      "description": "Sentiment: POSITIVE, Emotion: neutral",
+      "time": "2025-03-20 11:26:37",
       "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: sadness",
+      "time": "2025-03-20 11:26:26",
+      "type": "success"
+    },
+    {
+      "title": "Analysis Error",
+      "description": "name 'generate_response_suggestions' is not define...",
+      "time": "2025-03-20 11:23:13",
+      "type": "error"
+    },
+    {
+      "title": "Analysis Error",
+      "description": "name 'generate_response_suggestions' is not define...",
+      "time": "2025-03-20 11:21:40",
+      "type": "error"
     }
   ]
 }

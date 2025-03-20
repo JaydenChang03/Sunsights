@@ -210,9 +210,9 @@ def analyze_single():
             'analysis': {
                 'text': text,
                 'sentiment': result['sentiment'],
-                'sentiment_score': result['score'],
+                'sentiment_score': result.get('sentiment_score', 0.5),
                 'emotion': result['emotion'],
-                'priority': result['priority']
+                'priority': result.get('priority', 'medium')
             }
         })
     except Exception as e:
