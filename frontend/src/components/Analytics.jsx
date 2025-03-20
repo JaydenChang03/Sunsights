@@ -131,7 +131,7 @@ export default function Analytics() {
               <div className="bg-surface rounded-xl p-6 border border-primary/10 hover:border-accent/20 transition-all duration-300 group">
                 <h3 className="text-sm font-medium text-secondary/70">Average Sentiment</h3>
                 <p className="text-2xl font-bold text-accent mt-2 group-hover:scale-105 transition-transform">
-                  {data?.summary.averageSentiment}%
+                  {data?.summary.averageSentiment ? data.summary.averageSentiment.toFixed(2) : '0.00'}%
                 </p>
                 <p className="text-sm text-accent/80 mt-2 flex items-center">
                   <span className="inline-block mr-1">↑</span> 5% from last period

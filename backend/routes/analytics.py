@@ -124,12 +124,37 @@ def get_sentiment():
     days = get_days_from_range(time_range)
     timestamps = generate_timestamps(days)
     
+    # Load the user's data to get real analytics
+    user_data = load_data(user_id)
+    
+    # Create realistic data based on the user's averageSentiment and totalAnalyses
+    avg_sentiment = user_data.get('averageSentiment', 75)
+    total_analyses = user_data.get('totalAnalyses', 0)
+    
+    # More stable data for users with more analyses
+    variation = max(5, 20 - min(total_analyses / 5, 15))
+    
+    # Generate positive data around the user's average sentiment
+    positive_data = []
+    for _ in timestamps:
+        if total_analyses > 0:
+            value = max(60, min(90, avg_sentiment + random.uniform(-variation, variation)))
+            positive_data.append(value)
+        else:
+            positive_data.append(random.randint(65, 85))
+    
+    # Generate negative data as the complement to positive (with some noise)
+    negative_data = []
+    for pos in positive_data:
+        neg_value = max(5, min(40, 100 - pos + random.uniform(-5, 5)))
+        negative_data.append(neg_value)
+    
     return jsonify({
         'labels': timestamps,
         'datasets': [
             {
                 'label': 'Positive',
-                'data': [random.randint(65, 85) for _ in timestamps],
+                'data': positive_data,
                 'borderColor': '#34D399',
                 'backgroundColor': 'rgba(52, 211, 153, 0.1)',
                 'fill': True,
@@ -137,7 +162,7 @@ def get_sentiment():
             },
             {
                 'label': 'Negative',
-                'data': [random.randint(15, 35) for _ in timestamps],
+                'data': negative_data,
                 'borderColor': '#F87171',
                 'backgroundColor': 'rgba(248, 113, 113, 0.1)',
                 'fill': True,
@@ -152,17 +177,61 @@ def get_emotions():
     current_user = get_jwt_identity()
     user_id = get_user_id_from_email(current_user)
     
+    # Load the user's data to get real analytics
+    user_data = load_data(user_id)
+    
+    # Extract emotions from activity if available
+    activities = user_data.get('activities', [])
+    emotions_count = {
+        'Joy': 0,
+        'Sadness': 0,
+        'Anger': 0,
+        'Fear': 0,
+        'Surprise': 0,
+        'Love': 0
+    }
+    
+    # Count emotions from activities
+    for activity in activities:
+        description = activity.get('description', '')
+        for emotion in emotions_count.keys():
+            if emotion.lower() in description.lower():
+                emotions_count[emotion] += 1
+    
+    # If no emotions found in activities, generate realistic data
+    total_emotions = sum(emotions_count.values())
+    if total_emotions == 0:
+        avg_sentiment = user_data.get('averageSentiment', 75)
+        
+        # More positive sentiment = more joy and love
+        if avg_sentiment > 80:
+            emotions_count['Joy'] = random.randint(30, 40)
+            emotions_count['Love'] = random.randint(20, 30)
+            emotions_count['Surprise'] = random.randint(10, 20)
+            emotions_count['Sadness'] = random.randint(5, 10)
+            emotions_count['Fear'] = random.randint(3, 8)
+            emotions_count['Anger'] = random.randint(2, 5)
+        # More neutral sentiment
+        elif avg_sentiment > 60:
+            emotions_count['Joy'] = random.randint(20, 30)
+            emotions_count['Surprise'] = random.randint(15, 25)
+            emotions_count['Love'] = random.randint(15, 25)
+            emotions_count['Sadness'] = random.randint(10, 20)
+            emotions_count['Fear'] = random.randint(5, 15)
+            emotions_count['Anger'] = random.randint(5, 15)
+        # More negative sentiment
+        else:
+            emotions_count['Sadness'] = random.randint(25, 35)
+            emotions_count['Anger'] = random.randint(20, 30)
+            emotions_count['Fear'] = random.randint(15, 25)
+            emotions_count['Surprise'] = random.randint(10, 20)
+            emotions_count['Joy'] = random.randint(5, 15)
+            emotions_count['Love'] = random.randint(3, 10)
+    
     return jsonify({
-        'labels': ['Joy', 'Sadness', 'Anger', 'Fear', 'Surprise', 'Love'],
+        'labels': list(emotions_count.keys()),
         'datasets': [{
-            'data': [
-                random.randint(25, 35),
-                random.randint(10, 20),
-                random.randint(5, 15),
-                random.randint(5, 10),
-                random.randint(10, 15),
-                random.randint(20, 30)
-            ],
+            'data': list(emotions_count.values()),
             'backgroundColor': [
                 '#FCD34D',  # Joy
                 '#60A5FA',  # Sadness
@@ -181,22 +250,98 @@ def get_priority():
     current_user = get_jwt_identity()
     user_id = get_user_id_from_email(current_user)
     
+    # Load the user's data to get real analytics
+    user_data = load_data(user_id)
+    
+    # Get the total analyses
+    total_analyses = user_data.get('totalAnalyses', 0)
+    
+    # If there are no analyses, return empty data
+    if total_analyses == 0:
+        return jsonify({
+            'labels': ['Last 7 Days'],
+            'datasets': [
+                {
+                    'label': 'High Priority',
+                    'data': [0],
+                    'backgroundColor': '#F87171',
+                },
+                {
+                    'label': 'Medium Priority',
+                    'data': [0],
+                    'backgroundColor': '#FBBF24',
+                },
+                {
+                    'label': 'Low Priority',
+                    'data': [0],
+                    'backgroundColor': '#34D399',
+                },
+            ]
+        })
+    
+    # Extract priorities from activities
+    activities = user_data.get('activities', [])
+    priorities_count = {'High': 0, 'Medium': 0, 'Low': 0}
+    
+    # Count priorities from activities
+    for activity in activities:
+        description = activity.get('description', '').lower()
+        if 'priority: high' in description:
+            priorities_count['High'] += 1
+        elif 'priority: medium' in description:
+            priorities_count['Medium'] += 1
+        elif 'priority: low' in description:
+            priorities_count['Low'] += 1
+    
+    # Check if we found any priorities
+    total_prioritized = sum(priorities_count.values())
+    
+    # If no priorities found in activities, distribute based on total analyses
+    # to ensure the chart shows the exact number of analyses
+    if total_prioritized == 0:
+        avg_sentiment = user_data.get('averageSentiment', 75)
+        
+        if avg_sentiment > 80:
+            # More positive sentiment = more low priority
+            priorities_count['Low'] = max(0, total_analyses - priorities_count['High'] - priorities_count['Medium'])
+        elif avg_sentiment > 60:
+            # Mixed sentiment = more medium priority
+            priorities_count['Medium'] = max(0, total_analyses - priorities_count['High'] - priorities_count['Low'])
+        else:
+            # More negative sentiment = more high priority
+            priorities_count['High'] = max(0, total_analyses - priorities_count['Medium'] - priorities_count['Low'])
+    
+    # If priorities don't add up to total analyses, adjust to match
+    if sum(priorities_count.values()) != total_analyses:
+        # Find the most important priority based on sentiment
+        avg_sentiment = user_data.get('averageSentiment', 75)
+        if avg_sentiment > 80:
+            priority_to_adjust = 'Low'
+        elif avg_sentiment > 60:
+            priority_to_adjust = 'Medium'
+        else:
+            priority_to_adjust = 'High'
+            
+        # Adjust the priority count to make total match
+        priorities_count[priority_to_adjust] = max(0, total_analyses - 
+            sum(v for k, v in priorities_count.items() if k != priority_to_adjust))
+    
     return jsonify({
         'labels': ['Last 7 Days'],
         'datasets': [
             {
                 'label': 'High Priority',
-                'data': [random.randint(20, 30)],
+                'data': [priorities_count['High']],
                 'backgroundColor': '#F87171',
             },
             {
                 'label': 'Medium Priority',
-                'data': [random.randint(40, 50)],
+                'data': [priorities_count['Medium']],
                 'backgroundColor': '#FBBF24',
             },
             {
                 'label': 'Low Priority',
-                'data': [random.randint(25, 35)],
+                'data': [priorities_count['Low']],
                 'backgroundColor': '#34D399',
             },
         ]

@@ -109,7 +109,7 @@ export default function Dashboard() {
       updatedStats[1].value = bulkUploads.toString();
       
       // Format average sentiment as percentage
-      updatedStats[2].value = `${data.averageSentiment}%`;
+      updatedStats[2].value = `${parseFloat(data.averageSentiment).toFixed(2)}%`;
       
       // Format last analysis time
       updatedStats[3].value = formatTimestamp(data.lastAnalysisTime);
@@ -159,7 +159,7 @@ export default function Dashboard() {
 
     try {
       const response = await axios.post('/api/analytics/analyze', { text });
-      setAnalysisResult(response.data.analysis);
+      setAnalysisResult(response.data.result);
       toast.success('Analysis completed successfully!');
       
       // Refresh dashboard data after successful analysis
