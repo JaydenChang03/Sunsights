@@ -1,9 +1,15 @@
 {
-  "totalAnalyses": 5798,
-  "bulkUploads": 53,
+  "totalAnalyses": 5900,
+  "bulkUploads": 54,
   "averageSentiment": 75,
-  "lastAnalysisTime": "2025-03-20 14:25:55",
+  "lastAnalysisTime": "2025-03-20 14:33:54",
   "activities": [
+    {
+      "title": "Bulk Analysis Completed",
+      "description": "Processed 102 valid comments from customerComments.xlsx",
+      "time": "2025-03-20 14:33:54",
+      "type": "success"
+    },
     {
       "title": "Bulk Analysis Completed",
       "description": "Processed 102 valid comments from customerComments.xlsx",
@@ -56,12 +62,6 @@
       "title": "Text Analysis Completed",
       "description": "Sentiment: MIXED, Emotion: sadness",
       "time": "2025-03-20 13:47:08",
-      "type": "success"
-    },
-    {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger",
-      "time": "2025-03-20 13:47:03",
       "type": "success"
     }
   ]

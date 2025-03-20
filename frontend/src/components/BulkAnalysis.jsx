@@ -11,6 +11,8 @@ export default function BulkAnalysis() {
   const [dragActive, setDragActive] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [priorityFilter, setPriorityFilter] = useState('All')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [resultsPerPage] = useState(5) // Number of results to show per page
   const fileInputRef = useRef(null)
 
   // Preload the loading animation image
@@ -414,25 +416,25 @@ export default function BulkAnalysis() {
                             <div className="flex bg-primary/10 rounded-md p-1">
                               <button 
                                 className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${priorityFilter === 'All' ? 'bg-accent text-black font-medium shadow-sm' : 'text-secondary hover:bg-primary/20'}`}
-                                onClick={() => setPriorityFilter('All')}
+                                onClick={() => {setPriorityFilter('All'); setCurrentPage(1);}}
                               >
                                 All
                               </button>
                               <button 
                                 className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${priorityFilter === 'High' ? 'bg-red-500 text-white font-medium shadow-sm' : 'text-secondary hover:bg-primary/20'}`}
-                                onClick={() => setPriorityFilter('High')}
+                                onClick={() => {setPriorityFilter('High'); setCurrentPage(1);}}
                               >
                                 High
                               </button>
                               <button 
                                 className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${priorityFilter === 'Medium' ? 'bg-yellow-500 text-black font-medium shadow-sm' : 'text-secondary hover:bg-primary/20'}`}
-                                onClick={() => setPriorityFilter('Medium')}
+                                onClick={() => {setPriorityFilter('Medium'); setCurrentPage(1);}}
                               >
                                 Medium
                               </button>
                               <button 
                                 className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${priorityFilter === 'Low' ? 'bg-green-500 text-black font-medium shadow-sm' : 'text-secondary hover:bg-primary/20'}`}
-                                onClick={() => setPriorityFilter('Low')}
+                                onClick={() => {setPriorityFilter('Low'); setCurrentPage(1);}}
                               >
                                 Low
                               </button>
@@ -471,6 +473,7 @@ export default function BulkAnalysis() {
                             <tbody className="divide-y divide-primary/10">
                               {results.sample_results
                                 .filter(item => priorityFilter === 'All' || item.priority?.toLowerCase() === priorityFilter.toLowerCase())
+                                .slice((currentPage - 1) * resultsPerPage, currentPage * resultsPerPage) // Pagination slice
                                 .map((item, index) => (
                                 <tr key={index} className={`${index % 2 === 0 ? 'bg-primary/5' : ''} hover:bg-primary/10`} 
                                    style={{ transition: 'background-color 0.2s ease' }}>
@@ -484,7 +487,7 @@ export default function BulkAnalysis() {
                                   </td>
                                   <td className="px-4 py-2 text-sm text-secondary capitalize">{item.emotion || "neutral"}</td>
                                   <td className="px-4 py-2 text-sm">
-                                    <span className={`inline-flex items-center justify-center w-16 h-6 rounded-full text-xs font-medium ${
+                                    <span className={`inline-flex items-center justify-center w-24 h-6 rounded-full text-xs font-medium ${
                                       (item.priority === 'High' || item.priority?.toLowerCase() === 'high') ? 'bg-red-100 text-red-800' : 
                                       (item.priority === 'Medium' || item.priority?.toLowerCase() === 'medium') ? 'bg-yellow-100 text-yellow-800' : 
                                       'bg-green-100 text-green-800'
@@ -513,6 +516,46 @@ export default function BulkAnalysis() {
                             </tbody>
                           </table>
                         </div>
+                        
+                        {/* Pagination Controls */}
+                        {results.sample_results.filter(item => priorityFilter === 'All' || item.priority?.toLowerCase() === priorityFilter.toLowerCase()).length > 0 && (
+                          <div className="flex justify-between items-center mt-4 px-2">
+                            <div className="text-xs text-secondary">
+                              Showing {Math.min((currentPage - 1) * resultsPerPage + 1, 
+                                results.sample_results.filter(item => priorityFilter === 'All' || 
+                                  item.priority?.toLowerCase() === priorityFilter.toLowerCase()).length)} - {Math.min(currentPage * resultsPerPage, 
+                                results.sample_results.filter(item => priorityFilter === 'All' || 
+                                  item.priority?.toLowerCase() === priorityFilter.toLowerCase()).length)} of {results.sample_results.filter(item => priorityFilter === 'All' || 
+                                item.priority?.toLowerCase() === priorityFilter.toLowerCase()).length} comments
+                            </div>
+                            <div className="flex space-x-2">
+                              <button 
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                  currentPage === 1 
+                                    ? 'bg-primary/10 text-secondary/50 cursor-not-allowed' 
+                                    : 'bg-primary/20 text-secondary hover:bg-primary/30'
+                                }`}
+                              >
+                                Previous
+                              </button>
+                              <button
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                disabled={currentPage * resultsPerPage >= results.sample_results.filter(item => 
+                                  priorityFilter === 'All' || item.priority?.toLowerCase() === priorityFilter.toLowerCase()).length}
+                                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                  currentPage * resultsPerPage >= results.sample_results.filter(item => 
+                                    priorityFilter === 'All' || item.priority?.toLowerCase() === priorityFilter.toLowerCase()).length
+                                    ? 'bg-primary/10 text-secondary/50 cursor-not-allowed' 
+                                    : 'bg-primary/20 text-secondary hover:bg-primary/30'
+                                }`}
+                              >
+                                Next
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                     
