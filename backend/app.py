@@ -278,6 +278,26 @@ def analyze_text(text):
     if any(pattern in text_lower for pattern in love_patterns):
         is_love_expression = True
     
+    # Check for expressions of anger
+    is_anger_expression = False
+    anger_patterns = [
+        "furious", "angry", "mad", "outraged", "terrible service", "awful service", 
+        "horrible service", "unacceptable", "ridiculous", "infuriating", "frustrated",
+        "annoyed", "irritated", "upset", "appalling"
+    ]
+    if any(pattern in text_lower for pattern in anger_patterns):
+        is_anger_expression = True
+    
+    # Check for expressions of sadness/disappointment
+    is_sadness_expression = False
+    sadness_patterns = [
+        "disappointed", "sad", "unhappy", "regret", "doesn't work", "does not work",
+        "not working", "failed", "failure", "let down", "letdown", "not as advertised",
+        "misleading", "misrepresented", "not as expected", "not what i expected"
+    ]
+    if any(pattern in text_lower for pattern in sadness_patterns):
+        is_sadness_expression = True
+    
     # Check for mixed sentiment expressions
     is_mixed_sentiment = False
     mixed_patterns = [
@@ -322,6 +342,16 @@ def analyze_text(text):
         sentiment_label = 'POSITIVE'
         sentiment_score = 0.95
         emotion = 'love'
+    # Special case for expressions of anger
+    elif is_anger_expression:
+        sentiment_label = 'NEGATIVE'
+        sentiment_score = 0.9
+        emotion = 'anger'
+    # Special case for expressions of sadness/disappointment
+    elif is_sadness_expression:
+        sentiment_label = 'NEGATIVE'
+        sentiment_score = 0.8
+        emotion = 'sadness'
     # Special case for double negatives
     elif has_double_negative and not has_negative:
         sentiment_label = 'POSITIVE'
@@ -390,6 +420,12 @@ def analyze_text(text):
                 emotion = 'neutral'
     
     # SPECIAL CASE OVERRIDES - These take precedence over everything
+    
+    # Anger expressions must be anger emotion
+    if any(word in text_lower for word in ["furious", "angry", "mad", "outraged"]):
+        sentiment_label = 'NEGATIVE'
+        sentiment_score = 0.9
+        emotion = 'anger'
     
     # "This is not good at all" must be negative/sadness
     if 'not good' in text_lower or 'not great' in text_lower:
