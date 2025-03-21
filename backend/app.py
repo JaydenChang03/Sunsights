@@ -131,7 +131,7 @@ def get_priority_level(sentiment_score, emotion):
     elif sentiment_score < 0.4 and emotion in ['sadness', 'disgust']:
         return "High"
     # Moderately negative sentiment or certain emotions are Medium priority
-    elif sentiment_score < 0.5 or emotion in ['sadness', 'fear']:
+    elif sentiment_score < 0.5 or emotion in ['sadness']:
         return "Medium"
     # Neutral sentiment with surprise is Medium priority
     elif emotion == 'surprise' and 0.4 <= sentiment_score <= 0.6:
