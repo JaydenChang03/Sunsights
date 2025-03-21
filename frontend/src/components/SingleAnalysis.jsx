@@ -58,8 +58,14 @@ export default function SingleAnalysis() {
         text: comment 
       })
       
-      if (response.data.analysis) {
-        setResults(response.data.analysis)
+      if (response.data.result) {
+        // Combine the result and suggestions into a single analysis object
+        const analysisData = {
+          ...response.data.result,
+          text: comment,
+          response_suggestions: response.data.suggestions || []
+        }
+        setResults(analysisData)
         toast.success('Analysis completed!')
       } else {
         throw new Error(response.data.error || 'Analysis failed')

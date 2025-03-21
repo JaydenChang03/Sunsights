@@ -78,10 +78,10 @@ export default function BulkAnalysis() {
     setResults(null)
     
     const formData = new FormData()
-    const blob = new Blob([file], { type: file.type })
-    formData.append('file', blob, file.name)
+    formData.append('file', file)
 
     try {
+      // Add a small delay to ensure the file is properly attached to FormData
       await new Promise(resolve => setTimeout(resolve, 300))
       
       const response = await axios.post(`/api/analytics/analyze-bulk`, formData, {
@@ -94,17 +94,31 @@ export default function BulkAnalysis() {
       // Log the response data to help with debugging
       console.log('Bulk analysis response data:', response.data)
       
-      // Transform sample results to ensure consistent format
-      if (response.data.sample_results && response.data.sample_results.length > 0) {
-        response.data.sample_results = response.data.sample_results.map(item => ({
-          text: item.text || '',
-          sentiment: item.sentiment || 'NEUTRAL',
-          emotion: item.emotion || 'neutral',
-          priority: item.priority || 'Medium'
-        }))
-      } else {
-        // Add dummy sample data if none is returned
-        response.data.sample_results = [
+      // Create a properly structured result object that matches the component's expectations
+      const processedResults = {
+        total_comments: response.data.totalAnalyzed || 0,
+        valid_comments: response.data.totalAnalyzed || 0,
+        invalid_comments: 0,
+        average_sentiment: response.data.summary?.averageSentiment || 
+          (response.data.summary?.sentimentDistribution?.Positive > 
+           response.data.summary?.sentimentDistribution?.Negative ? 'Positive' : 'Negative'),
+        priority_distribution: {
+          high: response.data.summary?.priorityDistribution?.High || 0,
+          medium: response.data.summary?.priorityDistribution?.Medium || 0,
+          low: response.data.summary?.priorityDistribution?.Low || 0
+        },
+        sample_results: Array.isArray(response.data.results) ? 
+          response.data.results.map(item => ({
+            text: item.text || '',
+            sentiment: item.sentiment || 'NEUTRAL',
+            emotion: item.emotion || 'neutral',
+            priority: item.priority || 'Medium'
+          })) : []
+      }
+      
+      // If no sample results are returned, add dummy data
+      if (!processedResults.sample_results || processedResults.sample_results.length === 0) {
+        processedResults.sample_results = [
           {
             text: "This product exceeded my expectations!",
             sentiment: "POSITIVE",
@@ -126,16 +140,16 @@ export default function BulkAnalysis() {
         ]
       }
       
-      setResults(response.data)
+      setResults(processedResults)
       
-      if (response.data.invalid_comments > 0) {
-        toast.warning(`${response.data.invalid_comments} comments were skipped because they were not suitable for analysis.`, 
+      if (processedResults.invalid_comments > 0) {
+        toast.warning(`${processedResults.invalid_comments} comments were skipped because they were not suitable for analysis.`, 
           { duration: 5000 })
       }
       
       toast.success('Bulk analysis completed!')
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error during bulk analysis:', error)
       
       if (error.response?.status === 400 && error.response?.data?.error?.includes('No valid comments')) {
         toast.error('Your file does not contain any valid comments for sentiment analysis.', { duration: 5000 })
@@ -283,12 +297,7 @@ export default function BulkAnalysis() {
 
               <motion.button
                 className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-black bg-accent hover:bg-accent-dark hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-all duration-300 transform hover:scale-105"
-                onClick={() => {
-                  setLoading(true);
-                  setTimeout(() => {
-                    analyzeBulk();
-                  }, 10);
-                }}
+                onClick={analyzeBulk}
                 disabled={loading || !file}
                 whileHover={{ scale: loading ? 1 : 1.03 }}
                 whileTap={{ scale: loading ? 1 : 0.98 }}
