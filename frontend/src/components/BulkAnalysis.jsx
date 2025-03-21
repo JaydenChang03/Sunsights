@@ -399,7 +399,11 @@ export default function BulkAnalysis() {
                       </div>
                       <div className="bg-primary/10 rounded-lg p-4 hover:bg-primary/20 transition-colors duration-300 hover:shadow-md">
                         <p className="text-sm text-secondary/70">Average Sentiment</p>
-                        <p className="text-2xl font-bold text-accent">{results.average_sentiment}</p>
+                        <p className="text-2xl font-bold text-accent">
+                          {typeof results.average_sentiment === 'number' 
+                            ? results.average_sentiment.toFixed(2) 
+                            : results.average_sentiment}
+                        </p>
                       </div>
                       <div className="bg-primary/10 rounded-lg p-4 hover:bg-primary/20 transition-colors duration-300 hover:shadow-md">
                         <p className="text-sm text-secondary/70">Priority Distribution</p>

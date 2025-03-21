@@ -6,6 +6,7 @@ import logging
 import os
 import json
 import sqlite3
+import re
 
 analytics = Blueprint('analytics', __name__)
 
@@ -341,20 +342,40 @@ def get_priority():
     # Check if we found any priorities
     total_prioritized = sum(priorities_count.values())
     
-    # If no priorities found in activities, distribute based on total analyses
-    # to ensure the chart shows the exact number of analyses
-    if total_prioritized == 0:
-        avg_sentiment = user_data.get('averageSentiment', 75)
+    # If no priorities found in activities or if they don't match total analyses,
+    # distribute based on sentiment scores from activities
+    if total_prioritized == 0 or total_prioritized != total_analyses:
+        # Reset counts if we're going to recalculate
+        priorities_count = {'High': 0, 'Medium': 0, 'Low': 0}
         
-        if avg_sentiment > 80:
-            # More positive sentiment = more low priority
-            priorities_count['Low'] = max(0, total_analyses - priorities_count['High'] - priorities_count['Medium'])
-        elif avg_sentiment > 60:
-            # Mixed sentiment = more medium priority
-            priorities_count['Medium'] = max(0, total_analyses - priorities_count['High'] - priorities_count['Low'])
-        else:
-            # More negative sentiment = more high priority
-            priorities_count['High'] = max(0, total_analyses - priorities_count['Medium'] - priorities_count['Low'])
+        # Go through all activities and extract sentiment and priority information
+        for activity in activities:
+            description = activity.get('description', '').lower()
+            
+            # Extract sentiment score if available
+            sentiment_match = re.search(r'sentiment: (positive|negative|neutral)', description, re.IGNORECASE)
+            if sentiment_match:
+                sentiment = sentiment_match.group(1).lower()
+                
+                # Assign priority based on sentiment
+                if sentiment == 'negative':
+                    priorities_count['High'] += 1
+                elif sentiment == 'neutral':
+                    priorities_count['Medium'] += 1
+                elif sentiment == 'positive':
+                    priorities_count['Low'] += 1
+                else:
+                    # Default to medium if sentiment is unclear
+                    priorities_count['Medium'] += 1
+            else:
+                # If no sentiment info, check for explicit priority
+                priority_match = re.search(r'priority: (high|medium|low)', description, re.IGNORECASE)
+                if priority_match:
+                    priority = priority_match.group(1).capitalize()
+                    priorities_count[priority] += 1
+                else:
+                    # Default to medium if no priority info
+                    priorities_count['Medium'] += 1
     
     # If priorities don't add up to total analyses, adjust to match
     if sum(priorities_count.values()) != total_analyses:

@@ -98,6 +98,13 @@ export default function SingleAnalysis() {
     }
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); 
+      analyzeComment();
+    }
+  };
+
   return (
     <div className="w-full min-h-screen bg-background p-6">
       <div className="max-w-3xl mx-auto">
@@ -130,12 +137,7 @@ export default function SingleAnalysis() {
                   placeholder="Type your comment here..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      analyzeComment();
-                    }
-                  }}
+                  onKeyDown={handleKeyDown}
                 />
                 <div className="absolute right-3 bottom-3 text-cream/50 text-sm">
                   Press Enter to analyze, Shift+Enter for new line
