@@ -203,30 +203,31 @@ def get_emotions():
     if total_emotions == 0:
         avg_sentiment = user_data.get('averageSentiment', 75)
         
-        # More positive sentiment = more joy and love
+        # Instead of using random values, use fixed values based on sentiment
+        # This ensures consistent results between refreshes
         if avg_sentiment > 80:
-            emotions_count['Joy'] = random.randint(30, 40)
-            emotions_count['Love'] = random.randint(20, 30)
-            emotions_count['Surprise'] = random.randint(10, 20)
-            emotions_count['Sadness'] = random.randint(5, 10)
-            emotions_count['Fear'] = random.randint(3, 8)
-            emotions_count['Anger'] = random.randint(2, 5)
+            emotions_count['Joy'] = 35
+            emotions_count['Love'] = 25
+            emotions_count['Surprise'] = 15
+            emotions_count['Sadness'] = 8
+            emotions_count['Fear'] = 5
+            emotions_count['Anger'] = 3
         # More neutral sentiment
         elif avg_sentiment > 60:
-            emotions_count['Joy'] = random.randint(20, 30)
-            emotions_count['Surprise'] = random.randint(15, 25)
-            emotions_count['Love'] = random.randint(15, 25)
-            emotions_count['Sadness'] = random.randint(10, 20)
-            emotions_count['Fear'] = random.randint(5, 15)
-            emotions_count['Anger'] = random.randint(5, 15)
+            emotions_count['Joy'] = 25
+            emotions_count['Surprise'] = 20
+            emotions_count['Love'] = 20
+            emotions_count['Sadness'] = 15
+            emotions_count['Fear'] = 10
+            emotions_count['Anger'] = 10
         # More negative sentiment
         else:
-            emotions_count['Sadness'] = random.randint(25, 35)
-            emotions_count['Anger'] = random.randint(20, 30)
-            emotions_count['Fear'] = random.randint(15, 25)
-            emotions_count['Surprise'] = random.randint(10, 20)
-            emotions_count['Joy'] = random.randint(5, 15)
-            emotions_count['Love'] = random.randint(3, 10)
+            emotions_count['Sadness'] = 30
+            emotions_count['Anger'] = 25
+            emotions_count['Fear'] = 20
+            emotions_count['Surprise'] = 15
+            emotions_count['Joy'] = 10
+            emotions_count['Love'] = 5
     
     return jsonify({
         'labels': list(emotions_count.keys()),
@@ -636,10 +637,6 @@ def analyze_bulk():
                     logging.error(f"Error analyzing comment: {str(e)}")
                     continue
                 
-                # Limit to 100 results to prevent overwhelming the frontend
-                if len(results) >= 100:
-                    break
-                    
             # If no valid comments were found
             if not results:
                 # Generate some mock results to prevent empty analysis
@@ -711,6 +708,31 @@ def analyze_bulk():
             negative_weight = sentiment_counts['Negative'] / len(results) if len(results) > 0 else 0
             average_sentiment = 'Positive' if positive_weight > negative_weight else 'Negative'
             
+            # Record individual analyses for each comment to ensure they appear in analytics
+            for result in results:
+                # Add each comment as an individual analysis in the user's data
+                # This ensures bulk analyses are included in sentiment trends and emotion distribution
+                analytics_data = load_data(user_id)
+                
+                # Update total analyses count
+                analytics_data['totalAnalyses'] += 1
+                
+                # Add activity for this analysis
+                analytics_data['activities'].insert(0, {
+                    'title': f"Analyzed comment from bulk upload",
+                    'description': f"Sentiment: {result['sentiment']}, Priority: {result['priority']}",
+                    'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    'type': 'analysis'
+                })
+                
+                # Keep activities list manageable
+                if len(analytics_data['activities']) > 100:
+                    analytics_data['activities'] = analytics_data['activities'][:100]
+                
+                # Save the updated data
+                save_data(analytics_data, user_id)
+            
+            # Return all results to the frontend, don't limit to 100
             response = {
                 'totalAnalyzed': len(results),
                 'results': results,

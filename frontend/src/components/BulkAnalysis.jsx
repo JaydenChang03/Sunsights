@@ -12,7 +12,7 @@ export default function BulkAnalysis() {
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [priorityFilter, setPriorityFilter] = useState('All')
   const [currentPage, setCurrentPage] = useState(1)
-  const [resultsPerPage] = useState(5) // Number of results to show per page
+  const [resultsPerPage, setResultsPerPage] = useState(10) // Increased from 5 to 10 results per page
   const fileInputRef = useRef(null)
 
   // Preload the loading animation image
@@ -537,7 +537,24 @@ export default function BulkAnalysis() {
                                   item.priority?.toLowerCase() === priorityFilter.toLowerCase()).length)} of {results.sample_results.filter(item => priorityFilter === 'All' || 
                                 item.priority?.toLowerCase() === priorityFilter.toLowerCase()).length} comments
                             </div>
-                            <div className="flex space-x-2">
+                            <div className="flex items-center space-x-2">
+                              <div className="flex items-center mr-2">
+                                <span className="text-xs text-secondary mr-2">Results per page:</span>
+                                <select 
+                                  value={resultsPerPage} 
+                                  onChange={(e) => {
+                                    setResultsPerPage(Number(e.target.value));
+                                    setCurrentPage(1); // Reset to first page when changing results per page
+                                  }}
+                                  className="bg-primary/10 text-secondary text-xs rounded-md px-2 py-1 border border-primary/20 focus:outline-none focus:ring-1 focus:ring-accent"
+                                >
+                                  <option value={10}>10</option>
+                                  <option value={25}>25</option>
+                                  <option value={50}>50</option>
+                                  <option value={100}>100</option>
+                                  <option value={results.sample_results.length}>All ({results.sample_results.length})</option>
+                                </select>
+                              </div>
                               <button 
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
