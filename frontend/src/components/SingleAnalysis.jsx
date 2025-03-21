@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { ArrowPathIcon, ChatBubbleBottomCenterTextIcon, HeartIcon, FaceSmileIcon, ExclamationTriangleIcon, QuestionMarkCircleIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import axios from '../config/axios'
+import useAnalyticsData from '../hooks/useAnalyticsData'
 
 // API base URL
 const API_URL = 'http://localhost:5000'
@@ -45,6 +46,7 @@ export default function SingleAnalysis() {
   const [comment, setComment] = useState('')
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(null)
+  const { refetch: refreshAnalytics } = useAnalyticsData()
 
   const analyzeComment = async () => {
     if (!comment.trim()) {
@@ -67,6 +69,9 @@ export default function SingleAnalysis() {
         }
         setResults(analysisData)
         toast.success('Analysis completed!')
+        
+        // Refresh analytics data to update the emotion distribution chart
+        refreshAnalytics()
       } else {
         throw new Error(response.data.error || 'Analysis failed')
       }

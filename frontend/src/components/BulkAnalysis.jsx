@@ -3,6 +3,7 @@ import { ArrowPathIcon, DocumentTextIcon, ArrowUpTrayIcon, ChartBarIcon, CheckCi
 import toast from 'react-hot-toast'
 import axios from '../config/axios'
 import { motion, AnimatePresence } from 'framer-motion'
+import useAnalyticsData from '../hooks/useAnalyticsData'
 
 export default function BulkAnalysis() {
   const [file, setFile] = useState(null)
@@ -14,6 +15,7 @@ export default function BulkAnalysis() {
   const [currentPage, setCurrentPage] = useState(1)
   const [resultsPerPage, setResultsPerPage] = useState(10) // Increased from 5 to 10 results per page
   const fileInputRef = useRef(null)
+  const { refetch: refreshAnalytics } = useAnalyticsData()
 
   // Preload the loading animation image
   useEffect(() => {
@@ -148,6 +150,9 @@ export default function BulkAnalysis() {
       }
       
       toast.success('Bulk analysis completed!')
+      
+      // Refresh analytics data to update the emotion distribution chart
+      refreshAnalytics()
     } catch (error) {
       console.error('Error during bulk analysis:', error)
       

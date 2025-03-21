@@ -21,6 +21,15 @@ DEFAULT_DATA = {
     'bulkUploads': 0,
     'averageSentiment': 75,
     'lastAnalysisTime': None,
+    'emotionCounts': {
+        'Joy': 0,
+        'Sadness': 0,
+        'Anger': 0,
+        'Fear': 0,
+        'Surprise': 0,
+        'Love': 0,
+        'neutral': 0
+    },
     'activities': [
         {
             'title': 'Welcome to Sunsights',
@@ -180,25 +189,22 @@ def get_emotions():
     # Load the user's data to get real analytics
     user_data = load_data(user_id)
     
-    # Extract emotions from activity if available
-    activities = user_data.get('activities', [])
-    emotions_count = {
+    # Use the accumulated emotion counts instead of parsing activities
+    emotions_count = user_data.get('emotionCounts', {
         'Joy': 0,
         'Sadness': 0,
         'Anger': 0,
         'Fear': 0,
         'Surprise': 0,
-        'Love': 0
-    }
+        'Love': 0,
+        'neutral': 0
+    })
     
-    # Count emotions from activities
-    for activity in activities:
-        description = activity.get('description', '')
-        for emotion in emotions_count.keys():
-            if emotion.lower() in description.lower():
-                emotions_count[emotion] += 1
+    # Filter out 'neutral' if we want to focus on the main emotions
+    if 'neutral' in emotions_count and sum(v for k, v in emotions_count.items() if k != 'neutral') > 0:
+        emotions_count = {k: v for k, v in emotions_count.items() if k != 'neutral'}
     
-    # If no emotions found in activities, generate realistic data
+    # If no emotions found, use fixed values based on sentiment
     total_emotions = sum(emotions_count.values())
     if total_emotions == 0:
         avg_sentiment = user_data.get('averageSentiment', 75)
@@ -409,6 +415,30 @@ def analyze_single():
             'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'type': 'success'
         })
+        
+        # Track emotion counts
+        emotion = result['emotion']
+        if emotion:
+            # Normalize emotion name to match our categories
+            emotion_key = emotion.capitalize()
+            if emotion_key not in analytics_data.get('emotionCounts', {}):
+                # If it's not one of our standard emotions, default to neutral
+                emotion_key = 'neutral'
+            
+            # Initialize emotionCounts if it doesn't exist
+            if 'emotionCounts' not in analytics_data:
+                analytics_data['emotionCounts'] = {
+                    'Joy': 0,
+                    'Sadness': 0,
+                    'Anger': 0,
+                    'Fear': 0,
+                    'Surprise': 0,
+                    'Love': 0,
+                    'neutral': 0
+                }
+            
+            # Increment the emotion count
+            analytics_data['emotionCounts'][emotion_key] = analytics_data['emotionCounts'].get(emotion_key, 0) + 1
         
         # Calculate average sentiment
         sentiment_score = result['sentiment_score'] * 100
@@ -724,6 +754,30 @@ def analyze_bulk():
                     'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     'type': 'analysis'
                 })
+                
+                # Track emotion counts
+                emotion = result.get('emotion', '')
+                if emotion:
+                    # Normalize emotion name to match our categories
+                    emotion_key = emotion.capitalize()
+                    if emotion_key not in analytics_data.get('emotionCounts', {}):
+                        # If it's not one of our standard emotions, default to neutral
+                        emotion_key = 'neutral'
+                    
+                    # Initialize emotionCounts if it doesn't exist
+                    if 'emotionCounts' not in analytics_data:
+                        analytics_data['emotionCounts'] = {
+                            'Joy': 0,
+                            'Sadness': 0,
+                            'Anger': 0,
+                            'Fear': 0,
+                            'Surprise': 0,
+                            'Love': 0,
+                            'neutral': 0
+                        }
+                    
+                    # Increment the emotion count
+                    analytics_data['emotionCounts'][emotion_key] = analytics_data['emotionCounts'].get(emotion_key, 0) + 1
                 
                 # Keep activities list manageable
                 if len(analytics_data['activities']) > 100:
