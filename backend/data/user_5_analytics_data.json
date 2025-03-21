@@ -1,0 +1,29 @@
+{
+  "totalAnalyses": 1,
+  "bulkUploads": 1,
+  "averageSentiment": 82.44980156421661,
+  "lastAnalysisTime": "2025-03-21 09:58:00",
+  "emotionCounts": {
+    "Joy": 0,
+    "Sadness": 0,
+    "Anger": 1,
+    "Fear": 0,
+    "Surprise": 0,
+    "Love": 0,
+    "neutral": 0
+  },
+  "activities": [
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: anger",
+      "time": "2025-03-21 09:58:00",
+      "type": "success"
+    },
+    {
+      "title": "Welcome to Sunsights",
+      "description": "Your sentiment analysis dashboard is ready",
+      "time": "2025-03-21 09:52:24",
+      "type": "info"
+    }
+  ]
+}

@@ -84,13 +84,13 @@ export default function BulkAnalysis() {
 
     try {
       // Add a small delay to ensure the file is properly attached to FormData
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise(resolve => setTimeout(resolve, 500))
       
       const response = await axios.post(`/api/analytics/analyze-bulk`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        timeout: 60000 // 60 seconds
+        timeout: 120000 // 120 seconds - increased timeout for large files
       })
       
       // Log the response data to help with debugging
@@ -101,9 +101,10 @@ export default function BulkAnalysis() {
         total_comments: response.data.totalAnalyzed || 0,
         valid_comments: response.data.totalAnalyzed || 0,
         invalid_comments: 0,
-        average_sentiment: response.data.summary?.averageSentiment || 
-          (response.data.summary?.sentimentDistribution?.Positive > 
-           response.data.summary?.sentimentDistribution?.Negative ? 'Positive' : 'Negative'),
+        average_sentiment: typeof response.data.summary?.averageSentiment === 'number' 
+          ? response.data.summary.averageSentiment 
+          : (response.data.summary?.sentimentDistribution?.Positive > 
+             response.data.summary?.sentimentDistribution?.Negative ? 75 : 25),
         priority_distribution: {
           high: response.data.summary?.priorityDistribution?.High || 0,
           medium: response.data.summary?.priorityDistribution?.Medium || 0,
