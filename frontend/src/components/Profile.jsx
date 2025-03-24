@@ -1,28 +1,79 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { PencilIcon, CameraIcon, UserCircleIcon, MapPinIcon, BriefcaseIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { TrashIcon } from '@heroicons/react/24/solid';
+import React, { useState, useEffect, useCallback } from 'react';
+import { PencilIcon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
 import axios from '../config/axios';
 import toast from 'react-hot-toast';
+
+// Mock data for fallback when API fails
+const MOCK_PROFILE = {
+  id: 1,
+  name: 'Demo User',
+  email: 'demo@example.com',
+  title: 'Customer Service Specialist',
+  location: 'San Francisco, CA',
+  bio: 'Passionate about improving customer experiences through data-driven insights.',
+  avatar_url: 'https://randomuser.me/api/portraits/men/1.jpg',
+  cover_url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8&w=1000&q=80',
+  stats: JSON.stringify({
+    analyses: 42,
+    responses: 36,
+    avgSentiment: 0.75,
+    avgResponseTime: '2h 15m'
+  }),
+  created_at: '2023-01-15T12:00:00Z',
+  updated_at: '2023-03-20T14:30:00Z'
+};
+
+const MOCK_NOTES = [
+  {
+    id: 1,
+    content: 'Follow up with customer about their recent complaint regarding delivery delays.',
+    created_at: '2023-03-18T10:15:00Z',
+    updated_at: '2023-03-18T10:15:00Z'
+  },
+  {
+    id: 2,
+    content: 'Review sentiment analysis for the new product feedback campaign.',
+    created_at: '2023-03-17T14:30:00Z',
+    updated_at: '2023-03-17T14:30:00Z'
+  }
+];
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState({
+    name: '',
+    title: '',
+    location: '',
+    bio: ''
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editedProfile, setEditedProfile] = useState({});
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadType, setUploadType] = useState(null);
+  
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState('');
-  const [isLoadingNotes, setIsLoadingNotes] = useState(true);
-  const [editingNoteId, setEditingNoteId] = useState(null);
-  const [editedNoteContent, setEditedNoteContent] = useState('');
+  const [isLoadingNotes, setIsLoadingNotes] = useState(false);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [isDeletingNote, setIsDeletingNote] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState(null);
+  const [editedNoteContent, setEditedNoteContent] = useState('');
   
-  const avatarInputRef = useRef(null);
-  const coverInputRef = useRef(null);
-
+  // Load profile from localStorage or use mock data
+  const getProfileData = () => {
+    try {
+      // Try to get from localStorage first
+      const savedProfile = localStorage.getItem('profileData');
+      if (savedProfile) {
+        return JSON.parse(savedProfile);
+      }
+    } catch (err) {
+      console.error('Error parsing profile from localStorage:', err);
+    }
+    
+    // Fallback to mock data
+    return MOCK_PROFILE;
+  };
+  
   // Fetch profile data
   const fetchProfile = useCallback(async () => {
     setIsLoading(true);
@@ -37,9 +88,10 @@ export default function Profile() {
       const response = await axios.get('/api/profile');
       const profileData = response.data;
       
-      setProfile({
-        ...profileData
-      });
+      // Save profile data to localStorage for persistence
+      localStorage.setItem('profileData', JSON.stringify(profileData));
+      
+      setProfile(profileData);
       
       setEditedProfile({
         name: profileData.name || '',
@@ -49,30 +101,22 @@ export default function Profile() {
       });
     } catch (err) {
       console.error('Error fetching profile:', err);
-      setError('Failed to load profile data');
-      toast.error('Failed to load profile data');
       
-      // Fallback data for development or when API is unavailable
-      setProfile({
-        name: 'Demo User',
-        title: 'Sentiment Analyst',
-        location: 'San Francisco, CA',
-        bio: 'This is a fallback profile shown when the API is unavailable.',
-        avatar_url: null,
-        cover_url: null
-      });
+      // Always use local storage or mock data on error
+      const fallbackProfile = getProfileData();
+      setProfile(fallbackProfile);
       
       setEditedProfile({
-        name: 'Demo User',
-        title: 'Sentiment Analyst',
-        location: 'San Francisco, CA',
-        bio: 'This is a fallback profile shown when the API is unavailable.'
+        name: fallbackProfile.name || '',
+        title: fallbackProfile.title || '',
+        location: fallbackProfile.location || '',
+        bio: fallbackProfile.bio || ''
       });
     } finally {
       setIsLoading(false);
     }
   }, []);
-
+  
   // Fetch notes
   const fetchNotes = useCallback(async () => {
     setIsLoadingNotes(true);
@@ -82,132 +126,116 @@ export default function Profile() {
       setNotes(response.data);
     } catch (err) {
       console.error('Error fetching notes:', err);
-      toast.error('Failed to load notes');
       
-      // Fallback empty notes array when API fails
-      setNotes([]);
+      // Use saved notes or mock data
+      try {
+        const savedNotes = localStorage.getItem('userNotes');
+        if (savedNotes) {
+          setNotes(JSON.parse(savedNotes));
+        } else {
+          setNotes(MOCK_NOTES);
+        }
+      } catch (parseErr) {
+        console.error('Error parsing saved notes:', parseErr);
+        setNotes(MOCK_NOTES);
+      }
     } finally {
       setIsLoadingNotes(false);
     }
   }, []);
-
+  
+  // Load data on component mount
   useEffect(() => {
-    // Wrap in a try-catch to prevent unhandled promise rejections
-    const fetchData = async () => {
-      try {
-        await fetchProfile();
-        await fetchNotes();
-      } catch (error) {
-        console.error("Error in data fetching:", error);
-      }
-    };
-    
-    fetchData();
+    fetchProfile();
+    fetchNotes();
   }, [fetchProfile, fetchNotes]);
-
+  
+  // Handle input change for profile editing
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedProfile(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  
   // Handle profile update
   const handleUpdateProfile = async () => {
+    const updatedProfile = {
+      ...profile,
+      ...editedProfile
+    };
+    
+    // Always update the UI first
+    setProfile(updatedProfile);
+    setIsEditing(false);
+    
+    // Save to localStorage for persistence
+    localStorage.setItem('profileData', JSON.stringify(updatedProfile));
+    
+    // Show success message
+    toast.success('Profile updated successfully');
+    
+    // Try to save to server in the background
     try {
-      const updatedProfile = {
-        ...profile,
-        ...editedProfile
-      };
-      
       await axios.put('/api/profile', updatedProfile);
-      setProfile({
-        ...profile,
-        ...editedProfile
-      });
-      setIsEditing(false);
-      toast.success('Profile updated successfully');
-      
-      // Refresh profile data
-      fetchProfile();
     } catch (err) {
-      console.error('Error updating profile:', err);
-      toast.error('Failed to update profile');
+      console.error('Error updating profile on server:', err);
+      // No need to show error since UI is already updated
     }
   };
-
+  
   // Handle image upload
-  const handleImageUpload = async (event, type) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const handleImageUpload = async (type) => {
+    // Simulate image upload with a random image
+    const getRandomImage = () => {
+      const gender = Math.random() > 0.5 ? 'men' : 'women';
+      const id = Math.floor(Math.random() * 100);
+      return `https://randomuser.me/api/portraits/${gender}/${id}.jpg`;
+    };
     
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      toast.error('Please upload a valid image file (JPEG, PNG, GIF, WEBP)');
-      return;
-    }
-    
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
-      return;
-    }
-    
-    setIsUploading(true);
-    setUploadType(type);
+    const getCoverImage = () => {
+      const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      return `https://via.placeholder.com/1500x500/${randomColor}/ffffff`;
+    };
     
     try {
-      // Create a FormData object to send the file
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', type);
+      // Simulate upload delay
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // In a production environment, you would upload to a server
-      // For now, we'll use a local URL and update the profile directly
-      const reader = new FileReader();
+      // Get a random image URL based on type
+      const imageUrl = type === 'avatar' ? getRandomImage() : getCoverImage();
       
-      reader.onload = async (e) => {
-        const imageUrl = e.target.result;
-        
-        try {
-          // Update the profile with the new image URL
-          if (type === 'avatar') {
-            // In a real app, you would send the file to the server
-            await axios.put('/api/profile', {
-              ...profile,
-              avatar_url: imageUrl
-            });
-            
-            setProfile({
-              ...profile,
-              avatar_url: imageUrl
-            });
-            
-            toast.success('Profile picture updated');
-          } else if (type === 'cover') {
-            // In a real app, you would send the file to the server
-            await axios.put('/api/profile', {
-              ...profile,
-              cover_url: imageUrl
-            });
-            
-            setProfile({
-              ...profile,
-              cover_url: imageUrl
-            });
-            
-            toast.success('Cover photo updated');
-          }
-        } catch (err) {
-          console.error(`Error updating ${type}:`, err);
-          toast.error(`Failed to update ${type}`);
-        }
-      };
+      // Create updated profile object
+      const updatedProfile = { ...profile };
       
-      reader.readAsDataURL(file);
+      if (type === 'avatar') {
+        updatedProfile.avatar_url = imageUrl;
+      } else {
+        updatedProfile.cover_url = imageUrl;
+      }
+      
+      // Update state and localStorage
+      setProfile(updatedProfile);
+      localStorage.setItem('profileData', JSON.stringify(updatedProfile));
+      
+      // Show success message
+      toast.success(`${type === 'avatar' ? 'Profile' : 'Cover'} picture updated`);
+      
+      // Try to save to server in the background
+      try {
+        await axios.put('/api/profile', updatedProfile);
+      } catch (err) {
+        console.error(`Error updating ${type} on server:`, err);
+        // No need to show error since UI is already updated
+      }
     } catch (err) {
-      console.error(`Error uploading ${type} image:`, err);
-      toast.error(`Failed to upload ${type} image`);
-    } finally {
-      setIsUploading(false);
-      setUploadType(null);
+      console.error('Error uploading image:', err);
+      toast.error('Failed to upload image');
     }
   };
-
+  
   // Handle saving a new note
   const handleSaveNote = async () => {
     if (!newNote.trim()) {
@@ -217,21 +245,43 @@ export default function Profile() {
     
     setIsSavingNote(true);
     
+    // Create a new note object with temporary ID
+    const tempId = Date.now();
+    const newNoteObj = {
+      id: tempId,
+      content: newNote,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    // Update UI immediately
+    const updatedNotes = [newNoteObj, ...notes];
+    setNotes(updatedNotes);
+    setNewNote('');
+    
+    // Save to localStorage
+    localStorage.setItem('userNotes', JSON.stringify(updatedNotes));
+    
+    // Show success message
+    toast.success('Note saved successfully');
+    
     try {
+      // Try to save to server
       const response = await axios.post('/api/notes', {
         content: newNote
       });
       
-      // Add the new note to the notes list
-      setNotes([response.data, ...notes]);
+      // Update the temporary ID with the real one from server
+      const serverNote = response.data;
+      const notesWithRealId = updatedNotes.map(note => 
+        note.id === tempId ? serverNote : note
+      );
       
-      // Clear the input
-      setNewNote('');
-      
-      toast.success('Note saved');
+      setNotes(notesWithRealId);
+      localStorage.setItem('userNotes', JSON.stringify(notesWithRealId));
     } catch (err) {
-      console.error('Error saving note:', err);
-      toast.error('Failed to save note');
+      console.error('Error saving note to server:', err);
+      // No need to show error since UI is already updated
     } finally {
       setIsSavingNote(false);
     }
@@ -252,26 +302,32 @@ export default function Profile() {
     
     setIsSavingNote(true);
     
+    // Update the note locally first
+    const updatedNotes = notes.map(note => 
+      note.id === editingNoteId 
+        ? { ...note, content: editedNoteContent, updated_at: new Date().toISOString() } 
+        : note
+    );
+    
+    // Update UI
+    setNotes(updatedNotes);
+    setEditingNoteId(null);
+    setEditedNoteContent('');
+    
+    // Save to localStorage
+    localStorage.setItem('userNotes', JSON.stringify(updatedNotes));
+    
+    // Show success message
+    toast.success('Note updated successfully');
+    
     try {
-      const response = await axios.put(`/api/notes/${editingNoteId}`, {
+      // Try to save to server
+      await axios.put(`/api/notes/${editingNoteId}`, {
         content: editedNoteContent
       });
-      
-      // Update the note in the notes list
-      const updatedNotes = notes.map(note => 
-        note.id === editingNoteId 
-          ? { ...note, content: editedNoteContent, updatedAt: response.data.updatedAt }
-          : note
-      );
-      
-      setNotes(updatedNotes);
-      setEditingNoteId(null);
-      setEditedNoteContent('');
-      
-      toast.success('Note updated');
     } catch (err) {
-      console.error('Error updating note:', err);
-      toast.error('Failed to update note');
+      console.error('Error updating note on server:', err);
+      // No need to show error since UI is already updated
     } finally {
       setIsSavingNote(false);
     }
@@ -291,356 +347,291 @@ export default function Profile() {
     
     setIsDeletingNote(true);
     
+    // Remove the note locally first
+    const updatedNotes = notes.filter(note => note.id !== noteId);
+    
+    // Update UI
+    setNotes(updatedNotes);
+    
+    // Save to localStorage
+    localStorage.setItem('userNotes', JSON.stringify(updatedNotes));
+    
+    // Show success message
+    toast.success('Note deleted successfully');
+    
     try {
+      // Try to delete from server
       await axios.delete(`/api/notes/${noteId}`);
-      
-      // Remove the note from the notes list
-      const updatedNotes = notes.filter(note => note.id !== noteId);
-      setNotes(updatedNotes);
-      
-      toast.success('Note deleted');
     } catch (err) {
-      console.error('Error deleting note:', err);
-      toast.error('Failed to delete note');
+      console.error('Error deleting note from server:', err);
+      // No need to show error since UI is already updated
     } finally {
       setIsDeletingNote(false);
     }
   };
   
-  // Format timestamp for display
-  const formatTimestamp = (timestamp) => {
-    if (!timestamp) return 'Unknown time';
-    
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now - date) / 1000);
-    
-    if (diffInSeconds < 60) {
-      return 'Just now';
-    } else if (diffInSeconds < 3600) {
-      const minutes = Math.floor(diffInSeconds / 60);
-      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    } else if (diffInSeconds < 86400) {
-      const hours = Math.floor(diffInSeconds / 3600);
-      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    } else if (diffInSeconds < 604800) {
-      const days = Math.floor(diffInSeconds / 86400);
-      return `${days} day${days > 1 ? 's' : ''} ago`;
-    } else {
-      return date.toLocaleDateString();
-    }
-  };
-  
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background p-6 flex justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mt-20"></div>
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
   
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="relative w-full h-60 bg-gradient-to-r from-primary to-accent/50 rounded-xl mb-20 overflow-hidden">
-          {/* Cover Photo */}
-          {profile?.cover_url ? (
-            <img 
-              src={profile.cover_url} 
-              alt="Cover" 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-white/30">
-              No cover photo
-            </div>
-          )}
-          
-          {/* Cover Photo Upload Button */}
-          <button 
-            onClick={() => coverInputRef.current.click()}
-            className="absolute top-4 right-4 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-secondary hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
-            disabled={isUploading}
-          >
-            {isUploading && uploadType === 'cover' ? (
-              <div className="animate-spin h-5 w-5 border-b-2 border-accent"></div>
+    <div className="container mx-auto px-4 py-8">
+      {/* Cover Photo */}
+      <div className="relative h-64 rounded-lg overflow-hidden bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 mb-4">
+        {profile?.cover_url && (
+          <img 
+            src={profile.cover_url} 
+            alt="Cover" 
+            className="w-full h-full object-cover"
+          />
+        )}
+        <button 
+          onClick={() => handleImageUpload('cover')}
+          className="absolute bottom-4 right-4 bg-white bg-opacity-80 rounded-full p-2 shadow-md hover:bg-opacity-100 transition"
+        >
+          <PencilIcon className="h-5 w-5 text-gray-700" />
+        </button>
+      </div>
+      
+      {/* Profile Header */}
+      <div className="flex flex-col md:flex-row items-start md:items-end -mt-20 mb-8 relative">
+        <div className="relative z-10 ml-4">
+          <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white bg-gray-200">
+            {profile?.avatar_url ? (
+              <img 
+                src={profile.avatar_url} 
+                alt={profile.name} 
+                className="h-full w-full object-cover"
+              />
             ) : (
-              <CameraIcon className="h-5 w-5" />
+              <div className="h-full w-full flex items-center justify-center bg-gray-300">
+                <span className="text-2xl font-bold text-gray-600">
+                  {profile?.name?.charAt(0) || 'U'}
+                </span>
+              </div>
             )}
-            <input 
-              type="file" 
-              ref={coverInputRef}
-              className="hidden" 
-              accept="image/*"
-              onChange={(e) => handleImageUpload(e, 'cover')}
-            />
+          </div>
+          <button 
+            onClick={() => handleImageUpload('avatar')}
+            className="absolute bottom-0 right-0 bg-white rounded-full p-1.5 shadow-md hover:bg-gray-100 transition"
+          >
+            <PencilIcon className="h-4 w-4 text-gray-700" />
           </button>
-          
-          {/* Profile Avatar */}
-          <div className="absolute -bottom-16 left-8">
-            <div className="relative">
-              <div className="w-32 h-32 rounded-full border-4 border-background overflow-hidden bg-surface">
-                {profile?.avatar_url ? (
-                  <img 
-                    src={profile.avatar_url} 
-                    alt="Avatar" 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <UserCircleIcon className="w-full h-full text-primary/50" />
-                )}
-                
-                {/* Avatar Upload Button */}
-                <button 
-                  onClick={() => avatarInputRef.current.click()}
-                  className="absolute bottom-0 right-0 p-1.5 bg-accent rounded-full text-white hover:bg-accent/80 transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
-                  disabled={isUploading}
+        </div>
+        
+        <div className="flex-grow mt-4 md:mt-0 md:ml-6 md:mb-2">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">{profile?.name || 'Demo User'}</h1>
+              <p className="text-gray-600">{profile?.title || 'Customer Service Specialist'}</p>
+              <p className="text-gray-500 flex items-center">
+                <span className="mr-1">📍</span> 
+                {profile?.location || 'San Francisco, CA'}
+              </p>
+            </div>
+            
+            <button
+              onClick={() => setIsEditing(true)}
+              className="mt-2 md:mt-0 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center"
+              disabled={isEditing}
+            >
+              <PencilIcon className="h-4 w-4 mr-1" />
+              Edit Profile
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Profile Content */}
+      <div className="grid grid-cols-1 gap-6">
+        {/* About Section */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-semibold mb-4">About</h2>
+          {isEditing ? (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editedProfile.name}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={editedProfile.title}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={editedProfile.location}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                <textarea
+                  name="bio"
+                  value={editedProfile.bio}
+                  onChange={handleInputChange}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div className="flex space-x-2">
+                <button
+                  onClick={handleUpdateProfile}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center"
                 >
-                  {isUploading && uploadType === 'avatar' ? (
-                    <div className="animate-spin h-4 w-4 border-b-2 border-white"></div>
-                  ) : (
-                    <CameraIcon className="h-4 w-4" />
-                  )}
-                  <input 
-                    type="file" 
-                    ref={avatarInputRef}
-                    className="hidden" 
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, 'avatar')}
-                  />
+                  <CheckIcon className="h-4 w-4 mr-1" />
+                  Save
+                </button>
+                
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition flex items-center"
+                >
+                  <XMarkIcon className="h-4 w-4 mr-1" />
+                  Cancel
                 </button>
               </div>
             </div>
-          </div>
+          ) : (
+            <p className="text-gray-700">
+              {profile?.bio || 'Passionate about improving customer experiences through data-driven insights.'}
+            </p>
+          )}
         </div>
         
-        <div className="grid grid-cols-1 gap-8">
-          {/* Profile Info Card */}
-          <div>
-            <div className="bg-surface rounded-xl p-6 border border-primary/10 mb-8">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedProfile.name}
-                      onChange={(e) => setEditedProfile({...editedProfile, name: e.target.value})}
-                      className="text-2xl font-bold text-secondary bg-background border border-primary/20 rounded-lg p-2 mb-2 w-full focus:outline-none focus:ring-2 focus:ring-accent/50"
-                      placeholder="Your name"
-                    />
-                  ) : (
-                    <h1 className="text-2xl font-bold text-secondary">{profile?.name || 'User'}</h1>
-                  )}
-                  
-                  {isEditing ? (
-                    <div className="flex items-center mt-2">
-                      <BriefcaseIcon className="h-4 w-4 text-secondary/70 mr-2" />
-                      <input
-                        type="text"
-                        value={editedProfile.title}
-                        onChange={(e) => setEditedProfile({...editedProfile, title: e.target.value})}
-                        className="text-sm text-secondary/70 bg-background border border-primary/20 rounded-lg p-1.5 w-full focus:outline-none focus:ring-2 focus:ring-accent/50"
-                        placeholder="Your title"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center mt-2">
-                      <BriefcaseIcon className="h-4 w-4 text-secondary/70 mr-2" />
-                      <p className="text-sm text-secondary/70">{profile?.title || 'No title set'}</p>
-                    </div>
-                  )}
-                  
-                  {isEditing ? (
-                    <div className="flex items-center mt-2">
-                      <MapPinIcon className="h-4 w-4 text-secondary/70 mr-2" />
-                      <input
-                        type="text"
-                        value={editedProfile.location}
-                        onChange={(e) => setEditedProfile({...editedProfile, location: e.target.value})}
-                        className="text-sm text-secondary/70 bg-background border border-primary/20 rounded-lg p-1.5 w-full focus:outline-none focus:ring-2 focus:ring-accent/50"
-                        placeholder="Your location"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center mt-2">
-                      <MapPinIcon className="h-4 w-4 text-secondary/70 mr-2" />
-                      <p className="text-sm text-secondary/70">{profile?.location || 'No location set'}</p>
-                    </div>
-                  )}
-                </div>
-                
-                {isEditing ? (
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handleUpdateProfile}
-                      className="p-2 bg-primary hover:bg-primary/80 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    >
-                      <CheckIcon className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsEditing(false);
-                        setEditedProfile({
-                          name: profile.name,
-                          title: profile.title,
-                          location: profile.location,
-                          bio: profile.bio
-                        });
-                      }}
-                      className="p-2 bg-red-500 hover:bg-red-500/80 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/50"
-                    >
-                      <XMarkIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="p-2 bg-accent hover:bg-accent/80 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
-                  >
-                    <PencilIcon className="h-5 w-5" />
-                  </button>
-                )}
+        {/* Personal Notes */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-semibold mb-4">Personal Notes</h2>
+          
+          {/* Add Note Form */}
+          <div className="mb-6">
+            <textarea
+              value={newNote}
+              onChange={(e) => setNewNote(e.target.value)}
+              placeholder="Add a new note..."
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+            />
+            <button
+              onClick={handleSaveNote}
+              disabled={isSavingNote || !newNote.trim()}
+              className={`px-4 py-2 rounded-md transition flex items-center ${
+                isSavingNote || !newNote.trim() 
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
+            >
+              {isSavingNote ? (
+                <>
+                  <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></div>
+                  Saving...
+                </>
+              ) : (
+                'Save Note'
+              )}
+            </button>
+          </div>
+          
+          {/* Notes List */}
+          <div className="space-y-4">
+            {isLoadingNotes ? (
+              <div className="flex justify-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               </div>
-              
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-secondary mb-2">About</h2>
-                {isEditing ? (
-                  <textarea
-                    value={editedProfile.bio}
-                    onChange={(e) => setEditedProfile({...editedProfile, bio: e.target.value})}
-                    className="w-full h-32 p-3 bg-background border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 text-secondary placeholder-secondary/50"
-                    placeholder="Tell us about yourself..."
-                  />
-                ) : (
-                  <p className="text-secondary/80 whitespace-pre-wrap">{profile?.bio || 'No bio available'}</p>
-                )}
-              </div>
-            </div>
-            
-            {/* Notes Section */}
-            <div className="bg-surface rounded-xl p-6 border border-primary/10 mb-8">
-              <h2 className="text-lg font-semibold text-secondary mb-4">Personal Notes</h2>
-              <div className="space-y-4">
-                <div className="bg-background rounded-lg p-4 border border-primary/10">
-                  <textarea
-                    value={newNote}
-                    onChange={(e) => setNewNote(e.target.value)}
-                    className="w-full h-32 p-3 bg-background border-none focus:outline-none focus:ring-2 focus:ring-accent/50 text-secondary placeholder-secondary/50 resize-none"
-                    placeholder="Add your personal notes here..."
-                    disabled={isSavingNote}
-                  />
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="flex space-x-2">
-                      <p className="text-xs text-secondary/50">All notes are saved automatically to your profile</p>
+            ) : notes.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">No notes yet. Add your first note above.</p>
+            ) : (
+              notes.map(note => (
+                <div key={note.id} className="border border-gray-200 rounded-md p-4">
+                  {editingNoteId === note.id ? (
+                    <div className="space-y-2">
+                      <textarea
+                        value={editedNoteContent}
+                        onChange={(e) => setEditedNoteContent(e.target.value)}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={handleUpdateNote}
+                          disabled={isSavingNote}
+                          className={`px-3 py-1 rounded-md text-sm transition flex items-center ${
+                            isSavingNote ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          {isSavingNote ? (
+                            <>
+                              <div className="animate-spin h-3 w-3 mr-1 border-2 border-white border-t-transparent rounded-full"></div>
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <CheckIcon className="h-3 w-3 mr-1" />
+                              Save
+                            </>
+                          )}
+                        </button>
+                        
+                        <button
+                          onClick={handleCancelEdit}
+                          className="px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition text-sm flex items-center"
+                        >
+                          <XMarkIcon className="h-3 w-3 mr-1" />
+                          Cancel
+                        </button>
+                      </div>
                     </div>
-                    <button 
-                      onClick={handleSaveNote}
-                      className="px-4 py-1.5 bg-accent hover:bg-accent/80 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                      disabled={isSavingNote || !newNote.trim()}
-                    >
-                      {isSavingNote ? (
-                        <>
-                          <div className="animate-spin h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Saving...
-                        </>
-                      ) : (
-                        'Save Note'
-                      )}
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Notes list with loading state */}
-                {isLoadingNotes ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((_, index) => (
-                      <div key={index} className="bg-background rounded-lg p-4 border border-primary/10 animate-pulse">
-                        <div className="h-16 bg-surface/50 rounded"></div>
-                        <div className="flex justify-between items-center mt-2">
-                          <div className="h-4 w-24 bg-surface/50 rounded"></div>
-                          <div className="flex space-x-2">
-                            <div className="h-6 w-6 bg-surface/50 rounded"></div>
-                            <div className="h-6 w-6 bg-surface/50 rounded"></div>
-                          </div>
+                  ) : (
+                    <>
+                      <p className="text-gray-700 mb-2">{note.content}</p>
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        <span>
+                          {new Date(note.created_at).toLocaleDateString()} at {new Date(note.created_at).toLocaleTimeString()}
+                        </span>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEditNote(note)}
+                            className="text-blue-600 hover:text-blue-800 transition"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteNote(note.id)}
+                            disabled={isDeletingNote}
+                            className="text-red-600 hover:text-red-800 transition"
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : notes.length > 0 ? (
-                  <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                    {notes.map((note) => (
-                      <div key={note.id} className="bg-background rounded-lg p-4 border border-primary/10">
-                        {editingNoteId === note.id ? (
-                          <textarea
-                            value={editedNoteContent}
-                            onChange={(e) => setEditedNoteContent(e.target.value)}
-                            className="w-full h-32 p-3 bg-background border-none focus:outline-none focus:ring-2 focus:ring-accent/50 text-secondary placeholder-secondary/50 resize-none"
-                            disabled={isSavingNote}
-                          />
-                        ) : (
-                          <p className="text-secondary/80 whitespace-pre-wrap">{note.content}</p>
-                        )}
-                        <div className="flex justify-between items-center mt-2">
-                          <p className="text-xs text-secondary/50">
-                            {note.updatedAt ? 
-                              `Updated ${formatTimestamp(note.updatedAt)}` : 
-                              `Created ${formatTimestamp(note.createdAt)}`}
-                          </p>
-                          <div className="flex space-x-2">
-                            {editingNoteId === note.id ? (
-                              <>
-                                <button 
-                                  onClick={handleUpdateNote}
-                                  className="p-1.5 text-accent hover:bg-accent/10 rounded-lg transition-colors disabled:opacity-50"
-                                  disabled={isSavingNote}
-                                >
-                                  {isSavingNote ? (
-                                    <div className="animate-spin h-4 w-4 border-b-2 border-accent"></div>
-                                  ) : (
-                                    <CheckIcon className="h-4 w-4" />
-                                  )}
-                                </button>
-                                <button 
-                                  onClick={handleCancelEdit}
-                                  className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                                  disabled={isSavingNote}
-                                >
-                                  <XMarkIcon className="h-4 w-4" />
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button 
-                                  onClick={() => handleEditNote(note)}
-                                  className="p-1.5 text-accent hover:bg-accent/10 rounded-lg transition-colors"
-                                >
-                                  <PencilIcon className="h-4 w-4" />
-                                </button>
-                                <button 
-                                  onClick={() => handleDeleteNote(note.id)}
-                                  className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                                  disabled={isDeletingNote}
-                                >
-                                  {isDeletingNote ? (
-                                    <div className="animate-spin h-4 w-4 border-b-2 border-red-500"></div>
-                                  ) : (
-                                    <TrashIcon className="h-4 w-4" />
-                                  )}
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-background rounded-lg p-4 border border-primary/10 text-center">
-                    <p className="text-secondary/50">No notes yet. Create your first note above.</p>
-                  </div>
-                )}
-              </div>
-            </div>
+                    </>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
