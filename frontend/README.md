@@ -150,7 +150,7 @@ Sunsights follows a client-server architecture with:
 3. Upload the file using the file uploader.
 4. Wait for processing to complete.
 5. Review the summary statistics and individual results.
-6. Download the complete analysis report if needed.
+
 
 ### Analytics Dashboard
 1. Navigate to the Analytics tab.
@@ -162,8 +162,8 @@ Sunsights follows a client-server architecture with:
 ### Profile Management
 1. Navigate to the Profile tab.
 2. Update your personal information, avatar, or cover photo.
-3. View your recent activity and usage statistics.
-4. Manage your saved analyses and reports.
+3. Make and save notes.
+
 
 ## API Endpoints
 

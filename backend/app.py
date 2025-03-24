@@ -474,8 +474,8 @@ def analyze_text(text):
 # Register blueprints
 app.register_blueprint(analytics, url_prefix='/api/analytics')
 app.register_blueprint(auth, url_prefix='/api/auth')
-app.register_blueprint(profile, url_prefix='/api')
-app.register_blueprint(notes, url_prefix='/api')
+app.register_blueprint(profile)
+app.register_blueprint(notes)
 
 @app.route('/')
 def home():

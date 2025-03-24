@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { PencilIcon, CameraIcon, UserCircleIcon, MapPinIcon, BriefcaseIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { PaperClipIcon, ClockIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { TrashIcon } from '@heroicons/react/24/solid';
 import axios from '../config/axios';
 import toast from 'react-hot-toast';
 
@@ -10,14 +10,10 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editedProfile, setEditedProfile] = useState({});
-  const [stats, setStats] = useState({});
-  const [recentActivity, setRecentActivity] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadType, setUploadType] = useState(null);
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState('');
-  const [analyticsSummary, setAnalyticsSummary] = useState(null);
-  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
   const [isLoadingNotes, setIsLoadingNotes] = useState(true);
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editedNoteContent, setEditedNoteContent] = useState('');
@@ -41,46 +37,15 @@ export default function Profile() {
       const response = await axios.get('/api/profile');
       const profileData = response.data;
       
-      // Parse JSON strings if they come as strings
-      let parsedStats = profileData.stats;
-      let parsedActivity = profileData.recentActivity;
-      
-      if (typeof profileData.stats === 'string') {
-        try {
-          parsedStats = JSON.parse(profileData.stats);
-        } catch (e) {
-          console.error('Failed to parse stats JSON:', e);
-          parsedStats = { photos: 0, followers: 0, following: 0 };
-        }
-      }
-      
-      if (typeof profileData.recentActivity === 'string') {
-        try {
-          parsedActivity = JSON.parse(profileData.recentActivity);
-        } catch (e) {
-          console.error('Failed to parse recentActivity JSON:', e);
-          parsedActivity = [];
-        }
-      }
-      
-      // Ensure activity is an array
-      if (!Array.isArray(parsedActivity)) {
-        parsedActivity = [];
-      }
-      
       setProfile({
-        ...profileData,
-        stats: undefined,
-        recentActivity: undefined
+        ...profileData
       });
       
-      setStats(parsedStats || { photos: 0, followers: 0, following: 0 });
-      setRecentActivity(parsedActivity || []);
       setEditedProfile({
-        name: profileData.name,
-        title: profileData.title,
-        location: profileData.location,
-        bio: profileData.bio
+        name: profileData.name || '',
+        title: profileData.title || '',
+        location: profileData.location || '',
+        bio: profileData.bio || ''
       });
     } catch (err) {
       console.error('Error fetching profile:', err);
@@ -97,14 +62,6 @@ export default function Profile() {
         cover_url: null
       });
       
-      setStats({ 
-        photos: 0, 
-        followers: 0, 
-        following: 0 
-      });
-      
-      setRecentActivity([]);
-      
       setEditedProfile({
         name: 'Demo User',
         title: 'Sentiment Analyst',
@@ -113,32 +70,6 @@ export default function Profile() {
       });
     } finally {
       setIsLoading(false);
-    }
-  }, []);
-
-  // Fetch analytics summary
-  const fetchAnalyticsSummary = useCallback(async () => {
-    setIsLoadingAnalytics(true);
-    
-    try {
-      const response = await axios.get('/api/analytics/summary');
-      setAnalyticsSummary({
-        averageSentiment: parseFloat(response.data.averageSentiment || 0).toFixed(2),
-        responseRate: '85%', // This would come from the API in a real implementation
-        avgResponseTime: '4.2 hours', // This would come from the API in a real implementation
-        highPriorityCases: '12%' // This would come from the API in a real implementation
-      });
-    } catch (err) {
-      console.error('Error fetching analytics summary:', err);
-      // Fallback data when API fails
-      setAnalyticsSummary({
-        averageSentiment: "0.00",
-        responseRate: "0%",
-        avgResponseTime: "N/A",
-        highPriorityCases: "0%"
-      });
-    } finally {
-      setIsLoadingAnalytics(false);
     }
   }, []);
 
@@ -165,7 +96,6 @@ export default function Profile() {
     const fetchData = async () => {
       try {
         await fetchProfile();
-        await fetchAnalyticsSummary();
         await fetchNotes();
       } catch (error) {
         console.error("Error in data fetching:", error);
@@ -173,16 +103,14 @@ export default function Profile() {
     };
     
     fetchData();
-  }, [fetchProfile, fetchAnalyticsSummary, fetchNotes]);
+  }, [fetchProfile, fetchNotes]);
 
   // Handle profile update
   const handleUpdateProfile = async () => {
     try {
       const updatedProfile = {
         ...profile,
-        ...editedProfile,
-        stats: stats,
-        recentActivity: recentActivity
+        ...editedProfile
       };
       
       await axios.put('/api/profile', updatedProfile);
@@ -249,16 +177,6 @@ export default function Profile() {
               avatar_url: imageUrl
             });
             
-            // Update recent activity
-            const now = new Date().toISOString();
-            const newActivity = {
-              description: "Updated profile picture",
-              time: now
-            };
-            
-            const updatedActivity = [newActivity, ...recentActivity];
-            setRecentActivity(updatedActivity);
-            
             toast.success('Profile picture updated');
           } else if (type === 'cover') {
             // In a real app, you would send the file to the server
@@ -271,16 +189,6 @@ export default function Profile() {
               ...profile,
               cover_url: imageUrl
             });
-            
-            // Update recent activity
-            const now = new Date().toISOString();
-            const newActivity = {
-              description: "Updated cover photo",
-              time: now
-            };
-            
-            const updatedActivity = [newActivity, ...recentActivity];
-            setRecentActivity(updatedActivity);
             
             toast.success('Cover photo updated');
           }
@@ -319,13 +227,6 @@ export default function Profile() {
       
       // Clear the input
       setNewNote('');
-      
-      // Update stats to reflect the new note count
-      if (stats) {
-        const updatedStats = { ...stats };
-        updatedStats.followers = (updatedStats.followers || 0) + 1;
-        setStats(updatedStats);
-      }
       
       toast.success('Note saved');
     } catch (err) {
@@ -397,13 +298,6 @@ export default function Profile() {
       const updatedNotes = notes.filter(note => note.id !== noteId);
       setNotes(updatedNotes);
       
-      // Update stats to reflect the reduced note count
-      if (stats) {
-        const updatedStats = { ...stats };
-        updatedStats.followers = Math.max((updatedStats.followers || 0) - 1, 0);
-        setStats(updatedStats);
-      }
-      
       toast.success('Note deleted');
     } catch (err) {
       console.error('Error deleting note:', err);
@@ -412,50 +306,44 @@ export default function Profile() {
       setIsDeletingNote(false);
     }
   };
-
-  // Format timestamp
+  
+  // Format timestamp for display
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return 'Unknown time';
     
-    try {
-      const date = new Date(timestamp);
-      
-      // Check if date is valid
-      if (isNaN(date.getTime())) {
-        return timestamp; // Return as is if not a valid date
-      }
-      
-      const now = new Date();
-      const diffMs = now - date;
-      const diffMins = Math.floor(diffMs / 60000);
-      const diffHours = Math.floor(diffMins / 60);
-      const diffDays = Math.floor(diffHours / 24);
-      
-      if (diffMins < 1) return 'Just now';
-      if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-      if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-      
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) {
+      return 'Just now';
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else if (diffInSeconds < 604800) {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days} day${days > 1 ? 's' : ''} ago`;
+    } else {
       return date.toLocaleDateString();
-    } catch (error) {
-      console.error('Error formatting timestamp:', error);
-      return timestamp || 'Unknown time';
     }
   };
-
+  
   if (isLoading) {
     return (
-      <div className="w-full min-h-screen bg-background p-6 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-background p-6 flex justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mt-20"></div>
       </div>
     );
   }
-
+  
   return (
-    <div className="w-full min-h-screen bg-background p-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Cover Photo */}
-        <div className="relative h-64 rounded-xl overflow-hidden mb-20 bg-surface">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="relative w-full h-60 bg-gradient-to-r from-primary to-accent/50 rounded-xl mb-20 overflow-hidden">
+          {/* Cover Photo */}
           {profile?.cover_url ? (
             <img 
               src={profile.cover_url} 
@@ -463,15 +351,15 @@ export default function Profile() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-primary/30 to-accent/30 flex items-center justify-center">
-              <p className="text-secondary opacity-50">No cover photo</p>
+            <div className="w-full h-full flex items-center justify-center text-white/30">
+              No cover photo
             </div>
           )}
           
           {/* Cover Photo Upload Button */}
           <button 
             onClick={() => coverInputRef.current.click()}
-            className="absolute top-4 right-4 p-2 bg-surface/80 backdrop-blur-sm rounded-lg text-secondary hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="absolute top-4 right-4 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-secondary hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
             disabled={isUploading}
           >
             {isUploading && uploadType === 'cover' ? (
@@ -488,45 +376,47 @@ export default function Profile() {
             />
           </button>
           
-          {/* Profile Picture */}
+          {/* Profile Avatar */}
           <div className="absolute -bottom-16 left-8">
-            <div className="relative h-32 w-32 rounded-full border-4 border-background overflow-hidden bg-surface">
-              {profile?.avatar_url ? (
-                <img 
-                  src={profile.avatar_url} 
-                  alt={profile.name} 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <UserCircleIcon className="w-full h-full text-primary/50" />
-              )}
-              
-              {/* Avatar Upload Button */}
-              <button 
-                onClick={() => avatarInputRef.current.click()}
-                className="absolute bottom-0 right-0 p-1.5 bg-accent rounded-full text-white hover:bg-accent/80 transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
-                disabled={isUploading}
-              >
-                {isUploading && uploadType === 'avatar' ? (
-                  <div className="animate-spin h-4 w-4 border-b-2 border-white"></div>
+            <div className="relative">
+              <div className="w-32 h-32 rounded-full border-4 border-background overflow-hidden bg-surface">
+                {profile?.avatar_url ? (
+                  <img 
+                    src={profile.avatar_url} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <CameraIcon className="h-4 w-4" />
+                  <UserCircleIcon className="w-full h-full text-primary/50" />
                 )}
-                <input 
-                  type="file" 
-                  ref={avatarInputRef}
-                  className="hidden" 
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload(e, 'avatar')}
-                />
-              </button>
+                
+                {/* Avatar Upload Button */}
+                <button 
+                  onClick={() => avatarInputRef.current.click()}
+                  className="absolute bottom-0 right-0 p-1.5 bg-accent rounded-full text-white hover:bg-accent/80 transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  disabled={isUploading}
+                >
+                  {isUploading && uploadType === 'avatar' ? (
+                    <div className="animate-spin h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <CameraIcon className="h-4 w-4" />
+                  )}
+                  <input 
+                    type="file" 
+                    ref={avatarInputRef}
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, 'avatar')}
+                  />
+                </button>
+              </div>
             </div>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           {/* Profile Info Card */}
-          <div className="lg:col-span-2">
+          <div>
             <div className="bg-surface rounded-xl p-6 border border-primary/10 mb-8">
               <div className="flex justify-between items-start mb-6">
                 <div>
@@ -624,21 +514,6 @@ export default function Profile() {
                 ) : (
                   <p className="text-secondary/80 whitespace-pre-wrap">{profile?.bio || 'No bio available'}</p>
                 )}
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-background rounded-lg border border-primary/10">
-                  <p className="text-2xl font-bold text-accent">{stats?.photos || 0}</p>
-                  <p className="text-sm text-secondary/70">Analyses</p>
-                </div>
-                <div className="text-center p-4 bg-background rounded-lg border border-primary/10">
-                  <p className="text-2xl font-bold text-accent">{stats?.followers || 0}</p>
-                  <p className="text-sm text-secondary/70">Notes</p>
-                </div>
-                <div className="text-center p-4 bg-background rounded-lg border border-primary/10">
-                  <p className="text-2xl font-bold text-accent">{stats?.following || 0}</p>
-                  <p className="text-sm text-secondary/70">Uploads</p>
-                </div>
               </div>
             </div>
             
@@ -765,90 +640,6 @@ export default function Profile() {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-          
-          {/* Recent Activity Card */}
-          <div className="lg:col-span-1">
-            <div className="bg-surface rounded-xl p-6 border border-primary/10 h-[600px] overflow-y-auto">
-              <h2 className="text-lg font-semibold text-secondary mb-4">Recent Activity</h2>
-              
-              {recentActivity && recentActivity.length > 0 ? (
-                <div className="space-y-4">
-                  {recentActivity.map((activity, index) => (
-                    <div key={index} className="relative pl-5 pb-4 border-b border-primary/10 last:border-b-0">
-                      <div className="absolute left-0 top-2 w-3 h-3 rounded-full bg-green-500"></div>
-                      <p className="text-secondary/80">{activity.description}</p>
-                      <div className="flex items-center mt-1 text-xs text-secondary/50">
-                        <ClockIcon className="h-3 w-3 mr-1" />
-                        <span>{formatTimestamp(activity.time)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-64">
-                  <p className="text-secondary/50">No recent activity</p>
-                </div>
-              )}
-            </div>
-            
-            {/* Analytics Summary */}
-            <div className="bg-surface rounded-xl p-6 border border-primary/10 mt-8">
-              <h2 className="text-lg font-semibold text-secondary mb-4">Analytics Summary</h2>
-              
-              {isLoadingAnalytics ? (
-                <div className="space-y-4">
-                  {[1, 2, 3, 4].map((_, index) => (
-                    <div key={index} className="flex justify-between items-center animate-pulse">
-                      <div className="h-4 bg-background rounded w-1/3"></div>
-                      <div className="h-4 bg-background rounded w-1/4"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : analyticsSummary ? (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <p className="text-secondary/80">Average Sentiment</p>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                      <p className="text-secondary">{analyticsSummary.averageSentiment}%</p>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-secondary/80">Response Rate</p>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                      <p className="text-secondary">{analyticsSummary.responseRate}</p>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-secondary/80">Avg. Response Time</p>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-amber-500 mr-2"></div>
-                      <p className="text-secondary">{analyticsSummary.avgResponseTime}</p>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-secondary/80">High Priority Cases</p>
-                    <div className="flex items-center">
-                      <div className="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
-                      <p className="text-secondary">{analyticsSummary.highPriorityCases}</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-secondary/50">Analytics data unavailable</p>
-                </div>
-              )}
-              
-              <button 
-                onClick={() => window.location.href = '/analytics'}
-                className="w-full mt-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-lg transition-colors"
-              >
-                View Full Analytics
-              </button>
             </div>
           </div>
         </div>
