@@ -437,64 +437,73 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="relative w-full h-60 bg-gradient-to-r from-primary to-accent/50 rounded-xl mb-20 overflow-hidden">
-          {/* Cover Photo */}
-          {profile?.cover_url ? (
-            <img 
-              src={profile.cover_url} 
-              alt="Cover" 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-white/30">
-              No cover photo
-            </div>
-          )}
-          
-          {/* Cover Photo Upload Button */}
-          <button 
-            onClick={() => coverInputRef.current.click()}
-            className="absolute top-4 right-4 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-secondary hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
-            disabled={isUploading}
-          >
-            {isUploading && uploadType === 'cover' ? (
-              <div className="animate-spin h-5 w-5 border-b-2 border-accent"></div>
+        {/* Profile section with proper spacing */}
+        <div className="pt-8">
+          {/* Cover photo section */}
+          <div className="w-full h-60 bg-gradient-to-r from-primary to-accent/50 rounded-t-xl overflow-hidden">
+            {/* Cover Photo */}
+            {profile?.cover_url ? (
+              <img 
+                src={profile.cover_url} 
+                alt="Cover" 
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <CameraIcon className="h-5 w-5" />
+              <div className="w-full h-full flex items-center justify-center text-white/30">
+                No cover photo
+              </div>
             )}
-            <input 
-              type="file" 
-              ref={coverInputRef}
-              className="hidden" 
-              accept="image/*"
-              onChange={(e) => handleImageUpload(e, 'cover')}
-            />
-          </button>
+            
+            {/* Cover Photo Upload Button */}
+            <button 
+              onClick={() => coverInputRef.current.click()}
+              className="absolute top-12 right-8 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-secondary hover:bg-surface transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
+              disabled={isUploading}
+            >
+              {isUploading && uploadType === 'cover' ? (
+                <div className="animate-spin h-5 w-5 border-b-2 border-accent"></div>
+              ) : (
+                <CameraIcon className="h-5 w-5" />
+              )}
+              <input 
+                type="file" 
+                ref={coverInputRef}
+                className="hidden" 
+                accept="image/*"
+                onChange={(e) => handleImageUpload(e, 'cover')}
+              />
+            </button>
+          </div>
           
-          {/* Profile Avatar */}
-          <div className="absolute -bottom-16 left-8">
-            <div className="relative">
-              <div className="w-32 h-32 rounded-full border-4 border-background overflow-hidden bg-surface">
-                {profile?.avatar_url ? (
-                  <img 
-                    src={profile.avatar_url} 
-                    alt="Avatar" 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <UserCircleIcon className="w-full h-full text-primary/50" />
-                )}
+          {/* Profile info section with avatar completely below cover photo */}
+          <div className="bg-surface rounded-b-xl p-6 border border-primary/10 mb-8 relative">
+            {/* Profile Avatar - Completely below cover photo */}
+            <div className="flex items-start mb-6">
+              <div className="relative mr-6">
+                <div className="w-32 h-32 rounded-full border-4 border-background overflow-hidden bg-surface flex items-center justify-center">
+                  {profile?.avatar_url ? (
+                    <img 
+                      src={profile.avatar_url} 
+                      alt="Avatar" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <UserCircleIcon className="w-full h-full text-primary/50" />
+                  )}
+                </div>
                 
-                {/* Avatar Upload Button */}
+                {/* Avatar Upload Button - More prominent and positioned better */}
                 <button 
                   onClick={() => avatarInputRef.current.click()}
-                  className="absolute bottom-0 right-0 p-1.5 bg-accent rounded-full text-white hover:bg-accent/80 transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  className="absolute bottom-0 right-0 p-2 bg-accent rounded-full text-white hover:bg-accent/80 transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50 shadow-lg"
                   disabled={isUploading}
+                  aria-label="Change profile picture"
+                  title="Change profile picture"
                 >
                   {isUploading && uploadType === 'avatar' ? (
-                    <div className="animate-spin h-4 w-4 border-b-2 border-white"></div>
+                    <div className="animate-spin h-5 w-5 border-b-2 border-white"></div>
                   ) : (
-                    <CameraIcon className="h-4 w-4" />
+                    <CameraIcon className="h-5 w-5" />
                   )}
                   <input 
                     type="file" 
@@ -505,240 +514,235 @@ export default function Profile() {
                   />
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-8">
-          {/* Profile Info Card */}
-          <div>
-            <div className="bg-surface rounded-xl p-6 border border-primary/10 mb-8">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="name"
-                      value={editedProfile.name}
-                      onChange={handleInputChange}
-                      className="text-2xl font-bold text-secondary bg-background border border-primary/20 rounded-lg p-2 mb-2 w-full focus:outline-none focus:ring-2 focus:ring-accent/50"
-                      placeholder="Your name"
-                    />
-                  ) : (
-                    <h1 className="text-2xl font-bold text-secondary">{profile?.name || 'User'}</h1>
-                  )}
-                  
-                  {isEditing ? (
-                    <div className="flex items-center mt-2">
-                      <BriefcaseIcon className="h-4 w-4 text-secondary/70 mr-2" />
+              
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <div>
+                    {isEditing ? (
                       <input
                         type="text"
-                        name="title"
-                        value={editedProfile.title}
+                        name="name"
+                        value={editedProfile.name}
                         onChange={handleInputChange}
-                        className="text-sm text-secondary/70 bg-background border border-primary/20 rounded-lg p-1.5 w-full focus:outline-none focus:ring-2 focus:ring-accent/50"
-                        placeholder="Your title"
+                        className="text-2xl font-bold text-secondary bg-background border border-primary/20 rounded-lg p-2 mb-2 w-full focus:outline-none focus:ring-2 focus:ring-accent/50"
+                        placeholder="Your name"
                       />
-                    </div>
-                  ) : (
-                    <div className="flex items-center mt-2">
-                      <BriefcaseIcon className="h-4 w-4 text-secondary/70 mr-2" />
-                      <p className="text-sm text-secondary/70">{profile?.title || 'No title set'}</p>
-                    </div>
-                  )}
+                    ) : (
+                      <h1 className="text-2xl font-bold text-secondary">{profile?.name || 'User'}</h1>
+                    )}
+                    
+                    {isEditing ? (
+                      <div className="flex items-center mt-2">
+                        <BriefcaseIcon className="h-4 w-4 text-secondary/70 mr-2" />
+                        <input
+                          type="text"
+                          name="title"
+                          value={editedProfile.title}
+                          onChange={handleInputChange}
+                          className="text-sm text-secondary/70 bg-background border border-primary/20 rounded-lg p-1.5 w-full focus:outline-none focus:ring-2 focus:ring-accent/50"
+                          placeholder="Your title"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center mt-2">
+                        <BriefcaseIcon className="h-4 w-4 text-secondary/70 mr-2" />
+                        <p className="text-sm text-secondary/70">{profile?.title || 'No title set'}</p>
+                      </div>
+                    )}
+                    
+                    {isEditing ? (
+                      <div className="flex items-center mt-2">
+                        <MapPinIcon className="h-4 w-4 text-secondary/70 mr-2" />
+                        <input
+                          type="text"
+                          name="location"
+                          value={editedProfile.location}
+                          onChange={handleInputChange}
+                          className="text-sm text-secondary/70 bg-background border border-primary/20 rounded-lg p-1.5 w-full focus:outline-none focus:ring-2 focus:ring-accent/50"
+                          placeholder="Your location"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center mt-2">
+                        <MapPinIcon className="h-4 w-4 text-secondary/70 mr-2" />
+                        <p className="text-sm text-secondary/70">{profile?.location || 'No location set'}</p>
+                      </div>
+                    )}
+                  </div>
                   
                   {isEditing ? (
-                    <div className="flex items-center mt-2">
-                      <MapPinIcon className="h-4 w-4 text-secondary/70 mr-2" />
-                      <input
-                        type="text"
-                        name="location"
-                        value={editedProfile.location}
-                        onChange={handleInputChange}
-                        className="text-sm text-secondary/70 bg-background border border-primary/20 rounded-lg p-1.5 w-full focus:outline-none focus:ring-2 focus:ring-accent/50"
-                        placeholder="Your location"
-                      />
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={handleUpdateProfile}
+                        className="p-2 bg-primary hover:bg-primary/80 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      >
+                        <CheckIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsEditing(false);
+                          setEditedProfile({
+                            name: profile.name,
+                            title: profile.title,
+                            location: profile.location,
+                            bio: profile.bio
+                          });
+                        }}
+                        className="p-2 bg-red-500 hover:bg-red-500/80 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                      >
+                        <XMarkIcon className="h-5 w-5" />
+                      </button>
                     </div>
                   ) : (
-                    <div className="flex items-center mt-2">
-                      <MapPinIcon className="h-4 w-4 text-secondary/70 mr-2" />
-                      <p className="text-sm text-secondary/70">{profile?.location || 'No location set'}</p>
-                    </div>
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="p-2 bg-accent hover:bg-accent/80 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
+                    >
+                      <PencilIcon className="h-5 w-5" />
+                    </button>
                   )}
                 </div>
-                
-                {isEditing ? (
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handleUpdateProfile}
-                      className="p-2 bg-primary hover:bg-primary/80 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50"
-                    >
-                      <CheckIcon className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsEditing(false);
-                        setEditedProfile({
-                          name: profile.name,
-                          title: profile.title,
-                          location: profile.location,
-                          bio: profile.bio
-                        });
-                      }}
-                      className="p-2 bg-red-500 hover:bg-red-500/80 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500/50"
-                    >
-                      <XMarkIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="p-2 bg-accent hover:bg-accent/80 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50"
-                  >
-                    <PencilIcon className="h-5 w-5" />
-                  </button>
-                )}
-              </div>
-              
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-secondary mb-2">About</h2>
-                {isEditing ? (
-                  <textarea
-                    name="bio"
-                    value={editedProfile.bio}
-                    onChange={handleInputChange}
-                    className="w-full h-32 p-3 bg-background border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 text-secondary placeholder-secondary/50"
-                    placeholder="Tell us about yourself..."
-                  />
-                ) : (
-                  <p className="text-secondary/80 whitespace-pre-wrap">{profile?.bio || 'No bio available'}</p>
-                )}
               </div>
             </div>
             
-            {/* Notes Section */}
-            <div className="bg-surface rounded-xl p-6 border border-primary/10 mb-8">
-              <h2 className="text-lg font-semibold text-secondary mb-4">Personal Notes</h2>
-              <div className="space-y-4">
-                <div className="bg-background rounded-lg p-4 border border-primary/10">
-                  <textarea
-                    value={newNote}
-                    onChange={(e) => setNewNote(e.target.value)}
-                    className="w-full h-32 p-3 bg-background border-none focus:outline-none focus:ring-2 focus:ring-accent/50 text-secondary placeholder-secondary/50 resize-none"
-                    placeholder="Add your personal notes here..."
-                    disabled={isSavingNote}
-                  />
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="flex space-x-2">
-                      <p className="text-xs text-secondary/50">All notes are saved automatically to your profile</p>
-                    </div>
-                    <button 
-                      onClick={handleSaveNote}
-                      className="px-4 py-1.5 bg-accent hover:bg-accent/80 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                      disabled={isSavingNote || !newNote.trim()}
-                    >
-                      {isSavingNote ? (
-                        <>
-                          <div className="animate-spin h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Saving...
-                        </>
-                      ) : (
-                        'Save Note'
-                      )}
-                    </button>
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-secondary mb-2">About</h2>
+              {isEditing ? (
+                <textarea
+                  name="bio"
+                  value={editedProfile.bio}
+                  onChange={handleInputChange}
+                  className="w-full h-32 p-3 bg-background border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 text-secondary placeholder-secondary/50"
+                  placeholder="Tell us about yourself..."
+                />
+              ) : (
+                <p className="text-secondary/80 whitespace-pre-wrap">{profile?.bio || 'No bio available'}</p>
+              )}
+            </div>
+          </div>
+          
+          {/* Notes Section */}
+          <div className="bg-surface rounded-xl p-6 border border-primary/10 mb-8">
+            <h2 className="text-lg font-semibold text-secondary mb-4">Personal Notes</h2>
+            <div className="space-y-4">
+              <div className="bg-background rounded-lg p-4 border border-primary/10">
+                <textarea
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                  className="w-full h-32 p-3 bg-background border-none focus:outline-none focus:ring-2 focus:ring-accent/50 text-secondary placeholder-secondary/50 resize-none"
+                  placeholder="Add your personal notes here..."
+                  disabled={isSavingNote}
+                />
+                <div className="flex justify-between items-center mt-2">
+                  <div className="flex space-x-2">
+                    <p className="text-xs text-secondary/50">All notes are saved automatically to your profile</p>
                   </div>
+                  <button 
+                    onClick={handleSaveNote}
+                    className="px-4 py-1.5 bg-accent hover:bg-accent/80 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                    disabled={isSavingNote || !newNote.trim()}
+                  >
+                    {isSavingNote ? (
+                      <>
+                        <div className="animate-spin h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Note'
+                    )}
+                  </button>
                 </div>
-                
-                {/* Notes list with loading state */}
-                {isLoadingNotes ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((_, index) => (
-                      <div key={index} className="bg-background rounded-lg p-4 border border-primary/10 animate-pulse">
-                        <div className="h-16 bg-surface/50 rounded"></div>
-                        <div className="flex justify-between items-center mt-2">
-                          <div className="h-4 w-24 bg-surface/50 rounded"></div>
-                          <div className="flex space-x-2">
-                            <div className="h-6 w-6 bg-surface/50 rounded"></div>
-                            <div className="h-6 w-6 bg-surface/50 rounded"></div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : notes.length > 0 ? (
-                  <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                    {notes.map((note) => (
-                      <div key={note.id} className="bg-background rounded-lg p-4 border border-primary/10">
-                        {editingNoteId === note.id ? (
-                          <textarea
-                            value={editedNoteContent}
-                            onChange={(e) => setEditedNoteContent(e.target.value)}
-                            className="w-full h-32 p-3 bg-background border-none focus:outline-none focus:ring-2 focus:ring-accent/50 text-secondary placeholder-secondary/50 resize-none"
-                            disabled={isSavingNote}
-                          />
-                        ) : (
-                          <p className="text-secondary/80 whitespace-pre-wrap">{note.content}</p>
-                        )}
-                        <div className="flex justify-between items-center mt-2">
-                          <p className="text-xs text-secondary/50">
-                            {note.updated_at ? 
-                              `Updated ${formatTimestamp(note.updated_at)}` : 
-                              `Created ${formatTimestamp(note.created_at)}`}
-                          </p>
-                          <div className="flex space-x-2">
-                            {editingNoteId === note.id ? (
-                              <>
-                                <button 
-                                  onClick={handleUpdateNote}
-                                  className="p-1.5 text-accent hover:bg-accent/10 rounded-lg transition-colors disabled:opacity-50"
-                                  disabled={isSavingNote}
-                                >
-                                  {isSavingNote ? (
-                                    <div className="animate-spin h-4 w-4 border-b-2 border-accent"></div>
-                                  ) : (
-                                    <CheckIcon className="h-4 w-4" />
-                                  )}
-                                </button>
-                                <button 
-                                  onClick={handleCancelEdit}
-                                  className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                                  disabled={isSavingNote}
-                                >
-                                  <XMarkIcon className="h-4 w-4" />
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button 
-                                  onClick={() => handleEditNote(note)}
-                                  className="p-1.5 text-accent hover:bg-accent/10 rounded-lg transition-colors"
-                                >
-                                  <PencilIcon className="h-4 w-4" />
-                                </button>
-                                <button 
-                                  onClick={() => handleDeleteNote(note.id)}
-                                  className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
-                                  disabled={isDeletingNote}
-                                >
-                                  {isDeletingNote ? (
-                                    <div className="animate-spin h-4 w-4 border-b-2 border-red-500"></div>
-                                  ) : (
-                                    <TrashIcon className="h-4 w-4" />
-                                  )}
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-background rounded-lg p-4 border border-primary/10 text-center">
-                    <p className="text-secondary/50">No notes yet. Create your first note above.</p>
-                  </div>
-                )}
               </div>
+              
+              {/* Notes list with loading state */}
+              {isLoadingNotes ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((_, index) => (
+                    <div key={index} className="bg-background rounded-lg p-4 border border-primary/10 animate-pulse">
+                      <div className="h-16 bg-surface/50 rounded"></div>
+                      <div className="flex justify-between items-center mt-2">
+                        <div className="h-4 w-24 bg-surface/50 rounded"></div>
+                        <div className="flex space-x-2">
+                          <div className="h-6 w-6 bg-surface/50 rounded"></div>
+                          <div className="h-6 w-6 bg-surface/50 rounded"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : notes.length > 0 ? (
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                  {notes.map((note) => (
+                    <div key={note.id} className="bg-background rounded-lg p-4 border border-primary/10">
+                      {editingNoteId === note.id ? (
+                        <textarea
+                          value={editedNoteContent}
+                          onChange={(e) => setEditedNoteContent(e.target.value)}
+                          className="w-full h-32 p-3 bg-background border-none focus:outline-none focus:ring-2 focus:ring-accent/50 text-secondary placeholder-secondary/50 resize-none"
+                          disabled={isSavingNote}
+                        />
+                      ) : (
+                        <p className="text-secondary/80 whitespace-pre-wrap">{note.content}</p>
+                      )}
+                      <div className="flex justify-between items-center mt-2">
+                        <p className="text-xs text-secondary/50">
+                          {note.updated_at ? 
+                            `Updated ${formatTimestamp(note.updated_at)}` : 
+                            `Created ${formatTimestamp(note.created_at)}`}
+                        </p>
+                        <div className="flex space-x-2">
+                          {editingNoteId === note.id ? (
+                            <>
+                              <button 
+                                onClick={handleUpdateNote}
+                                className="p-1.5 text-accent hover:bg-accent/10 rounded-lg transition-colors disabled:opacity-50"
+                                disabled={isSavingNote}
+                              >
+                                {isSavingNote ? (
+                                  <div className="animate-spin h-4 w-4 border-b-2 border-accent"></div>
+                                ) : (
+                                  <CheckIcon className="h-4 w-4" />
+                                )}
+                              </button>
+                              <button 
+                                onClick={handleCancelEdit}
+                                className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                                disabled={isSavingNote}
+                              >
+                                <XMarkIcon className="h-4 w-4" />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button 
+                                onClick={() => handleEditNote(note)}
+                                className="p-1.5 text-accent hover:bg-accent/10 rounded-lg transition-colors"
+                              >
+                                <PencilIcon className="h-4 w-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteNote(note.id)}
+                                className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50"
+                                disabled={isDeletingNote}
+                              >
+                                {isDeletingNote ? (
+                                  <div className="animate-spin h-4 w-4 border-b-2 border-red-500"></div>
+                                ) : (
+                                  <TrashIcon className="h-4 w-4" />
+                                )}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-background rounded-lg p-4 border border-primary/10 text-center">
+                  <p className="text-secondary/50">No notes yet. Create your first note above.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
