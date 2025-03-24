@@ -6,6 +6,7 @@ import {
   DocumentDuplicateIcon,
   ChartBarIcon,
   ArrowLeftOnRectangleIcon,
+  UserIcon,
 } from '@heroicons/react/24/outline';
 import './sidebar.css'; // Import the custom sidebar CSS
 
@@ -24,6 +25,7 @@ const Layout = ({ children, onLogout }) => {
     { name: 'Single Analysis', href: '/single-analysis', icon: CameraIcon },
     { name: 'Bulk Analysis', href: '/bulk-analysis', icon: DocumentDuplicateIcon },
     { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
+    { name: 'Profile', href: '/profile', icon: UserIcon },
   ];
 
   const isActive = (path) => location.pathname === path;

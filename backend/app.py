@@ -9,6 +9,7 @@ from flask_limiter.util import get_remote_address
 from routes.analytics import analytics
 from routes.auth import auth
 from routes.profile import profile
+from routes.notes import notes
 from transformers import pipeline
 import torch
 from tqdm import tqdm
@@ -474,6 +475,7 @@ def analyze_text(text):
 app.register_blueprint(analytics, url_prefix='/api/analytics')
 app.register_blueprint(auth, url_prefix='/api/auth')
 app.register_blueprint(profile, url_prefix='/api')
+app.register_blueprint(notes, url_prefix='/api')
 
 @app.route('/')
 def home():
