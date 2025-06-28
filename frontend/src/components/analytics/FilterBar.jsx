@@ -23,7 +23,8 @@ export default function FilterBar({
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
-            className="analytics-filter-dropdown bg-background text-secondary rounded-md border-primary/20 focus:border-accent focus:ring-accent"
+            className="analytics-filter-dropdown bg-background text-secondary rounded-md
+             border-primary/20 focus:border-accent focus:ring-accent"
           >
             {timeRanges.map((range) => (
               <option key={range.value} value={range.value}>
@@ -40,7 +41,8 @@ export default function FilterBar({
           <button
             onClick={onRefresh}
             disabled={loading}
-            className="flex items-center px-3 py-2 bg-primary/80 rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50 transition-colors duration-150"
+            className="flex items-center px-3 py-2 bg-primary/80 rounded-md hover:bg-primary focus:outline-none focus:ring-2
+             focus:ring-accent disabled:opacity-50 transition-colors duration-150"
           >
             <ArrowPathIcon 
               className={`h-4 w-4 text-secondary ${loading ? 'animate-spin' : ''}`} 
