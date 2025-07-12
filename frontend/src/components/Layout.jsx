@@ -8,7 +8,6 @@ import {
   ArrowLeftOnRectangleIcon,
   UserIcon,
 } from '@heroicons/react/24/outline';
-import './sidebar.css'; // Import the custom sidebar CSS
 
 const Layout = ({ children, onLogout }) => {
   const location = useLocation();

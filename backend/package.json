@@ -1,10 +1,10 @@
 {
-    "name": "sunsights-backend",
-    "version": "1.0.0",
-    "description": "Backend for Sunsights application",
-    "main": "app.py",
-    "scripts": {
-      "dev": "python app.py",
-      "start": "python app.py"
-    }
+  "name": "sunsights-backend",
+  "version": "1.0.0",
+  "description": "Backend for Sunsights application",
+  "main": "app.py",
+  "scripts": {
+    "dev": "python app.py",
+    "start": "python app.py"
   }
+} 

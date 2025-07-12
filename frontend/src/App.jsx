@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast'
 import axios from './config/axios'
 import Layout from './components/Layout'
-import Home from './components/Home'
 import Dashboard from './components/Dashboard'
 import SingleAnalysis from './components/SingleAnalysis'
 import BulkAnalysis from './components/BulkAnalysis'

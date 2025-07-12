@@ -1,18 +1,30 @@
 {
-  "totalAnalyses": 1,
+  "totalAnalyses": 3,
   "bulkUploads": 0,
-  "averageSentiment": 76.5,
-  "lastAnalysisTime": "2025-07-12 14:48:34",
+  "averageSentiment": 57.285,
+  "lastAnalysisTime": "2025-07-12 16:15:39",
   "emotionCounts": {
-    "Joy": 1,
+    "Joy": 2,
     "Sadness": 0,
-    "Anger": 0,
+    "Anger": 1,
     "Fear": 0,
     "Surprise": 0,
     "Love": 0,
     "neutral": 0
   },
   "activities": [
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-12 16:15:39",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-12 16:15:28",
+      "type": "success"
+    },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
