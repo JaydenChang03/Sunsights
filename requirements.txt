@@ -17,3 +17,4 @@ tqdm==4.66.1
 colorama==0.4.6
 psutil==5.9.5
 nltk==3.8.1
+pillow==10.0.0

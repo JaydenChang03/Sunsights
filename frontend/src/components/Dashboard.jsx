@@ -9,29 +9,29 @@ const initialStats = [
     id: 1,
     title: 'Total Analyses',
     value: '0',
-    icon: <DocumentTextIcon className="w-6 h-6 text-accent" />,
-    iconBg: 'bg-accent/10'
+    icon: <DocumentTextIcon className="w-6 h-6 text-primary" />,
+    iconBg: 'bg-primary/10'
   },
   {
     id: 2,
     title: 'Bulk Uploads',
     value: '0',
-    icon: <DocumentDuplicateIcon className="w-6 h-6 text-accent" />,
-    iconBg: 'bg-accent/10'
+    icon: <DocumentDuplicateIcon className="w-6 h-6 text-primary" />,
+    iconBg: 'bg-primary/10'
   },
   {
     id: 3,
     title: 'Average Sentiment',
     value: 'N/A',
-    icon: <ChartBarIcon className="w-6 h-6 text-accent" />,
-    iconBg: 'bg-accent/10'
+    icon: <ChartBarIcon className="w-6 h-6 text-primary" />,
+    iconBg: 'bg-primary/10'
   },
   {
     id: 4,
     title: 'Last Analysis',
     value: 'Never',
-    icon: <ClockIcon className="w-6 h-6 text-accent" />,
-    iconBg: 'bg-accent/10'
+    icon: <ClockIcon className="w-6 h-6 text-primary" />,
+    iconBg: 'bg-primary/10'
   }
 ];
 
@@ -221,16 +221,16 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-background p-6">
+    <div className="w-full min-h-screen bg-bg p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-secondary mb-8">Welcome back!</h1>
+        <h1 className="text-3xl font-bold text-text mb-8">Welcome back!</h1>
         
-        {/* Stats Grid */}
+        {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {isLoadingStats ? (
             // Loading skeleton for stats
             Array(4).fill(0).map((_, index) => (
-              <div key={index} className="bg-surface rounded-xl p-6 border border-primary/10 animate-pulse">
+              <div key={index} className="card animate-pulse">
                 <div className="flex items-center mb-4">
                   <div className="w-12 h-12 rounded-lg bg-primary/10"></div>
                   <div className="h-4 bg-primary/10 rounded w-24 ml-3"></div>
@@ -240,11 +240,11 @@ export default function Dashboard() {
             ))
           ) : statsError ? (
             // Error state for stats
-            <div className="col-span-4 bg-red-50 border border-red-200 rounded-xl p-6">
-              <p className="text-red-500">{statsError}</p>
+            <div className="col-span-4 card bg-danger/10">
+              <p className="text-danger">{statsError}</p>
               <button 
                 onClick={fetchStats}
-                className="mt-2 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors"
+                className="mt-2 px-4 py-2 bg-danger/20 hover:bg-danger/30 text-danger rounded-lg transition-colors"
               >
                 Retry
               </button>
@@ -252,14 +252,14 @@ export default function Dashboard() {
           ) : (
             // Stats display
             stats.map(stat => (
-              <div key={stat.id} className="bg-surface rounded-xl p-6 border border-primary/10 hover:border-accent/30 transition-colors">
+              <div key={stat.id} className="card">
                 <div className="flex items-center mb-4">
                   <div className={`w-12 h-12 rounded-lg ${stat.iconBg} flex items-center justify-center`}>
                     {stat.icon}
                   </div>
-                  <h3 className="text-secondary ml-3">{stat.title}</h3>
+                  <h3 className="text-text ml-3">{stat.title}</h3>
                 </div>
-                <p className="text-2xl font-semibold text-primary">{stat.value}</p>
+                <p className="text-2xl font-semibold text-text">{stat.value}</p>
               </div>
             ))
           )}
@@ -267,60 +267,60 @@ export default function Dashboard() {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Text Analysis Card */}
-          <div className="lg:col-span-2 bg-surface rounded-xl p-6 border border-primary/10">
-            <h2 className="text-xl font-semibold text-secondary mb-4">Analyze Text</h2>
+          <div className="lg:col-span-2 card">
+            <h2 className="text-xl font-semibold text-text mb-4">Analyze Text</h2>
             <div className="mb-4">
               <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Enter text to analyze sentiment and emotion..."
-                className="w-full h-32 p-3 bg-background border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 text-white placeholder-white/70"
+                className="input-field h-32 text-text placeholder-text-muted"
               />
             </div>
             <div className="flex justify-end">
               <button
                 onClick={handleAnalyzeText}
                 disabled={isAnalyzing}
-                className="px-4 py-2 bg-accent hover:bg-accent/80 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isAnalyzing ? 'Analyzing...' : 'Analyze Now'}
               </button>
             </div>
             
             {error && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-500">{error}</p>
+              <div className="mt-4 p-3 bg-danger/10 backdrop-blur-sm rounded-xl">
+                <p className="text-danger">{error}</p>
               </div>
             )}
             
             {analysisResult && (
-              <div className="mt-4 p-4 bg-background border border-primary/10 rounded-lg">
-                <h3 className="font-medium text-secondary mb-2">Analysis Results:</h3>
+              <div className="mt-4 p-4 card">
+                <h3 className="font-medium text-text mb-2">Analysis Results:</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-secondary">Sentiment:</p>
+                    <p className="text-sm text-text-muted">Sentiment:</p>
                     <p className={`font-medium ${getSentimentColor(analysisResult.sentiment)}`}>
                       {analysisResult.sentiment}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-secondary">Score:</p>
-                    <p className="font-medium text-primary">
+                    <p className="text-sm text-text-muted">Score:</p>
+                    <p className="font-medium text-text">
                       {Math.round(analysisResult.sentiment_score * 100)}%
-                      {analysisResult.sentiment === 'MIXED' && <span className="ml-2 text-xs text-amber-500">(Mixed)</span>}
+                      {analysisResult.sentiment === 'MIXED' && <span className="ml-2 text-xs text-warning">(Mixed)</span>}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-secondary">Emotion:</p>
+                    <p className="text-sm text-text-muted">Emotion:</p>
                     <p className={`font-medium ${getEmotionColor(analysisResult.emotion)}`}>
                       {analysisResult.emotion.charAt(0).toUpperCase() + analysisResult.emotion.slice(1)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-secondary">Priority:</p>
+                    <p className="text-sm text-text-muted">Priority:</p>
                     <div className="flex items-center">
                       <span className={`inline-block w-3 h-3 rounded-full mr-2 ${getPriorityColor(analysisResult.priority)}`}></span>
-                      <span className="font-medium text-primary">{analysisResult.priority.charAt(0).toUpperCase() + analysisResult.priority.slice(1)} Priority</span>
+                      <span className="font-medium text-text">{analysisResult.priority.charAt(0).toUpperCase() + analysisResult.priority.slice(1)} Priority</span>
                     </div>
                   </div>
                 </div>
@@ -329,8 +329,8 @@ export default function Dashboard() {
           </div>
           
           {/* Recent Activity Card */}
-          <div className="bg-surface rounded-xl p-6 border border-primary/10 h-fit max-h-[500px] overflow-y-auto">
-            <h2 className="text-xl font-semibold text-secondary mb-4">Recent Activity</h2>
+          <div className="card h-fit max-h-[500px] overflow-y-auto">
+            <h2 className="text-xl font-semibold text-text mb-4">Recent Activity</h2>
             
             {isLoadingActivity ? (
               // Loading skeleton for activity
@@ -346,11 +346,11 @@ export default function Dashboard() {
               ))
             ) : activityError ? (
               // Error state for activity
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-500">{activityError}</p>
+              <div className="bg-danger/10 backdrop-blur-sm rounded-xl p-4">
+                <p className="text-danger">{activityError}</p>
                 <button 
                   onClick={fetchActivity}
-                  className="mt-2 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors"
+                  className="mt-2 px-4 py-2 bg-danger/20 hover:bg-danger/30 text-danger rounded-lg transition-colors"
                 >
                   Retry
                 </button>
@@ -358,7 +358,7 @@ export default function Dashboard() {
             ) : activities.length === 0 ? (
               // Empty state
               <div className="text-center py-6">
-                <p className="text-secondary">No recent activity</p>
+                <p className="text-text-muted">No recent activity</p>
               </div>
             ) : (
               // Activity list
@@ -366,9 +366,9 @@ export default function Dashboard() {
                 {activities.map((activity, index) => (
                   <div key={index} className="relative pl-5">
                     <div className={`absolute left-0 top-2 w-3 h-3 rounded-full ${getActivityTypeColor(activity.type)}`}></div>
-                    <h3 className="font-medium text-secondary">{activity.title}</h3>
-                    <p className="text-sm text-secondary/70">{activity.description}</p>
-                    <p className="text-xs text-secondary/50">{formatTimestamp(activity.time)}</p>
+                    <h3 className="font-medium text-text">{activity.title}</h3>
+                    <p className="text-sm text-text-muted">{activity.description}</p>
+                    <p className="text-xs text-text-muted/70">{formatTimestamp(activity.time)}</p>
                   </div>
                 ))}
               </div>

@@ -10,6 +10,12 @@ import Analytics from './components/Analytics'
 import Profile from './components/Profile'
 import Auth from './components/Auth'
 
+// Create a theme context
+export const ThemeContext = React.createContext({
+  darkMode: false,
+  toggleDarkMode: () => {},
+});
+
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token')
   
@@ -23,10 +29,30 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [darkMode, setDarkMode] = useState(() => {
+    // Check if user has a preference stored
+    const savedPreference = localStorage.getItem('darkMode');
+    return savedPreference ? JSON.parse(savedPreference) : false;
+  })
 
   useEffect(() => {
     checkAuth()
   }, [])
+
+  useEffect(() => {
+    // Apply dark mode class to body
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    // Save preference to localStorage
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+  }, [darkMode])
+
+  const toggleDarkMode = () => {
+    setDarkMode(prevMode => !prevMode);
+  }
 
   const checkAuth = async () => {
     const token = localStorage.getItem('token')
@@ -60,72 +86,74 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-primary flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary"></div>
       </div>
     )
   }
 
   return (
-    <Router>
-      <Routes>
-        {/* Auth route - if user is logged in, redirect to dashboard */}
-        <Route path="/auth" element={
-          user ? <Navigate to="/dashboard" replace /> : <Auth onAuthSuccess={handleAuthSuccess} />
-        } />
-        
-        {/* Root route - always redirect to auth if not logged in */}
-        <Route path="/" element={
-          <Navigate to="/auth" replace />
-        } />
+    <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
+      <Router>
+        <Routes>
+          {/* Auth route - if user is logged in, redirect to dashboard */}
+          <Route path="/auth" element={
+            user ? <Navigate to="/dashboard" replace /> : <Auth onAuthSuccess={handleAuthSuccess} />
+          } />
+          
+          {/* Root route - always redirect to auth if not logged in */}
+          <Route path="/" element={
+            <Navigate to="/auth" replace />
+          } />
 
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <Layout onLogout={handleLogout}>
-              <Dashboard />
-            </Layout>
-          </ProtectedRoute>
-        } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Layout onLogout={handleLogout}>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          } />
 
-        <Route path="/single-analysis" element={
-          <ProtectedRoute>
-            <Layout onLogout={handleLogout}>
-              <SingleAnalysis />
-            </Layout>
-          </ProtectedRoute>
-        } />
+          <Route path="/single-analysis" element={
+            <ProtectedRoute>
+              <Layout onLogout={handleLogout}>
+                <SingleAnalysis />
+              </Layout>
+            </ProtectedRoute>
+          } />
 
-        <Route path="/bulk-analysis" element={
-          <ProtectedRoute>
-            <Layout onLogout={handleLogout}>
-              <BulkAnalysis />
-            </Layout>
-          </ProtectedRoute>
-        } />
+          <Route path="/bulk-analysis" element={
+            <ProtectedRoute>
+              <Layout onLogout={handleLogout}>
+                <BulkAnalysis />
+              </Layout>
+            </ProtectedRoute>
+          } />
 
-        <Route path="/analytics" element={
-          <ProtectedRoute>
-            <Layout onLogout={handleLogout}>
-              <Analytics />
-            </Layout>
-          </ProtectedRoute>
-        } />
+          <Route path="/analytics" element={
+            <ProtectedRoute>
+              <Layout onLogout={handleLogout}>
+                <Analytics />
+              </Layout>
+            </ProtectedRoute>
+          } />
 
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Layout onLogout={handleLogout}>
-              <Profile />
-            </Layout>
-          </ProtectedRoute>
-        } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Layout onLogout={handleLogout}>
+                <Profile />
+              </Layout>
+            </ProtectedRoute>
+          } />
 
-        {/* Redirect all other routes to /auth */}
-        <Route path="*" element={
-          <Navigate to="/auth" replace />
-        } />
-      </Routes>
-      <Toaster position="top-right" />
-    </Router>
+          {/* Redirect all other routes to /auth */}
+          <Route path="*" element={
+            <Navigate to="/auth" replace />
+          } />
+        </Routes>
+        <Toaster position="top-right" />
+      </Router>
+    </ThemeContext.Provider>
   )
 }
 
