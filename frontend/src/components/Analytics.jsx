@@ -119,7 +119,7 @@ export default function Analytics() {
           <>
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-bg-light/50 backdrop-blur-sm rounded-2xl p-6 border-0 hover:border hover:border-primary/20 transition-all duration-300 group shadow-lg hover:shadow-xl hover:shadow-primary/5">
+              <div className="card">
                 <h3 className="text-sm font-medium text-text-muted">Total Analyses</h3>
                 <p className="text-2xl font-bold text-text mt-2 group-hover:scale-105 transition-transform">
                   {data?.summary.totalAnalyses.toLocaleString()}
@@ -128,7 +128,7 @@ export default function Analytics() {
                   <span className="inline-block mr-1">↑</span> 12% from last period
                 </p>
               </div>
-              <div className="bg-bg-light/50 backdrop-blur-sm rounded-2xl p-6 border-0 hover:border hover:border-primary/20 transition-all duration-300 group shadow-lg hover:shadow-xl hover:shadow-primary/5">
+              <div className="card">
                 <h3 className="text-sm font-medium text-text-muted">Average Sentiment</h3>
                 <p className="text-2xl font-bold text-text mt-2 group-hover:scale-105 transition-transform">
                   {data?.summary.averageSentiment ? data.summary.averageSentiment.toFixed(2) : '0.00'}%
@@ -137,7 +137,7 @@ export default function Analytics() {
                   <span className="inline-block mr-1">↑</span> 5% from last period
                 </p>
               </div>
-              <div className="bg-bg-light/50 backdrop-blur-sm rounded-2xl p-6 border-0 hover:border hover:border-primary/20 transition-all duration-300 group shadow-lg hover:shadow-xl hover:shadow-primary/5">
+              <div className="card">
                 <h3 className="text-sm font-medium text-text-muted">Response Rate</h3>
                 <p className="text-2xl font-bold text-text mt-2 group-hover:scale-105 transition-transform">
                   {data?.summary.responseRate}%
@@ -146,7 +146,7 @@ export default function Analytics() {
                   <span className="inline-block mr-1">↓</span> 3% from last period
                 </p>
               </div>
-              <div className="bg-bg-light/50 backdrop-blur-sm rounded-2xl p-6 border-0 hover:border hover:border-primary/20 transition-all duration-300 group shadow-lg hover:shadow-xl hover:shadow-primary/5">
+              <div className="card">
                 <h3 className="text-sm font-medium text-text-muted">Avg Response Time</h3>
                 <p className="text-2xl font-bold text-text mt-2 group-hover:scale-105 transition-transform">
                   {data?.summary.responseTime}s
@@ -160,7 +160,7 @@ export default function Analytics() {
             {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* Sentiment Trend */}
-              <div className="bg-bg-light/50 backdrop-blur-sm rounded-2xl p-6 border-0 hover:border hover:border-primary/20 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/5">
+              <div className="card">
                 <h2 className="text-xl font-semibold text-text mb-6">Sentiment Trend</h2>
                 <div className="h-80">
                   <Line data={data?.sentiment} options={chartOptions} />
@@ -168,7 +168,7 @@ export default function Analytics() {
               </div>
 
               {/* Emotion Distribution */}
-              <div className="bg-bg-light/50 backdrop-blur-sm rounded-2xl p-6 border-0 hover:border hover:border-primary/20 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/5">
+              <div className="card">
                 <h2 className="text-xl font-semibold text-text mb-6">Emotion Distribution</h2>
                 <div className="h-80">
                   <Doughnut data={data?.emotions} options={{
@@ -206,7 +206,7 @@ export default function Analytics() {
               </div>
 
               {/* Priority Breakdown */}
-              <div className="bg-bg-light/50 backdrop-blur-sm rounded-2xl p-6 border-0 hover:border hover:border-primary/20 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/5">
+              <div className="card">
                 <h2 className="text-xl font-semibold text-text mb-6">Priority Breakdown</h2>
                 <div className="h-80">
                   <Bar data={data?.priority} options={chartOptions} />
@@ -214,7 +214,7 @@ export default function Analytics() {
               </div>
 
               {/* Recent Activity */}
-              <div className="bg-bg-light/50 backdrop-blur-sm rounded-2xl p-6 border-0 hover:border hover:border-primary/20 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/5">
+              <div className="card">
                 <h2 className="text-xl font-semibold text-text mb-6">Recent Activity</h2>
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
                   {data?.activity.map((activity, index) => (

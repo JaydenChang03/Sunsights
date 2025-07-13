@@ -62,8 +62,9 @@ body {
 
 @layer components {
   .card {
-    @apply backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border-0 p-6;
+    @apply backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6;
     background-color: var(--bg-light);
+    border: 1px solid transparent;
   }
   
   .card:hover {

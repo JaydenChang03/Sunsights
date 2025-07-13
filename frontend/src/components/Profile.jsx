@@ -36,6 +36,7 @@ export default function Profile() {
       console.log('Profile: Attempting to fetch profile from /api/auth/profile');
       const response = await axios.get('/api/auth/profile');
       console.log('Profile: Successfully fetched profile:', response.data);
+      console.log('Profile: Profile response status:', response.status);
       setUser(response.data);
       setFormData({
         name: response.data.name || '',
@@ -46,6 +47,7 @@ export default function Profile() {
       console.error('Profile: Error fetching profile:', error);
       console.error('Profile: Error response:', error.response?.data);
       console.error('Profile: Error status:', error.response?.status);
+      console.error('Profile: Error message:', error.message);
       toast.error('Failed to load profile');
     } finally {
       setLoading(false);
@@ -58,11 +60,13 @@ export default function Profile() {
       console.log('Profile: Attempting to fetch notes from /api/notes');
       const response = await axios.get('/api/notes');
       console.log('Profile: Successfully fetched notes:', response.data);
+      console.log('Profile: Notes response status:', response.status);
       setNotes(response.data || []);
     } catch (error) {
       console.error('Profile: Error fetching notes:', error);
       console.error('Profile: Error response:', error.response?.data);
       console.error('Profile: Error status:', error.response?.status);
+      console.error('Profile: Error message:', error.message);
       toast.error('Failed to load notes');
     } finally {
       setLoadingNotes(false);
@@ -72,8 +76,10 @@ export default function Profile() {
   const handleSave = async () => {
     try {
       console.log('Profile: Attempting to save profile to /api/auth/profile');
+      console.log('Profile: Form data being sent:', formData);
       const response = await axios.put('/api/auth/profile', formData);
       console.log('Profile: Successfully saved profile:', response.data);
+      console.log('Profile: Save response status:', response.status);
       setUser(response.data.user);
       setEditing(false);
       toast.success('Profile updated successfully');
@@ -81,6 +87,7 @@ export default function Profile() {
       console.error('Profile: Error updating profile:', error);
       console.error('Profile: Error response:', error.response?.data);
       console.error('Profile: Error status:', error.response?.status);
+      console.error('Profile: Error message:', error.message);
       toast.error('Failed to update profile');
     }
   };
@@ -157,9 +164,35 @@ export default function Profile() {
         content: newNote
       });
       console.log('Profile: Note added successfully:', response.data);
-      setNotes(prev => [response.data, ...prev]);
-      setNewNote('');
-      toast.success('Note added successfully');
+      console.log('Profile: Response status:', response.status);
+      console.log('Profile: Response structure:', {
+        hasId: 'id' in response.data,
+        hasContent: 'content' in response.data,
+        hasCreatedAt: 'createdAt' in response.data,
+        responseKeys: Object.keys(response.data),
+        actualResponse: response.data
+      });
+      
+      // Simplified validation - just check if we have data
+      if (response.data && response.status === 200) {
+        console.log('Profile: Response is valid, adding to notes list');
+        console.log('Profile: Current notes length before:', notes.length);
+        setNotes(prev => {
+          const newNotes = [response.data, ...prev];
+          console.log('Profile: New notes length after:', newNotes.length);
+          return newNotes;
+        });
+        setNewNote('');
+        console.log('Profile: Showing success toast');
+        toast.success('Note added successfully');
+      } else {
+        console.error('Profile: Response validation failed:', {
+          hasData: !!response.data,
+          status: response.status,
+          data: response.data
+        });
+        toast.error('Note was saved but response format is unexpected');
+      }
     } catch (error) {
       console.error('Profile: Error adding note:', error);
       console.error('Profile: Note error response:', error.response?.data);

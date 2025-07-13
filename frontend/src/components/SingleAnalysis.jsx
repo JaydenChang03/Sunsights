@@ -79,22 +79,16 @@ export default function SingleAnalysis() {
   return (
     <div className="min-h-screen bg-bg p-6">
       <div className="max-w-3xl mx-auto">
-        <div className="card">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-primary/80 to-secondary/80 p-6 rounded-t-2xl">
-            <div className="flex items-center">
-              <ChatBubbleBottomCenterTextIcon className="h-7 w-7 text-bg" />
-              <h2 className="ml-3 text-2xl font-semibold text-bg">
-                Analyze Single Comment
-              </h2>
-            </div>
-            <p className="mt-2 text-sm text-bg/80">
-              Enter a comment below to analyze its sentiment, emotion, and priority level
-            </p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-text mb-2">Single Analysis</h1>
+          <p className="text-text-muted">Analyze individual comments for sentiment, emotion, and priority assessment</p>
+        </div>
 
+        <div className="card">
+          <h2 className="text-xl font-semibold text-text mb-4">Analyze Comment</h2>
+          
           {/* Input Section */}
-          <div className="p-6 space-y-4">
+          <div className="space-y-4">
             <div>
               <label htmlFor="comment" className="block text-sm font-medium text-text mb-2">
                 Comment Text
@@ -106,7 +100,7 @@ export default function SingleAnalysis() {
                 onKeyDown={handleKeyDown}
                 placeholder="Type your comment here... (Ctrl+Enter to analyze)"
                 rows={6}
-                className="w-full px-4 py-3 rounded-xl bg-bg-light/80 backdrop-blur-sm focus:ring-2 focus:ring-primary/30 focus:outline-none transition-all duration-200 text-text placeholder-text-muted border-0 focus:bg-bg-light"
+                className="w-full px-4 py-3 rounded-xl bg-bg backdrop-blur-sm focus:ring-2 focus:ring-primary/30 focus:outline-none transition-all duration-200 text-text placeholder-text-muted border-0 focus:bg-bg-light/50"
               />
               <p className="mt-2 text-sm text-text-muted">
                 Press Ctrl+Enter to analyze or use the button below
@@ -119,22 +113,17 @@ export default function SingleAnalysis() {
                 disabled={loading || !comment.trim()}
                 className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-bg mr-2"></div>
-                    Analyzing...
-                  </div>
-                ) : (
-                  'Analyze Comment'
-                )}
+                {loading ? 'Analyzing...' : 'Analyze Comment'}
               </button>
             </div>
           </div>
+        </div>
 
-          {/* Results Section */}
-          {result && (
-            <div className="p-6 bg-bg-light/30 backdrop-blur-sm rounded-b-2xl space-y-6">
-              <h3 className="text-lg font-semibold text-text">Analysis Results</h3>
+        {/* Results Section */}
+        {result && (
+          <div className="mt-8">
+            <div className="card">
+              <h2 className="text-xl font-semibold text-text mb-4">Analysis Results</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Sentiment Analysis */}
@@ -174,7 +163,7 @@ export default function SingleAnalysis() {
               </div>
 
               {/* Priority Level */}
-              <div className="card p-4">
+              <div className="card p-4 mt-6">
                 <h4 className="font-medium text-text mb-3">Priority Assessment</h4>
                 <div className="flex items-center justify-between">
                   <div>
@@ -189,7 +178,7 @@ export default function SingleAnalysis() {
 
               {/* Additional Insights */}
               {result.insights && result.insights.length > 0 && (
-                <div className="card p-4">
+                <div className="card p-4 mt-6">
                   <h4 className="font-medium text-text mb-3">Key Insights</h4>
                   <ul className="space-y-2">
                     {result.insights.map((insight, index) => (
@@ -201,8 +190,8 @@ export default function SingleAnalysis() {
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
