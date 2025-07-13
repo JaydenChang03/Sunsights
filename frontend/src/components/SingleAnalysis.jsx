@@ -81,7 +81,7 @@ export default function SingleAnalysis() {
       <div className="max-w-3xl mx-auto">
         <div className="card">
           {/* Header */}
-          <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-2xl">
+          <div className="bg-gradient-to-r from-primary/80 to-secondary/80 p-6 rounded-t-2xl">
             <div className="flex items-center">
               <ChatBubbleBottomCenterTextIcon className="h-7 w-7 text-bg" />
               <h2 className="ml-3 text-2xl font-semibold text-bg">
@@ -106,7 +106,7 @@ export default function SingleAnalysis() {
                 onKeyDown={handleKeyDown}
                 placeholder="Type your comment here... (Ctrl+Enter to analyze)"
                 rows={6}
-                className="w-full px-4 py-3 rounded-xl bg-bg-light/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/30 focus:outline-none transition-all duration-200 text-text placeholder-text-muted border-0"
+                className="w-full px-4 py-3 rounded-xl bg-bg-light/80 backdrop-blur-sm focus:ring-2 focus:ring-primary/30 focus:outline-none transition-all duration-200 text-text placeholder-text-muted border-0 focus:bg-bg-light"
               />
               <p className="mt-2 text-sm text-text-muted">
                 Press Ctrl+Enter to analyze or use the button below

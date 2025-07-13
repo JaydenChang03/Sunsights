@@ -8,13 +8,16 @@ import {
   ArrowLeftOnRectangleIcon,
   UserIcon,
   SunIcon,
-  MoonIcon
+  MoonIcon,
+  Bars3Icon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { ThemeContext } from '../App';
 
 const Layout = ({ children, onLogout }) => {
   const location = useLocation();
   const [mounted, setMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { darkMode, toggleDarkMode } = useContext(ThemeContext);
 
   // Add effect to handle mount animation
@@ -35,8 +38,30 @@ const Layout = ({ children, onLogout }) => {
 
   return (
     <div className="flex h-screen bg-bg text-text">
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 rounded-lg bg-bg-light/80 backdrop-blur-sm border border-primary/20 hover:border-primary/40 transition-all duration-200"
+        >
+          {mobileMenuOpen ? (
+            <XMarkIcon className="h-6 w-6 text-text" />
+          ) : (
+            <Bars3Icon className="h-6 w-6 text-text" />
+          )}
+        </button>
+      </div>
+
+      {/* Mobile menu overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="w-64 border-r border-border-muted shadow-lg shadow-black/20 relative overflow-hidden sidebar-bg-animation">
+      <div className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:relative w-64 h-full border-r border-border-muted shadow-lg shadow-black/20 overflow-hidden sidebar-bg-animation transition-transform duration-300 ease-in-out z-40`}>
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-50"></div>
         
@@ -66,6 +91,7 @@ const Layout = ({ children, onLogout }) => {
               <Link
                 key={item.name}
                 to={item.href}
+                onClick={() => setMobileMenuOpen(false)}
                 className={`
                   menu-item-hover flex items-center px-4 py-3.5 rounded-xl transition-all duration-300
                   ${active 
@@ -132,7 +158,8 @@ const Layout = ({ children, onLogout }) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto lg:ml-0">
+        <div className="lg:hidden h-16"></div> {/* Spacer for mobile menu button */}
         {children}
       </div>
     </div>

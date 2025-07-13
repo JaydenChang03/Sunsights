@@ -33,8 +33,8 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      console.log('Profile: Attempting to fetch profile from /api/profile');
-      const response = await axios.get('/api/profile');
+      console.log('Profile: Attempting to fetch profile from /api/auth/profile');
+      const response = await axios.get('/api/auth/profile');
       console.log('Profile: Successfully fetched profile:', response.data);
       setUser(response.data);
       setFormData({
@@ -71,8 +71,8 @@ export default function Profile() {
 
   const handleSave = async () => {
     try {
-      console.log('Profile: Attempting to save profile to /api/profile');
-      const response = await axios.put('/api/profile', formData);
+      console.log('Profile: Attempting to save profile to /api/auth/profile');
+      const response = await axios.put('/api/auth/profile', formData);
       console.log('Profile: Successfully saved profile:', response.data);
       setUser(response.data.user);
       setEditing(false);
@@ -96,9 +96,21 @@ export default function Profile() {
 
   const handleAvatarUpload = async (event) => {
     const file = event.target.files[0];
-    if (!file) return;
+    console.log('Profile: Avatar upload started, file:', file);
+    
+    if (!file) {
+      console.log('Profile: No file selected for avatar upload');
+      return;
+    }
+
+    console.log('Profile: File details:', {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    });
 
     if (file.size > 5 * 1024 * 1024) {
+      console.log('Profile: File too large:', file.size);
       toast.error('File size must be less than 5MB');
       return;
     }
@@ -106,6 +118,8 @@ export default function Profile() {
     setUploading(true);
     const formData = new FormData();
     formData.append('avatar', file);
+    
+    console.log('Profile: FormData created, making request to /api/auth/upload-avatar');
 
     try {
       const response = await axios.post('/api/auth/upload-avatar', formData, {
@@ -113,10 +127,13 @@ export default function Profile() {
           'Content-Type': 'multipart/form-data',
         },
       });
+      console.log('Profile: Avatar upload successful:', response.data);
       setUser(prev => ({ ...prev, avatar: response.data.avatar }));
       toast.success('Avatar updated successfully');
     } catch (error) {
-      console.error('Error uploading avatar:', error);
+      console.error('Profile: Avatar upload error:', error);
+      console.error('Profile: Avatar upload error response:', error.response?.data);
+      console.error('Profile: Avatar upload error status:', error.response?.status);
       toast.error('Failed to upload avatar');
     } finally {
       setUploading(false);
@@ -124,21 +141,29 @@ export default function Profile() {
   };
 
   const handleAddNote = async () => {
+    console.log('Profile: Adding note, content:', newNote);
+    
     if (!newNote.trim()) {
+      console.log('Profile: Note content is empty');
       toast.error('Please enter a note');
       return;
     }
 
     setAddingNote(true);
+    console.log('Profile: Making request to /api/notes with content:', newNote);
+    
     try {
       const response = await axios.post('/api/notes', {
         content: newNote
       });
+      console.log('Profile: Note added successfully:', response.data);
       setNotes(prev => [response.data, ...prev]);
       setNewNote('');
       toast.success('Note added successfully');
     } catch (error) {
-      console.error('Error adding note:', error);
+      console.error('Profile: Error adding note:', error);
+      console.error('Profile: Note error response:', error.response?.data);
+      console.error('Profile: Note error status:', error.response?.status);
       toast.error('Failed to add note');
     } finally {
       setAddingNote(false);
@@ -146,12 +171,17 @@ export default function Profile() {
   };
 
   const handleDeleteNote = async (noteId) => {
+    console.log('Profile: Deleting note with ID:', noteId);
+    
     try {
       await axios.delete(`/api/notes/${noteId}`);
+      console.log('Profile: Note deleted successfully');
       setNotes(prev => prev.filter(note => note.id !== noteId));
       toast.success('Note deleted successfully');
     } catch (error) {
-      console.error('Error deleting note:', error);
+      console.error('Profile: Error deleting note:', error);
+      console.error('Profile: Delete note error response:', error.response?.data);
+      console.error('Profile: Delete note error status:', error.response?.status);
       toast.error('Failed to delete note');
     }
   };
