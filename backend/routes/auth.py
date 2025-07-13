@@ -388,6 +388,9 @@ def update_profile():
         current_user = get_jwt_identity()
         data = request.get_json()
         
+        logger.info(f"Profile update request from user: {current_user}")
+        logger.info(f"Profile update data: {data}")
+        
         if not data:
             return jsonify({"error": "No data provided"}), 400
             
@@ -401,31 +404,49 @@ def update_profile():
         ).fetchone()
         
         if not user:
+            logger.error(f"User not found: {current_user}")
             return jsonify({"error": "User not found"}), 404
             
+        logger.info(f"Found user ID: {user['id']}")
+        
+        # First, let's check the profiles table structure
+        try:
+            cursor.execute("PRAGMA table_info(profiles)")
+            columns = cursor.fetchall()
+            logger.info(f"Profiles table columns: {[col[1] for col in columns]}")
+        except Exception as e:
+            logger.error(f"Error checking table structure: {e}")
+        
         # Update user name if provided
         if 'name' in data:
+            logger.info(f"Updating user name to: {data['name']}")
             cursor.execute(
                 "UPDATE users SET name = ? WHERE id = ?",
                 (data['name'], user['id'])
             )
         
-        # Update or create profile
+        # Check if profile exists using user_id (not id)
+        logger.info(f"Checking if profile exists for user_id: {user['id']}")
         profile_exists = cursor.execute(
-            "SELECT id FROM profiles WHERE user_id = ?",
+            "SELECT user_id FROM profiles WHERE user_id = ?",
             (user['id'],)
         ).fetchone()
         
+        logger.info(f"Profile exists: {profile_exists is not None}")
+        
         if profile_exists:
             # Update existing profile
+            logger.info("Updating existing profile")
             cursor.execute(
                 """UPDATE profiles 
                    SET name = ?, bio = ?
                    WHERE user_id = ?""",
                 (data.get('name', ''), data.get('bio', ''), user['id'])
             )
+            logger.info("Profile update query executed successfully")
         else:
             # Create new profile
+            logger.info("Creating new profile")
             cursor.execute(
                 """INSERT INTO profiles 
                    (user_id, name, bio, title, location, avatar_url, cover_url, stats, recent_activity) 
@@ -434,8 +455,10 @@ def update_profile():
                  'Photography Enthusiast', 'Not specified', 'https://via.placeholder.com/150',
                  None, '{}', '[]')
             )
+            logger.info("Profile creation query executed successfully")
         
         conn.commit()
+        logger.info("Database transaction committed successfully")
         
         return jsonify({
             "message": "Profile updated successfully",
@@ -448,6 +471,8 @@ def update_profile():
         
     except Exception as e:
         logger.error(f"Error updating profile: {e}")
+        logger.error(f"Error type: {type(e)}")
+        logger.error(f"Error args: {e.args}")
         return jsonify({"error": str(e)}), 500
     finally:
         conn.close()
