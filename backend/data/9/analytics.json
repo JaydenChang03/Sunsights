@@ -1,71 +1,617 @@
 {
-  "totalAnalyses": 8,
-  "bulkUploads": 0,
-  "averageSentiment": 66.16853125,
-  "lastAnalysisTime": "2025-07-13 15:30:11",
+  "totalAnalyses": 209,
+  "bulkUploads": 2,
+  "averageSentiment": 66.2954254587156,
+  "lastAnalysisTime": "2025-07-13 15:50:01",
   "emotionCounts": {
-    "Joy": 5,
-    "Sadness": 0,
-    "Anger": 2,
-    "Fear": 0,
-    "Surprise": 0,
-    "Love": 1,
-    "neutral": 0
+    "Joy": 80,
+    "Sadness": 26,
+    "Anger": 48,
+    "Fear": 16,
+    "Surprise": 4,
+    "Love": 11,
+    "neutral": 24
   },
   "activities": [
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: love, Priority: Low",
-      "time": "2025-07-13 15:30:11",
-      "type": "success"
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
-      "time": "2025-07-13 15:29:46",
-      "type": "success"
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
-      "time": "2025-07-13 15:26:55",
-      "type": "success"
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
-      "time": "2025-07-13 15:18:09",
-      "type": "success"
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
-      "time": "2025-07-13 14:37:27",
-      "type": "success"
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
-      "time": "2025-07-12 16:15:39",
-      "type": "success"
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
-      "time": "2025-07-12 16:15:28",
-      "type": "success"
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
     },
     {
-      "title": "Text Analysis Completed",
-      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
-      "time": "2025-07-12 14:48:34",
-      "type": "success"
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
     },
     {
-      "title": "Welcome to Sunsights",
-      "description": "Your sentiment analysis dashboard is ready",
-      "time": "2025-07-12 14:48:01",
-      "type": "info"
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Medium",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Medium",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:17",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: High",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: MIXED, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: NEGATIVE, Priority: Medium",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
+    },
+    {
+      "title": "Analyzed comment from bulk upload",
+      "description": "Sentiment: POSITIVE, Priority: Low",
+      "time": "2025-07-13 15:50:16",
+      "type": "analysis"
     }
   ],
   "isNewAccount": false

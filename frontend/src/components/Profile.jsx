@@ -33,15 +33,19 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      const response = await axios.get('/api/auth/profile');
-      setUser(response.data.user);
+      console.log('Profile: Attempting to fetch profile from /api/profile');
+      const response = await axios.get('/api/profile');
+      console.log('Profile: Successfully fetched profile:', response.data);
+      setUser(response.data);
       setFormData({
-        name: response.data.user.name || '',
-        email: response.data.user.email || '',
-        bio: response.data.user.bio || ''
+        name: response.data.name || '',
+        email: response.data.email || '',
+        bio: response.data.bio || ''
       });
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Profile: Error fetching profile:', error);
+      console.error('Profile: Error response:', error.response?.data);
+      console.error('Profile: Error status:', error.response?.status);
       toast.error('Failed to load profile');
     } finally {
       setLoading(false);
@@ -51,10 +55,14 @@ export default function Profile() {
   const fetchNotes = async () => {
     setLoadingNotes(true);
     try {
-      const response = await axios.get('/api/profile/notes');
-      setNotes(response.data.notes || []);
+      console.log('Profile: Attempting to fetch notes from /api/notes');
+      const response = await axios.get('/api/notes');
+      console.log('Profile: Successfully fetched notes:', response.data);
+      setNotes(response.data || []);
     } catch (error) {
-      console.error('Error fetching notes:', error);
+      console.error('Profile: Error fetching notes:', error);
+      console.error('Profile: Error response:', error.response?.data);
+      console.error('Profile: Error status:', error.response?.status);
       toast.error('Failed to load notes');
     } finally {
       setLoadingNotes(false);
@@ -63,12 +71,16 @@ export default function Profile() {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put('/api/auth/profile', formData);
+      console.log('Profile: Attempting to save profile to /api/profile');
+      const response = await axios.put('/api/profile', formData);
+      console.log('Profile: Successfully saved profile:', response.data);
       setUser(response.data.user);
       setEditing(false);
       toast.success('Profile updated successfully');
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('Profile: Error updating profile:', error);
+      console.error('Profile: Error response:', error.response?.data);
+      console.error('Profile: Error status:', error.response?.status);
       toast.error('Failed to update profile');
     }
   };
@@ -119,10 +131,10 @@ export default function Profile() {
 
     setAddingNote(true);
     try {
-      const response = await axios.post('/api/profile/notes', {
+      const response = await axios.post('/api/notes', {
         content: newNote
       });
-      setNotes(prev => [response.data.note, ...prev]);
+      setNotes(prev => [response.data, ...prev]);
       setNewNote('');
       toast.success('Note added successfully');
     } catch (error) {
@@ -135,7 +147,7 @@ export default function Profile() {
 
   const handleDeleteNote = async (noteId) => {
     try {
-      await axios.delete(`/api/profile/notes/${noteId}`);
+      await axios.delete(`/api/notes/${noteId}`);
       setNotes(prev => prev.filter(note => note.id !== noteId));
       toast.success('Note deleted successfully');
     } catch (error) {
@@ -312,7 +324,7 @@ export default function Profile() {
                     <div className="flex-1">
                       <p className="text-text">{note.content}</p>
                       <p className="text-sm text-text-muted mt-2">
-                        {new Date(note.created_at).toLocaleDateString()}
+                        {new Date(note.createdAt || note.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <button

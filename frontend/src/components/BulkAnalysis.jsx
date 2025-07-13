@@ -9,16 +9,10 @@ export default function BulkAnalysis() {
   const [analyzing, setAnalyzing] = useState(false);
   const [results, setResults] = useState(null);
   const [dragActive, setDragActive] = useState(false);
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [imageAnalysisType, setImageAnalysisType] = useState('general');
-  const [showImagePreview, setShowImagePreview] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [csvData, setCsvData] = useState(null);
   const [selectedColumns, setSelectedColumns] = useState([]);
-  const [analysisType, setAnalysisType] = useState('text');
   const fileInputRef = useRef(null);
-  const imageInputRef = useRef(null);
 
   const handleDrag = useCallback((e) => {
     e.preventDefault();
@@ -43,8 +37,7 @@ export default function BulkAnalysis() {
     const validFiles = Array.from(fileList).filter(file => {
       const isValidType = file.type === 'text/csv' || 
                          file.type === 'application/vnd.ms-excel' ||
-                         file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-                         file.type.startsWith('image/');
+                         file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
       
       if (!isValidType) {
         toast.error(`${file.name} is not a supported file type`);
@@ -96,72 +89,57 @@ export default function BulkAnalysis() {
     handleFiles(e.target.files);
   };
 
-  const handleImageInput = (e) => {
-    const imageFiles = Array.from(e.target.files);
-    setSelectedImages(prev => [...prev, ...imageFiles]);
-  };
-
-  const removeImage = (index) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
-  };
-
   const uploadFiles = async () => {
-    if (analysisType === 'text' && files.length === 0) {
+    if (files.length === 0) {
+      console.log('BulkAnalysis: No text files selected');
       toast.error('Please select files to upload');
       return;
     }
-    
-    if (analysisType === 'image' && selectedImages.length === 0) {
-      toast.error('Please select images to upload');
-      return;
-    }
 
+    console.log('BulkAnalysis: Starting file upload');
+    console.log('BulkAnalysis: Files:', files);
+    
     setUploading(true);
     setAnalysisProgress(0);
     
     try {
       const formData = new FormData();
-      let endpoint = '';
       
-      if (analysisType === 'text') {
-        // Add text files
-        files.forEach(file => {
-          formData.append('file', file);
-        });
-        
-        // Add selected columns if CSV data exists
-        if (csvData && selectedColumns.length > 0) {
-          formData.append('columns', JSON.stringify(selectedColumns));
-        }
-        
-        endpoint = '/api/analyze-bulk';
-      } else if (analysisType === 'image') {
-        // Add images
-        selectedImages.forEach(image => {
-          formData.append('images', image);
-        });
-        
-        // Add image analysis type
-        formData.append('analysis_type', imageAnalysisType);
-        
-        endpoint = '/api/analyze-images';
+      console.log('BulkAnalysis: Processing text files');
+      // Add text files
+      files.forEach(file => {
+        console.log('BulkAnalysis: Adding file to FormData:', file.name, file.type);
+        formData.append('file', file);
+      });
+      
+      // Add selected columns if CSV data exists
+      if (csvData && selectedColumns.length > 0) {
+        console.log('BulkAnalysis: Adding selected columns:', selectedColumns);
+        formData.append('columns', JSON.stringify(selectedColumns));
       }
+      
+      const endpoint = '/api/analytics/analyze-bulk';
 
+      console.log('BulkAnalysis: Making request to endpoint:', endpoint);
       const response = await axios.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log('BulkAnalysis: Upload progress:', percentCompleted + '%');
           setAnalysisProgress(percentCompleted);
         }
       });
 
+      console.log('BulkAnalysis: Upload successful, response:', response.data);
       setResults(response.data);
-      toast.success(`${analysisType === 'text' ? 'Files' : 'Images'} uploaded and analyzed successfully!`);
+      toast.success('Files uploaded and analyzed successfully!');
     } catch (error) {
-      console.error('Upload error:', error);
-      toast.error(error.response?.data?.error || `Failed to upload ${analysisType === 'text' ? 'files' : 'images'}`);
+      console.error('BulkAnalysis: Upload error:', error);
+      console.error('BulkAnalysis: Error response:', error.response?.data);
+      console.error('BulkAnalysis: Error status:', error.response?.status);
+      toast.error(error.response?.data?.error || 'Failed to upload files');
     } finally {
       setUploading(false);
       setAnalysisProgress(0);
@@ -176,9 +154,8 @@ export default function BulkAnalysis() {
 
     setAnalyzing(true);
     try {
-      const response = await axios.post('/api/analyze/process', {
+      const response = await axios.post('/api/analytics/analyze/process', {
         fileIds: results.uploadedFiles.map(file => file.id),
-        analysisType,
         selectedColumns
       });
 
@@ -224,411 +201,255 @@ export default function BulkAnalysis() {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-text mb-2">Bulk Analysis</h1>
-          <p className="text-text-muted">Upload multiple files or images for batch sentiment analysis</p>
+          <p className="text-text-muted">Upload multiple CSV or Excel files for batch sentiment analysis</p>
         </div>
 
-        {/* Analysis Type Selection */}
-        <div className="card mb-6">
-          <h2 className="text-xl font-semibold text-text mb-4">Analysis Type</h2>
-          <div className="flex space-x-4">
-            <button
-              onClick={() => setAnalysisType('text')}
-              className={`px-4 py-2 rounded-xl transition-colors ${
-                analysisType === 'text' 
-                  ? 'bg-primary text-bg' 
-                  : 'bg-bg-light/50 text-text hover:bg-bg-light'
-              }`}
-            >
-              Text Analysis
-            </button>
-            <button
-              onClick={() => setAnalysisType('image')}
-              className={`px-4 py-2 rounded-xl transition-colors ${
-                analysisType === 'image' 
-                  ? 'bg-primary text-bg' 
-                  : 'bg-bg-light/50 text-text hover:bg-bg-light'
-              }`}
-            >
-              Image Analysis
-            </button>
+        {/* File Upload Section */}
+        <div className="card">
+          <h2 className="text-xl font-semibold text-text mb-4">Upload Text Files</h2>
+          
+          {/* File Upload Area */}
+          <div
+            className={`relative mt-1 flex justify-center px-6 pt-5 pb-6 rounded-2xl transition-all duration-300 ${
+              dragActive 
+                ? 'bg-primary/10 ring-2 ring-primary' 
+                : 'bg-bg-light/50 hover:bg-bg-light'
+            }`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+            <div className="space-y-1 text-center">
+              <div className="card absolute top-2 right-2 flex items-center px-3 py-1 z-10">
+                <span className="text-xs text-text-muted">CSV, Excel supported</span>
+              </div>
+              <CloudArrowUpIcon className="mx-auto h-12 w-12 text-primary" />
+              <div className="flex text-sm text-text">
+                <label
+                  htmlFor="file-upload"
+                  className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none focus-within:ring-2 focus-within:ring-primary/30"
+                >
+                  <span>Upload files</span>
+                  <input
+                    id="file-upload"
+                    ref={fileInputRef}
+                    name="file-upload"
+                    type="file"
+                    className="sr-only"
+                    multiple
+                    accept=".csv,.xlsx,.xls"
+                    onChange={handleFileInput}
+                  />
+                </label>
+                <p className="pl-1">or drag and drop</p>
+              </div>
+              <p className="text-xs text-text-muted">CSV, Excel files up to 10MB</p>
+            </div>
           </div>
-        </div>
 
-        {analysisType === 'text' ? (
-          // Text Analysis Section
-          <div className="card">
-            <h2 className="text-xl font-semibold text-text mb-4">Upload Text Files</h2>
-            
-            {/* File Upload Area */}
-            <div
-              className={`relative mt-1 flex justify-center px-6 pt-5 pb-6 rounded-2xl transition-all duration-300 ${
-                dragActive 
-                  ? 'bg-primary/10 ring-2 ring-primary' 
-                  : 'bg-bg-light/50 hover:bg-bg-light'
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <div className="space-y-1 text-center">
-                <div className="card absolute top-2 right-2 flex items-center px-3 py-1 z-10">
-                  <span className="text-xs text-text-muted">CSV, Excel supported</span>
-                </div>
-                <CloudArrowUpIcon className="mx-auto h-12 w-12 text-primary" />
-                <div className="flex text-sm text-text">
-                  <label
-                    htmlFor="file-upload"
-                    className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none focus-within:ring-2 focus-within:ring-primary/30"
-                  >
-                    <span>Upload files</span>
-                    <input
-                      id="file-upload"
-                      ref={fileInputRef}
-                      name="file-upload"
-                      type="file"
-                      className="sr-only"
-                      multiple
-                      accept=".csv,.xlsx,.xls"
-                      onChange={handleFileInput}
-                    />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
-                </div>
-                <p className="text-xs text-text-muted">CSV, Excel files up to 10MB</p>
+          {/* File List */}
+          {files.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-lg font-medium text-text mb-3">Selected Files</h3>
+              <div className="space-y-2">
+                {files.map((file, index) => (
+                  <div key={index} className="card p-3 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <DocumentTextIcon className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-sm text-text">{file.name}</span>
+                      <span className="text-xs text-text-muted ml-2">
+                        ({(file.size / 1024).toFixed(1)} KB)
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => removeFile(index)}
+                      className="text-danger hover:text-danger/80"
+                    >
+                      <XMarkIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
+          )}
 
-            {/* File List */}
-            {files.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-medium text-text mb-3">Selected Files</h3>
-                <div className="space-y-2">
-                  {files.map((file, index) => (
-                    <div key={index} className="card p-3 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <DocumentTextIcon className="h-5 w-5 text-primary mr-2" />
-                        <span className="text-sm text-text">{file.name}</span>
-                        <span className="text-xs text-text-muted ml-2">
-                          ({(file.size / 1024).toFixed(1)} KB)
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => removeFile(index)}
-                        className="text-danger hover:text-danger/80"
-                      >
-                        <XMarkIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+          {/* CSV Column Selection */}
+          {csvData && (
+            <div className="mt-6 card">
+              <h3 className="text-lg font-medium text-text mb-3">Select Columns to Analyze</h3>
+              <div className="mb-4 p-3 bg-warning/10 rounded-xl">
+                <p className="text-sm text-warning">
+                  Select the columns that contain text data you want to analyze for sentiment and emotion.
+                </p>
               </div>
-            )}
-
-            {/* CSV Column Selection */}
-            {csvData && (
-              <div className="mt-6 card">
-                <h3 className="text-lg font-medium text-text mb-3">Select Columns to Analyze</h3>
-                <div className="mb-4 p-3 bg-warning/10 rounded-xl">
-                  <p className="text-sm text-warning">
-                    Select the columns that contain text data you want to analyze for sentiment and emotion.
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {csvData.headers.map((header, index) => (
-                    <label key={index} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedColumns.includes(header)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedColumns(prev => [...prev, header]);
-                          } else {
-                            setSelectedColumns(prev => prev.filter(col => col !== header));
-                          }
-                        }}
-                        className="rounded text-primary focus:ring-primary/30"
-                      />
-                      <span className="text-sm text-text">{header}</span>
-                    </label>
-                  ))}
-                </div>
-                
-                {/* Preview */}
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium text-text mb-2">Preview</h4>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                      <thead>
-                        <tr>
-                          {csvData.headers.map((header, index) => (
-                            <th key={index} className="px-3 py-2 text-left text-xs font-medium text-text-muted">
-                              {header}
-                            </th>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {csvData.headers.map((header, index) => (
+                  <label key={index} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedColumns.includes(header)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedColumns(prev => [...prev, header]);
+                        } else {
+                          setSelectedColumns(prev => prev.filter(col => col !== header));
+                        }
+                      }}
+                      className="rounded text-primary focus:ring-primary/30"
+                    />
+                    <span className="text-sm text-text">{header}</span>
+                  </label>
+                ))}
+              </div>
+              
+              {/* Preview */}
+              <div className="mt-4">
+                <h4 className="text-sm font-medium text-text mb-2">Preview</h4>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr>
+                        {csvData.headers.map((header, index) => (
+                          <th key={index} className="px-3 py-2 text-left text-xs font-medium text-text-muted">
+                            {header}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {csvData.data.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                          {csvData.headers.map((header, colIndex) => (
+                            <td key={colIndex} className="px-3 py-2 text-sm text-text">
+                              {row[header]}
+                            </td>
                           ))}
                         </tr>
-                      </thead>
-                      <tbody>
-                        {csvData.data.map((row, rowIndex) => (
-                          <tr key={rowIndex}>
-                            {csvData.headers.map((header, colIndex) => (
-                              <td key={colIndex} className="px-3 py-2 text-sm text-text">
-                                {row[header]}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            )}
-
-            {/* Upload Button */}
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={uploadFiles}
-                disabled={uploading || (files.length === 0)}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {uploading ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-bg mr-2"></div>
-                    Uploading... ({analysisProgress}%)
-                  </div>
-                ) : (
-                  'Upload & Analyze'
-                )}
-              </button>
             </div>
-          </div>
-        ) : (
-          // Image Analysis Section
-          <div className="card">
-            <h2 className="text-xl font-semibold text-text mb-4">Upload Images</h2>
-            
-            {/* Image Analysis Type */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-text mb-2">
-                Analysis Type
-              </label>
-              <select
-                value={imageAnalysisType}
-                onChange={(e) => setImageAnalysisType(e.target.value)}
-                className="input-field"
-              >
-                <option value="general">General Image Analysis</option>
-                <option value="text">Text Recognition (OCR)</option>
-                <option value="emotion">Facial Emotion Detection</option>
-                <option value="object">Object Detection</option>
-              </select>
-            </div>
+          )}
 
-            {/* Image Upload */}
-            <div className="mb-6">
-              <input
-                ref={imageInputRef}
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleImageInput}
-                className="hidden"
-              />
-              <button
-                onClick={() => imageInputRef.current?.click()}
-                className="btn-primary"
-              >
-                Select Images
-              </button>
-            </div>
-
-            {/* Image Preview */}
-            {selectedImages.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-text mb-3">Selected Images</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {selectedImages.map((image, index) => (
-                    <div key={index} className="relative card p-2">
-                      <img
-                        src={URL.createObjectURL(image)}
-                        alt={`Upload ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                      <button
-                        onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 bg-danger text-bg rounded-full p-1 hover:bg-danger/80"
-                      >
-                        <XMarkIcon className="h-4 w-4" />
-                      </button>
-                      <p className="text-xs text-text-muted mt-1 truncate">{image.name}</p>
-                    </div>
-                  ))}
+          {/* Upload Button */}
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={uploadFiles}
+              disabled={uploading || (files.length === 0)}
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {uploading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-bg mr-2"></div>
+                  Uploading... ({analysisProgress}%)
                 </div>
-              </div>
-            )}
-
-            {/* Upload Button */}
-            <div className="flex justify-end">
-              <button
-                onClick={uploadFiles}
-                disabled={uploading || selectedImages.length === 0}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {uploading ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-bg mr-2"></div>
-                    Analyzing... ({analysisProgress}%)
-                  </div>
-                ) : (
-                  'Upload & Analyze Images'
-                )}
-              </button>
-            </div>
+              ) : (
+                'Upload & Analyze'
+              )}
+            </button>
           </div>
-        )}
+        </div>
 
         {/* Results Section */}
         {results && (
-          <div className="mt-8 card">
-            <h2 className="text-xl font-semibold text-text mb-4">Analysis Results</h2>
-            
-            {results.analysis ? (
-              <div className="space-y-6">
-                {/* Summary Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {results.analysis.totalItems ? (
-                    // Text Analysis Summary
-                    <>
-                      <div className="card p-4 text-center">
-                        <div className="text-2xl font-bold text-text">{results.analysis.totalItems}</div>
-                        <div className="text-text-muted">Total Items</div>
-                      </div>
-                      <div className="card p-4 text-center">
-                        <div className="text-2xl font-bold text-success">{results.analysis.positiveCount}</div>
-                        <div className="text-text-muted">Positive</div>
-                      </div>
-                      <div className="card p-4 text-center">
-                        <div className="text-2xl font-bold text-danger">{results.analysis.negativeCount}</div>
-                        <div className="text-text-muted">Negative</div>
-                      </div>
-                    </>
-                  ) : (
-                    // Image Analysis Summary
-                    <>
-                      <div className="card p-4 text-center">
-                        <div className="text-2xl font-bold text-text">{results.analysis.totalImages}</div>
-                        <div className="text-text-muted">Total Images</div>
-                      </div>
-                      <div className="card p-4 text-center">
-                        <div className="text-2xl font-bold text-success">{results.analysis.processedImages}</div>
-                        <div className="text-text-muted">Processed</div>
-                      </div>
-                      <div className="card p-4 text-center">
-                        <div className="text-2xl font-bold text-danger">{results.analysis.errorCount}</div>
-                        <div className="text-text-muted">Errors</div>
-                      </div>
-                    </>
-                  )}
+          <div className="mt-8">
+            <div className="card">
+              <h2 className="text-xl font-semibold text-text mb-4">Analysis Results</h2>
+              
+              {results.totalAnalyzed && (
+                <div className="mb-6">
+                  <div className="bg-success/10 border border-success/20 rounded-xl p-4">
+                    <div className="flex items-center">
+                      <CheckCircleIcon className="h-5 w-5 text-success mr-2" />
+                      <span className="text-success font-medium">
+                        Successfully analyzed {results.totalAnalyzed} items
+                      </span>
+                    </div>
+                  </div>
                 </div>
+              )}
 
-                {/* Detailed Results */}
-                <div className="space-y-4">
-                  {results.analysis.items ? (
-                    // Text Analysis Results
-                    results.analysis.items.map((item, index) => (
+              {results.summary && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium text-text mb-3">Summary</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="card p-4">
+                      <h4 className="text-sm font-medium text-text-muted mb-2">Sentiment Distribution</h4>
+                      <div className="space-y-1">
+                        {Object.entries(results.summary.sentimentDistribution).map(([sentiment, count]) => (
+                          <div key={sentiment} className="flex justify-between">
+                            <span className={`text-sm ${getSentimentColor(sentiment)}`}>
+                              {sentiment}
+                            </span>
+                            <span className="text-sm text-text">{count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="card p-4">
+                      <h4 className="text-sm font-medium text-text-muted mb-2">Priority Distribution</h4>
+                      <div className="space-y-1">
+                        {Object.entries(results.summary.priorityDistribution).map(([priority, count]) => (
+                          <div key={priority} className="flex justify-between">
+                            <span className="text-sm text-text">{priority}</span>
+                            <span className="text-sm text-text">{count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="card p-4">
+                      <h4 className="text-sm font-medium text-text-muted mb-2">Average Sentiment</h4>
+                      <div className="text-2xl font-bold text-primary">
+                        {Math.round(results.summary.averageSentiment)}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {results.results && (
+                <div>
+                  <h3 className="text-lg font-medium text-text mb-3">Detailed Results</h3>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {results.results.map((result, index) => (
                       <div key={index} className="card p-4">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex-1">
-                            <p className="text-text font-medium">{item.text}</p>
-                            <div className="flex items-center space-x-4 mt-2">
-                              <span className={`text-sm ${getSentimentColor(item.sentiment)}`}>
-                                {item.sentiment}
+                            <p className="text-sm text-text mb-2">{result.text}</p>
+                            <div className="flex items-center space-x-4 text-xs">
+                              <span className={`font-medium ${getSentimentColor(result.sentiment)}`}>
+                                {result.sentiment}
                               </span>
-                              <span className={`text-sm ${getEmotionColor(item.emotion)}`}>
-                                {item.emotion}
+                              <span className={`${getEmotionColor(result.emotion)}`}>
+                                {result.emotion}
                               </span>
-                              <span className="text-sm text-text-muted">
-                                {Math.round(item.confidence * 100)}% confidence
+                              <span className="text-text-muted">
+                                Priority: {result.priority}
                               </span>
                             </div>
                           </div>
                         </div>
                       </div>
-                    ))
-                  ) : results.analysis.results ? (
-                    // Image Analysis Results
-                    results.analysis.results.map((result, index) => (
-                      <div key={index} className="card p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex-1">
-                            <h4 className="text-text font-medium mb-2">{result.filename}</h4>
-                            {result.error ? (
-                              <p className="text-danger text-sm">{result.error}</p>
-                            ) : (
-                              <div className="space-y-2">
-                                <div className="flex items-center space-x-4">
-                                  <span className="text-sm text-text-muted">
-                                    Analysis: {result.analysis_type}
-                                  </span>
-                                  <span className="text-sm text-text-muted">
-                                    Size: {Math.round(result.file_size / 1024)} KB
-                                  </span>
-                                </div>
-                                
-                                {result.analysis_type === 'general' && (
-                                  <div className="text-sm text-text">
-                                    <p><strong>Description:</strong> {result.analysis.description}</p>
-                                    <p><strong>Objects:</strong> {result.analysis.objects.join(', ')}</p>
-                                    <p><strong>Colors:</strong> {result.analysis.colors.join(', ')}</p>
-                                  </div>
-                                )}
-                                
-                                {result.analysis_type === 'text' && (
-                                  <div className="text-sm text-text">
-                                    <p><strong>Extracted Text:</strong> {result.analysis.extracted_text}</p>
-                                    <div className="mt-2 flex items-center space-x-4">
-                                      <span className={`${getSentimentColor(result.analysis.text_analysis.sentiment)}`}>
-                                        {result.analysis.text_analysis.sentiment}
-                                      </span>
-                                      <span className={`${getEmotionColor(result.analysis.text_analysis.emotion)}`}>
-                                        {result.analysis.text_analysis.emotion}
-                                      </span>
-                                    </div>
-                                  </div>
-                                )}
-                                
-                                {result.analysis_type === 'emotion' && (
-                                  <div className="text-sm text-text">
-                                    <p><strong>Faces Detected:</strong> {result.analysis.faces_detected}</p>
-                                    <p><strong>Primary Emotion:</strong> {result.analysis.primary_emotion}</p>
-                                  </div>
-                                )}
-                                
-                                {result.analysis_type === 'object' && (
-                                  <div className="text-sm text-text">
-                                    <p><strong>Objects Detected:</strong> {result.analysis.objects_detected}</p>
-                                    <p><strong>Objects:</strong> {result.analysis.objects.map(obj => obj.name).join(', ')}</p>
-                                  </div>
-                                )}
-                                
-                                <div className="text-xs text-text-muted">
-                                  Confidence: {Math.round(result.analysis.confidence * 100)}%
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : null}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ) : (
+              )}
+            </div>
+          </div>
+        )}
+
+        {!results && (
+          <div className="mt-8">
+            <div className="card">
               <div className="text-center py-8">
-                <p className="text-text-muted">Upload {analysisType === 'text' ? 'files' : 'images'} to see analysis results</p>
+                <p className="text-text-muted">Upload files to see analysis results</p>
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>
