@@ -457,18 +457,43 @@ def update_profile():
 def upload_avatar():
     try:
         current_user = get_jwt_identity()
+        logger.info(f"Avatar upload request from user: {current_user}")
         
         if 'avatar' not in request.files:
+            logger.error("No avatar file in request")
             return jsonify({'error': 'No avatar file provided'}), 400
             
         file = request.files['avatar']
+        logger.info(f"Avatar file received: {file.filename}")
         
         if file.filename == '':
+            logger.error("Empty filename")
             return jsonify({'error': 'No file selected'}), 400
             
-        # For now, just return a placeholder URL
-        # In production, you would save the file and return the actual URL
-        avatar_url = 'https://via.placeholder.com/150'
+        # Check file type
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
+        file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        
+        if file_ext not in allowed_extensions:
+            logger.error(f"Invalid file extension: {file_ext}")
+            return jsonify({'error': 'Invalid file type. Please use PNG, JPG, JPEG, or GIF'}), 400
+            
+        # Create uploads directory if it doesn't exist
+        uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
+        os.makedirs(uploads_dir, exist_ok=True)
+        logger.info(f"Uploads directory: {uploads_dir}")
+        
+        # Generate unique filename
+        import uuid
+        unique_filename = f"avatar_{uuid.uuid4().hex}.{file_ext}"
+        file_path = os.path.join(uploads_dir, unique_filename)
+        
+        # Save the file
+        file.save(file_path)
+        logger.info(f"Avatar saved to: {file_path}")
+        
+        # Create URL for the uploaded file
+        avatar_url = f"/uploads/{unique_filename}"
         
         conn = get_db()
         cursor = conn.cursor()
@@ -486,6 +511,7 @@ def upload_avatar():
                 (avatar_url, user['id'])
             )
             conn.commit()
+            logger.info(f"Avatar URL updated in database: {avatar_url}")
         
         return jsonify({
             'message': 'Avatar uploaded successfully',

@@ -69,7 +69,16 @@ export default function Profile() {
       const response = await axios.get('/api/auth/profile');
       console.log('Profile: Successfully fetched profile:', response.data);
       console.log('Profile: Profile response status:', response.status);
-      setUser(response.data);
+      console.log('Profile: Avatar URL from fetch:', response.data.avatar);
+      
+      // Convert relative avatar URL to absolute
+      const profileData = { ...response.data };
+      if (profileData.avatar && !profileData.avatar.startsWith('http')) {
+        profileData.avatar = `http://localhost:5000${profileData.avatar}`;
+        console.log('Profile: Converted avatar URL to:', profileData.avatar);
+      }
+      
+      setUser(profileData);
       setFormData({
         name: response.data.name || '',
         email: response.data.email || '',
@@ -109,10 +118,28 @@ export default function Profile() {
     try {
       console.log('Profile: Attempting to save profile to /api/auth/profile');
       console.log('Profile: Form data being sent:', formData);
+      console.log('Profile: Current user state before save:', user);
+      
       const response = await axios.put('/api/auth/profile', formData);
       console.log('Profile: Successfully saved profile:', response.data);
       console.log('Profile: Save response status:', response.status);
-      setUser(response.data.user);
+      console.log('Profile: Response data structure:', {
+        hasUser: !!response.data.user,
+        userKeys: response.data.user ? Object.keys(response.data.user) : [],
+        fullResponse: response.data
+      });
+      
+      if (response.data.user) {
+        console.log('Profile: Updating user state with:', response.data.user);
+        setUser(prev => ({
+          ...prev,
+          ...response.data.user,
+          avatar: prev.avatar // Keep existing avatar URL
+        }));
+      } else {
+        console.log('Profile: No user data in response, keeping current user state');
+      }
+      
       setEditing(false);
       toast.success('Profile updated successfully');
     } catch (error) {
@@ -120,6 +147,7 @@ export default function Profile() {
       console.error('Profile: Error response:', error.response?.data);
       console.error('Profile: Error status:', error.response?.status);
       console.error('Profile: Error message:', error.message);
+      console.error('Profile: Full error object:', error);
       toast.error('Failed to update profile');
     }
   };
@@ -167,7 +195,16 @@ export default function Profile() {
         },
       });
       console.log('Profile: Avatar upload successful:', response.data);
-      setUser(prev => ({ ...prev, avatar: response.data.avatar }));
+      console.log('Profile: Avatar URL from response:', response.data.avatar);
+      console.log('Profile: Full avatar URL will be:', `http://localhost:5000${response.data.avatar}`);
+      
+      // Update user state with full avatar URL
+      const fullAvatarUrl = response.data.avatar.startsWith('http') 
+        ? response.data.avatar 
+        : `http://localhost:5000${response.data.avatar}`;
+      
+      console.log('Profile: Setting avatar URL to:', fullAvatarUrl);
+      setUser(prev => ({ ...prev, avatar: fullAvatarUrl }));
       toast.success('Avatar updated successfully');
     } catch (error) {
       console.error('Profile: Avatar upload error:', error);

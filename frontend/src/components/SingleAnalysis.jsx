@@ -20,6 +20,9 @@ const EmotionIcon = ({ emotion }) => {
 // Priority badge component
 const PriorityBadge = ({ priority }) => {
   const colors = {
+    High: 'bg-danger/20 text-danger',
+    Medium: 'bg-warning/20 text-warning',
+    Low: 'bg-success/20 text-success',
     high: 'bg-danger/20 text-danger',
     medium: 'bg-warning/20 text-warning',
     low: 'bg-success/20 text-success'
@@ -45,16 +48,39 @@ export default function SingleAnalysis() {
 
     setLoading(true);
     try {
-      const response = await axios.post('/api/analyze/single', {
+      console.log('=== SINGLE ANALYSIS DEBUG ===');
+      console.log('Comment to analyze:', comment);
+      console.log('Making request to: /api/analytics/analyze with method: post');
+      console.log('Request payload:', { text: comment });
+
+      const response = await axios.post('/api/analytics/analyze', {
         text: comment
       });
       
-      setResult(response.data);
-      toast.success('Comment analyzed successfully!');
+      console.log('Response received:', response);
+      console.log('Response data:', response.data);
+      console.log('Response data type:', typeof response.data);
+      console.log('Response data keys:', Object.keys(response.data));
+      
+      // Check if response.data has result property
+      if (response.data.result) {
+        console.log('Found result property:', response.data.result);
+        console.log('Result keys:', Object.keys(response.data.result));
+        setResult(response.data.result);
+      } else {
+        console.log('No result property found, using response.data directly');
+        setResult(response.data);
+      }
+      
+      toast.success('Analysis completed successfully!');
     } catch (error) {
+      console.error('=== SINGLE ANALYSIS ERROR ===');
       console.error('Error analyzing comment:', error);
-      const errorMessage = error.response?.data?.error || 'Failed to analyze comment';
-      toast.error(errorMessage);
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      
+      toast.error('Failed to analyze comment. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -155,7 +181,7 @@ export default function SingleAnalysis() {
                         {result.emotion ? result.emotion.charAt(0).toUpperCase() + result.emotion.slice(1) : 'Unknown'}
                       </p>
                       <p className="text-sm text-text-muted">
-                        Confidence: {Math.round(result.emotion_score * 100)}%
+                        Confidence: N/A
                       </p>
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import timedelta
-from flask import jsonify, Flask, request, session
+from flask import jsonify, Flask, request, session, send_from_directory
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -480,6 +480,16 @@ app.register_blueprint(notes)
 @app.route('/')
 def home():
     return jsonify({"message": "Welcome to the Sunsights API!"})
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """Serve uploaded files"""
+    try:
+        uploads_dir = os.path.join(os.path.dirname(__file__), 'uploads')
+        return send_from_directory(uploads_dir, filename)
+    except Exception as e:
+        logger.error(f"Error serving file {filename}: {e}")
+        return jsonify({'error': 'File not found'}), 404
 
 # Session test route
 @app.route('/api/session-test')
