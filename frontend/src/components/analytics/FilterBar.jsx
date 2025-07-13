@@ -16,7 +16,7 @@ export default function FilterBar({
   ];
 
   return (
-    <div className="bg-bg-light/50 backdrop-blur-sm rounded-2xl p-4 border border-border-muted/50 mb-6 shadow-lg">
+    <div className="bg-bg-light/50 backdrop-blur-sm rounded-2xl p-4 border border-primary mb-6 shadow-lg">
       <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
         <div className="flex items-center space-x-4">
           <FunnelIcon className="h-5 w-5 text-primary" />

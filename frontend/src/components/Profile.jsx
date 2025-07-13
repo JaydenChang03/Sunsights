@@ -29,7 +29,39 @@ export default function Profile() {
   useEffect(() => {
     fetchProfile();
     fetchNotes();
+    testProfileEndpoints();
   }, []);
+
+  const testProfileEndpoints = async () => {
+    console.log('Profile: Testing API endpoints...');
+    
+    // Test auth profile endpoint
+    try {
+      console.log('Profile: Testing /api/auth/profile endpoint...');
+      const response = await axios.get('/api/auth/profile');
+      console.log('Profile: /api/auth/profile SUCCESS:', response.status, response.data);
+    } catch (error) {
+      console.error('Profile: /api/auth/profile FAILED:', error.response?.status, error.response?.data);
+    }
+    
+    // Test notes endpoint
+    try {
+      console.log('Profile: Testing /api/notes endpoint...');
+      const response = await axios.get('/api/notes');
+      console.log('Profile: /api/notes SUCCESS:', response.status, response.data);
+    } catch (error) {
+      console.error('Profile: /api/notes FAILED:', error.response?.status, error.response?.data);
+    }
+    
+    // Test auth user endpoint
+    try {
+      console.log('Profile: Testing /api/auth/user endpoint...');
+      const response = await axios.get('/api/auth/user');
+      console.log('Profile: /api/auth/user SUCCESS:', response.status, response.data);
+    } catch (error) {
+      console.error('Profile: /api/auth/user FAILED:', error.response?.status, error.response?.data);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
