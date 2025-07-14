@@ -13,6 +13,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import { ThemeContext } from '../App';
+import TutorialBubble from './TutorialBubble';
 
 const Layout = ({ children, onLogout }) => {
   const location = useLocation();
@@ -193,6 +194,9 @@ const Layout = ({ children, onLogout }) => {
         <div className="lg:hidden h-16"></div> {/* Spacer for mobile menu button */}
         {children}
       </div>
+
+      {/* Tutorial Bubble */}
+      <TutorialBubble />
     </div>
   );
 };
