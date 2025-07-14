@@ -23,8 +23,21 @@ const Layout = ({ children, onLogout }) => {
   // Add effect to handle mount animation
   useEffect(() => {
     setMounted(true);
+    
+    // Log current color scheme for debugging
+    console.log('Layout Debug - Current theme:', {
+      darkMode,
+      location: location.pathname,
+      cssVariables: {
+        primary: getComputedStyle(document.documentElement).getPropertyValue('--primary'),
+        secondary: getComputedStyle(document.documentElement).getPropertyValue('--secondary'),
+        bg: getComputedStyle(document.documentElement).getPropertyValue('--bg'),
+        'bg-light': getComputedStyle(document.documentElement).getPropertyValue('--bg-light')
+      }
+    });
+    
     return () => setMounted(false);
-  }, []);
+  }, [darkMode, location.pathname]);
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
@@ -35,6 +48,15 @@ const Layout = ({ children, onLogout }) => {
   ];
 
   const isActive = (path) => location.pathname === path;
+
+  const handleNavHover = (itemName, isEntering) => {
+    console.log('Navigation hover debug:', {
+      item: itemName,
+      isEntering,
+      currentPath: location.pathname,
+      timestamp: new Date().toISOString()
+    });
+  };
 
   return (
     <div className="flex h-screen bg-bg text-text">
@@ -92,11 +114,13 @@ const Layout = ({ children, onLogout }) => {
                 key={item.name}
                 to={item.href}
                 onClick={() => setMobileMenuOpen(false)}
+                onMouseEnter={() => handleNavHover(item.name, true)}
+                onMouseLeave={() => handleNavHover(item.name, false)}
                 className={`
-                  menu-item-hover flex items-center px-4 py-3.5 rounded-xl transition-all duration-300
+                  menu-item-hover flex items-center px-4 py-3.5 rounded-xl transition-all duration-300 group
                   ${active 
                     ? 'bg-gradient-to-r from-primary to-secondary font-medium shadow-md active-menu-item text-bg' 
-                    : 'hover:bg-bg-light'
+                    : 'hover:bg-primary/10 hover:border-primary/30 hover:shadow-md hover:scale-105 border border-transparent'
                   }
                   focus:outline-none focus:ring-2 focus:ring-primary/50
                 `}
@@ -109,17 +133,24 @@ const Layout = ({ children, onLogout }) => {
                 {/* Icon with improved hover effect */}
                 <div className="relative mr-3 icon-container">
                   <item.icon 
-                    className="h-5 w-5 transition-all duration-300" 
+                    className={`h-5 w-5 transition-all duration-300 ${active ? 'text-bg' : 'text-text group-hover:text-primary group-hover:scale-110'}`}
                     aria-hidden="true"
                   />
                 </div>
                 
                 {/* Text with improved visibility */}
-                <span className="font-medium menu-text">{item.name}</span>
+                <span className={`font-medium menu-text transition-all duration-300 ${active ? 'text-bg' : 'text-text group-hover:text-primary'}`}>
+                  {item.name}
+                </span>
                 
                 {/* Active indicator with blinking animation */}
                 {active && (
                   <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-bg active-indicator-dot" aria-hidden="true"></span>
+                )}
+                
+                {/* Hover indicator */}
+                {!active && (
+                  <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true"></span>
                 )}
               </Link>
             );
@@ -131,28 +162,28 @@ const Layout = ({ children, onLogout }) => {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleDarkMode}
-            className="flex items-center w-full px-4 py-3.5 rounded-xl transition-all duration-300 mb-2 hover:bg-bg-light focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="flex items-center w-full px-4 py-3.5 rounded-xl transition-all duration-300 mb-2 hover:bg-primary/10 hover:border-primary/30 hover:shadow-md hover:scale-105 border border-transparent group focus:outline-none focus:ring-2 focus:ring-primary/30"
             aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
           >
             {darkMode ? (
-              <SunIcon className="h-5 w-5 mr-3" aria-hidden="true" />
+              <SunIcon className="h-5 w-5 mr-3 transition-all duration-300 group-hover:text-primary group-hover:scale-110" aria-hidden="true" />
             ) : (
-              <MoonIcon className="h-5 w-5 mr-3" aria-hidden="true" />
+              <MoonIcon className="h-5 w-5 mr-3 transition-all duration-300 group-hover:text-primary group-hover:scale-110" aria-hidden="true" />
             )}
-            <span className="font-medium">{darkMode ? "Light Mode" : "Dark Mode"}</span>
+            <span className="font-medium transition-all duration-300 group-hover:text-primary">{darkMode ? "Light Mode" : "Dark Mode"}</span>
           </button>
           
           {/* Sign Out Button */}
           <button
             onClick={onLogout}
-            className="flex items-center w-full px-4 py-3.5 rounded-xl transition-all duration-300 hover:bg-bg-light focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="flex items-center w-full px-4 py-3.5 rounded-xl transition-all duration-300 hover:bg-danger/10 hover:border-danger/30 hover:shadow-md hover:scale-105 border border-transparent group focus:outline-none focus:ring-2 focus:ring-danger/30"
             aria-label="Sign out"
           >
             <ArrowLeftOnRectangleIcon 
-              className="h-5 w-5 mr-3" 
+              className="h-5 w-5 mr-3 transition-all duration-300 group-hover:text-danger group-hover:scale-110" 
               aria-hidden="true"
             />
-            <span className="font-medium">Sign out</span>
+            <span className="font-medium transition-all duration-300 group-hover:text-danger">Sign out</span>
           </button>
         </div>
       </div>

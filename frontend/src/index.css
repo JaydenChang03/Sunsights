@@ -117,6 +117,121 @@ body {
   background-color: var(--secondary);
 }
 
+/* Enhanced Auth Page Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(96, 108, 56, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(96, 108, 56, 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Auth Page Specific Styles */
+.auth-container {
+  animation: scaleIn 0.6s ease-out;
+}
+
+.auth-form {
+  animation: slideInFromRight 0.8s ease-out;
+}
+
+.auth-illustration {
+  animation: slideInFromLeft 0.8s ease-out;
+}
+
+.floating-element {
+  animation: float 3s ease-in-out infinite;
+}
+
+.shimmer-effect {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.input-glow:focus {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* Enhanced Shadow Effects */
+.shadow-3xl {
+  box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+}
+
+.shadow-4xl {
+  box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.25);
+}
+
+/* Glassmorphism Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* Fade in animation */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-in-out;
