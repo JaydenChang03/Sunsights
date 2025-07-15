@@ -39,7 +39,7 @@ const TutorialBubble = () => {
           icon: <HeartIcon className="w-6 h-6" />
         },
         {
-          title: 'Confidence Score',
+          title: 'Score',
           content: 'The score (0-100%) indicates how confident our AI is about the sentiment classification. Higher scores mean more certain analysis.',
           icon: <ChartBarIcon className="w-6 h-6" />
         },
@@ -61,13 +61,8 @@ const TutorialBubble = () => {
         },
         {
           title: 'Real-time Results',
-          content: 'Get immediate insights including sentiment classification, specific emotion detection, confidence scores, and priority levels for each message.',
+          content: 'Get immediate insights including sentiment classification, specific emotion detection, scores, and priority levels for each message.',
           icon: <ChartBarIcon className="w-6 h-6" />
-        },
-        {
-          title: 'Response Suggestions',
-          content: 'Receive contextually appropriate response templates based on the detected sentiment and emotion to help you respond more effectively.',
-          icon: <HeartIcon className="w-6 h-6" />
         }
       ]
     },

@@ -163,7 +163,7 @@ export default function SingleAnalysis() {
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-text-muted">Confidence:</span>
+                      <span className="text-text-muted">Score:</span>
                       <span className="font-medium text-text">
                         {Math.round(result.sentiment_score * 100)}%
                       </span>
@@ -179,9 +179,6 @@ export default function SingleAnalysis() {
                     <div>
                       <p className="font-medium text-text">
                         {result.emotion ? result.emotion.charAt(0).toUpperCase() + result.emotion.slice(1) : 'Unknown'}
-                      </p>
-                      <p className="text-sm text-text-muted">
-                        Confidence: N/A
                       </p>
                     </div>
                   </div>
