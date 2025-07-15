@@ -487,15 +487,17 @@ def get_summary():
             'totalAnalyses': 0,
             'averageSentiment': 0,
             'responseRate': 0,
-            'responseTime': 0
+            'responseTime': 0,
+            'lastAnalysisTime': None
         })
     
-    # Otherwise, return the actual data
+    # Otherwise, return the actual data INCLUDING lastAnalysisTime
     return jsonify({
         'totalAnalyses': user_data.get('totalAnalyses', 0),
         'averageSentiment': user_data.get('averageSentiment', 75),
         'responseRate': 92,  # Placeholder - would be calculated from real data
-        'responseTime': 2.5  # Placeholder - would be calculated from real data
+        'responseTime': 2.5,  # Placeholder - would be calculated from real data
+        'lastAnalysisTime': user_data.get('lastAnalysisTime')
     })
 
 @analytics.route('/analyze', methods=['POST'])
