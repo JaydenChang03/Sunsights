@@ -1,0 +1,6 @@
+comment,sentiment
+"This is a great product",positive
+"I hate this service",negative
+"It's okay I guess",neutral
+"Amazing experience!",positive
+"Could be better",mixed 

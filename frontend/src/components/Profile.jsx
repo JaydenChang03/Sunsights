@@ -70,6 +70,14 @@ export default function Profile() {
       console.log('Profile: Successfully fetched profile:', response.data);
       console.log('Profile: Profile response status:', response.status);
       console.log('Profile: Avatar URL from fetch:', response.data.avatar);
+      console.log('Profile: Avatar state analysis:', {
+        hasAvatar: !!response.data.avatar,
+        avatarValue: response.data.avatar,
+        isEmptyString: response.data.avatar === '',
+        isNull: response.data.avatar === null,
+        isUndefined: response.data.avatar === undefined,
+        shouldShowPlaceholder: !response.data.avatar
+      });
       
       // Convert relative avatar URL to absolute
       const profileData = { ...response.data };
@@ -315,9 +323,28 @@ export default function Profile() {
                     src={user.avatar} 
                     alt="Profile" 
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      console.log('Profile: Avatar failed to load, falling back to placeholder');
+                      e.target.src = '/profilePictureIcon.png';
+                    }}
                   />
                 ) : (
-                  <UserIcon className="w-16 h-16 text-text-muted" />
+                  <img 
+                    src="/profilePictureIcon.png" 
+                    alt="Default Profile" 
+                    className="w-full h-full object-cover"
+                    onLoad={() => console.log('Profile: Default avatar placeholder loaded successfully')}
+                    onError={(e) => {
+                      console.error('Profile: Default avatar placeholder failed to load, falling back to UserIcon');
+                      // If profilePictureIcon.png fails to load, show UserIcon as ultimate fallback
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'block';
+                    }}
+                  />
+                )}
+                {/* Ultimate fallback - only shown if profilePictureIcon.png fails */}
+                {!user?.avatar && (
+                  <UserIcon className="w-16 h-16 text-text-muted" style={{ display: 'none' }} />
                 )}
               </div>
               

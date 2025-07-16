@@ -14,6 +14,25 @@ export default function BulkAnalysis() {
   const [selectedColumns, setSelectedColumns] = useState([]);
   const fileInputRef = useRef(null);
   
+  // Component mount debug
+  useEffect(() => {
+    console.log('🎯 BulkAnalysis component mounted');
+    console.log('🎯 Initial dragActive state:', dragActive);
+    
+    // Test if drag events are supported
+    const testDiv = document.createElement('div');
+    console.log('🎯 Browser drag event support check:', {
+      ondragenter: 'ondragenter' in testDiv,
+      ondragover: 'ondragover' in testDiv,
+      ondragleave: 'ondragleave' in testDiv,
+      ondrop: 'ondrop' in testDiv
+    });
+    
+    return () => {
+      console.log('🎯 BulkAnalysis component unmounting');
+    };
+  }, []);
+  
   // Filter states for detailed results
   const [sentimentFilter, setSentimentFilter] = useState('All');
   const [emotionFilter, setEmotionFilter] = useState('All');
@@ -25,29 +44,60 @@ export default function BulkAnalysis() {
   const scrollContainerRef = useRef(null);
 
   const handleDrag = useCallback((e) => {
+    console.log('🎯 DRAG EVENT DEBUG:', {
+      eventType: e.type,
+      target: e.target.tagName,
+      currentTarget: e.currentTarget.tagName,
+      dragActive,
+      timestamp: new Date().toISOString()
+    });
+    
     e.preventDefault();
     e.stopPropagation();
     if (e.type === 'dragenter' || e.type === 'dragover') {
+      console.log('🎯 Setting dragActive to TRUE');
       setDragActive(true);
     } else if (e.type === 'dragleave') {
+      console.log('🎯 Setting dragActive to FALSE');
       setDragActive(false);
     }
-  }, []);
+  }, [dragActive]);
 
   const handleDrop = useCallback((e) => {
+    console.log('🎯 DROP EVENT DEBUG:', {
+      eventType: e.type,
+      target: e.target.tagName,
+      currentTarget: e.currentTarget.tagName,
+      filesCount: e.dataTransfer?.files?.length || 0,
+      timestamp: new Date().toISOString()
+    });
+    
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
     
     const droppedFiles = Array.from(e.dataTransfer.files);
+    console.log('🎯 Dropped files:', droppedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
     handleFiles(droppedFiles);
   }, []);
 
   const handleFiles = (fileList) => {
+    console.log('🎯 HANDLE FILES DEBUG:', {
+      fileListLength: fileList?.length || 0,
+      fileListType: typeof fileList,
+      files: Array.from(fileList || []).map(f => ({ name: f.name, type: f.type, size: f.size }))
+    });
+    
     const validFiles = Array.from(fileList).filter(file => {
       const isValidType = file.type === 'text/csv' || 
                          file.type === 'application/vnd.ms-excel' ||
                          file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      
+      console.log('🎯 File validation:', { 
+        fileName: file.name, 
+        fileType: file.type, 
+        isValid: isValidType 
+      });
       
       if (!isValidType) {
         toast.error(`${file.name} is not a supported file type`);
@@ -56,12 +106,19 @@ export default function BulkAnalysis() {
       return true;
     });
 
+    console.log('🎯 Valid files after filtering:', validFiles.length);
+
     if (validFiles.length > 0) {
-      setFiles(prev => [...prev, ...validFiles]);
+      setFiles(prev => {
+        const newFiles = [...prev, ...validFiles];
+        console.log('🎯 Updated files state:', newFiles.map(f => f.name));
+        return newFiles;
+      });
       
       // If CSV file, parse it to show column selection
       validFiles.forEach(file => {
         if (file.type === 'text/csv') {
+          console.log('🎯 Parsing CSV file:', file.name);
           parseCSVFile(file);
         }
       });
@@ -96,6 +153,10 @@ export default function BulkAnalysis() {
   };
 
   const handleFileInput = (e) => {
+    console.log('🎯 FILE INPUT DEBUG:', {
+      filesCount: e.target.files?.length || 0,
+      files: Array.from(e.target.files || []).map(f => ({ name: f.name, type: f.type }))
+    });
     handleFiles(e.target.files);
   };
 
@@ -428,10 +489,22 @@ export default function BulkAnalysis() {
                 ? 'bg-primary/10 ring-2 ring-primary' 
                 : 'bg-bg-light/50 hover:bg-bg-light'
             }`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
+            onDragEnter={(e) => {
+              console.log('🎯 DIV onDragEnter triggered');
+              handleDrag(e);
+            }}
+            onDragLeave={(e) => {
+              console.log('🎯 DIV onDragLeave triggered');
+              handleDrag(e);
+            }}
+            onDragOver={(e) => {
+              console.log('🎯 DIV onDragOver triggered');
+              handleDrag(e);
+            }}
+            onDrop={(e) => {
+              console.log('🎯 DIV onDrop triggered');
+              handleDrop(e);
+            }}
           >
             <div className="space-y-1 text-center">
               <div className="card absolute top-2 right-2 flex items-center px-3 py-1 z-10">
