@@ -1,0 +1,204 @@
+{
+  "totalAnalyses": 30,
+  "bulkUploads": 0,
+  "averageSentiment": 66.6,
+  "lastAnalysisTime": "2025-07-16 17:45:55",
+  "emotionCounts": {
+    "Joy": 14,
+    "Sadness": 1,
+    "Anger": 10,
+    "Fear": 2,
+    "Surprise": 0,
+    "Love": 1,
+    "neutral": 2
+  },
+  "activities": [
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:45:55",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: MIXED, Emotion: neutral, Priority: Medium",
+      "time": "2025-07-16 17:45:48",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:45:07",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:39:14",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:38:03",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-16 17:24:36",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:24:27",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-16 17:24:15",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:24:03",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:23:55",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: love, Priority: Low",
+      "time": "2025-07-16 17:23:49",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-16 17:23:42",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-16 17:23:37",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-16 17:23:32",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:23:26",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:23:04",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: fear, Priority: Medium",
+      "time": "2025-07-16 17:22:46",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-16 17:22:31",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:22:27",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:22:15",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-16 17:22:07",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: joy, Priority: Medium",
+      "time": "2025-07-16 17:20:47",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: fear, Priority: Medium",
+      "time": "2025-07-16 17:15:39",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-16 17:15:30",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:15:15",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-16 17:15:03",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-16 17:14:52",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: sadness, Priority: Medium",
+      "time": "2025-07-16 17:09:52",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: MIXED, Emotion: neutral, Priority: Medium",
+      "time": "2025-07-16 17:09:18",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-16 17:08:50",
+      "type": "success"
+    },
+    {
+      "title": "Welcome to Sunsights",
+      "description": "Your sentiment analysis dashboard is ready",
+      "time": "2025-07-16 16:58:56",
+      "type": "info"
+    }
+  ],
+  "isNewAccount": false
+}

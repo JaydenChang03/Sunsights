@@ -306,7 +306,7 @@ export default function Dashboard() {
                   <div>
                     <p className="text-sm text-text-muted">Score:</p>
                     <p className="font-medium text-text">
-                      {Math.round(analysisResult.sentiment_score * 100)}%
+                      {Math.round(analysisResult.sentiment_score)}%
                       {analysisResult.sentiment === 'MIXED' && <span className="ml-2 text-xs text-warning">(Mixed)</span>}
                     </p>
                   </div>

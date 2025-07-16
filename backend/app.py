@@ -203,10 +203,9 @@ def generate_response_suggestions(sentiment, emotion):
     return suggestions[:3]
 
 def analyze_text(text):
-    """
-    Analyze text for sentiment and emotion.
-    Returns a dictionary with sentiment, emotion, and priority.
-    """
+    # Debug logging for the current analysis
+    logger.info(f"=== ANALYZING TEXT: '{text}' ===")
+    
     if not text or not text.strip():
         return {
             'sentiment': 'UNKNOWN',
@@ -303,7 +302,7 @@ def analyze_text(text):
     # Also check for exclamation marks with negative words as a sign of anger
     if "!" in text and has_negative:
         is_anger_expression = True
-        
+    
     # Check for functionality issues (these should be high priority)
     has_functionality_issue = False
     functionality_issue_patterns = [
@@ -340,14 +339,95 @@ def analyze_text(text):
     # Check for sentences with both positive and negative elements
     has_both_positive_and_negative = has_positive and has_negative
     
+    # Debug logging for mixed sentiment detection
+    logger.info(f"Mixed sentiment patterns found: {[pattern for pattern in mixed_patterns if pattern in text_lower]}")
+    logger.info(f"Has positive: {has_positive}, Has negative: {has_negative}")
+    logger.info(f"Has both positive and negative: {has_both_positive_and_negative}")
+    
+    # Special "but" detection
+    has_but = "but" in text_lower
+    logger.info(f"Contains 'but': {has_but}")
+    
     # Detect mixed sentiment if there are mixed patterns or both positive and negative elements
     if any(pattern in text_lower for pattern in mixed_patterns) or has_both_positive_and_negative:
         is_mixed_sentiment = True
     
+    logger.info(f"Is mixed sentiment: {is_mixed_sentiment}")
+    
     # DETERMINE SENTIMENT
     
+    # Always run ML models first to get baseline
+    ml_sentiment_label = 'UNKNOWN'
+    ml_sentiment_score = 0.5
+    ml_emotion = 'neutral'
+    
+    try:
+        # Use sentiment model
+        sentiment_result = sentiment_model(cleaned_text)[0]
+        ml_sentiment_label = sentiment_result['label']
+        ml_sentiment_score = sentiment_result['score']
+        
+        # Use emotion model
+        emotion_result = emotion_model(cleaned_text)[0]
+        ml_emotion = emotion_result['label'].lower()
+        emotion_score = emotion_result['score']
+        
+        logger.info(f"ML Sentiment: {ml_sentiment_label} ({ml_sentiment_score:.3f})")
+        logger.info(f"ML Emotion: {ml_emotion} ({emotion_score:.3f})")
+    except Exception as e:
+        logger.error(f"ML Model error: {str(e)}")
+    
+    # Now apply rule-based logic with ML model as foundation
+    
+    # Special case for double negatives - fix the logic
+    if has_double_negative:
+        logger.info("DECISION: Double negative detected - setting POSITIVE")
+        sentiment_label = 'POSITIVE'
+        sentiment_score = 0.6  # Mild positive
+        emotion = ml_emotion if ml_emotion in ['joy', 'love', 'surprise'] else 'joy'
+    # PRIORITY RULE: Special "but" rule - this MUST trigger MIXED sentiment as requested
+    elif has_but:
+        logger.info("DECISION: 'But' detected - setting MIXED sentiment (priority rule)")
+        sentiment_label = 'MIXED'
+        sentiment_score = 0.45  # Slightly negative bias for mixed
+        emotion = 'neutral'  # Default to neutral for mixed sentiment
+    # Special case for very clear negative expressions with high ML confidence
+    elif ml_sentiment_label == 'NEGATIVE' and ml_sentiment_score > 0.95:
+        logger.info("DECISION: High-confidence negative ML result")
+        sentiment_label = 'NEGATIVE'
+        sentiment_score = ml_sentiment_score
+        
+        # Use ML emotion but with some rule-based overrides for specific cases
+        if is_anger_expression or 'hate' in text_lower:
+            emotion = 'anger'
+            sentiment_score = max(sentiment_score, 0.85)  # Ensure anger gets high score
+        elif is_sadness_expression or any(word in text_lower for word in ['disappointed', 'let down', 'sad']):
+            emotion = 'sadness'
+        elif 'worried' in text_lower or 'worry' in text_lower or "won't work" in text_lower:
+            emotion = 'fear'
+        else:
+            emotion = ml_emotion
+    # Special case for very clear positive expressions with high ML confidence
+    elif ml_sentiment_label == 'POSITIVE' and ml_sentiment_score > 0.95:
+        logger.info("DECISION: High-confidence positive ML result")
+        sentiment_label = 'POSITIVE'
+        sentiment_score = ml_sentiment_score
+        
+        if is_love_expression:
+            emotion = 'love'
+        elif is_surprise_expression:
+            emotion = 'surprise'
+        else:
+            emotion = ml_emotion if ml_emotion in ['joy', 'love', 'surprise'] else 'joy'
+    # Check for problematic mixed sentiment cases where ML is very confident
+    elif is_mixed_sentiment and has_positive and has_negative and ml_sentiment_score > 0.9:
+        logger.info("DECISION: Mixed sentiment but high ML confidence - using ML")
+        sentiment_label = ml_sentiment_label
+        sentiment_score = ml_sentiment_score
+        emotion = ml_emotion
     # Special case for mixed sentiment
-    if is_mixed_sentiment:
+    elif is_mixed_sentiment:
+        logger.info("DECISION: Mixed sentiment detected")
         sentiment_label = 'MIXED'
         # Calculate sentiment score based on balance of positive/negative
         if has_positive and has_negative:
@@ -364,90 +444,47 @@ def analyze_text(text):
             emotion = 'neutral'
     # Special case for expressions of surprise
     elif is_surprise_expression:
+        logger.info("DECISION: Surprise expression detected")
         sentiment_label = 'POSITIVE'
         sentiment_score = 0.9
         emotion = 'surprise'
     # Special case for expressions of love
     elif is_love_expression:
+        logger.info("DECISION: Love expression detected")
         sentiment_label = 'POSITIVE'
         sentiment_score = 0.95
         emotion = 'love'
-    # Special case for expressions of anger
-    elif is_anger_expression:
-        sentiment_label = 'NEGATIVE'
-        sentiment_score = 0.1  # Very negative sentiment score for anger
-        emotion = 'anger'
-    # Special case for expressions of sadness/disappointment
-    elif is_sadness_expression:
-        sentiment_label = 'NEGATIVE'
-        sentiment_score = 0.8
-        emotion = 'sadness'
-    # Special case for double negatives
-    elif has_double_negative and not has_negative:
-        sentiment_label = 'POSITIVE'
-        sentiment_score = 0.6  # Mild positive
-        emotion = 'neutral'
-    # Negative phrases take precedence
-    elif has_negative:
-        sentiment_label = 'NEGATIVE'
-        sentiment_score = 0.8
-        emotion = 'sadness'  # Default negative emotion
-    # Then check for positive phrases
-    elif has_positive:
-        sentiment_label = 'POSITIVE'
-        sentiment_score = 0.8
-        
-        # Determine specific positive emotion
-        if 'love' in text_lower or 'adore' in text_lower or 'cherish' in text_lower:
-            emotion = 'love'
-        elif 'happy' in text_lower or 'glad' in text_lower or 'joy' in text_lower:
-            emotion = 'joy'
-        else:
-            emotion = 'joy'  # Default positive emotion
-    # If we have surprise without clear sentiment, it's likely positive
-    elif has_surprise:
-        sentiment_label = 'POSITIVE'
-        sentiment_score = 0.7
-        emotion = 'surprise'
-    # Fallback to model if no clear patterns
+    # Fallback to ML models for everything else
     else:
-        try:
-            # Use sentiment model
-            sentiment_result = sentiment_model(cleaned_text)[0]
-            model_sentiment = sentiment_result['label']
-            model_score = sentiment_result['score']
-            
-            # Use emotion model
-            emotion_result = emotion_model(cleaned_text)[0]
-            model_emotion = emotion_result['label'].lower()
-            
-            # Convert model output to our format
-            if model_sentiment == 'POSITIVE':
-                sentiment_label = 'POSITIVE'
-                sentiment_score = model_score
-                # If model says positive but no clear emotion, default to joy
-                emotion = model_emotion if model_emotion != 'neutral' else 'joy'
-            else:
-                sentiment_label = 'NEGATIVE'
-                sentiment_score = model_score
-                # If model says negative but no clear emotion, default to sadness
-                emotion = model_emotion if model_emotion != 'neutral' else 'sadness'
-        except Exception as e:
-            logger.error(f"Model error: {str(e)}")
-            # Fallback if model fails - make a best guess based on text
-            if 'good' in text_lower or 'great' in text_lower or 'like' in text_lower:
-                sentiment_label = 'POSITIVE'
-                sentiment_score = 0.7
-                emotion = 'joy'
-            elif 'bad' in text_lower or 'not' in text_lower or 'could be better' in text_lower:
-                sentiment_label = 'NEGATIVE'
-                sentiment_score = 0.7
-                emotion = 'sadness'
-            else:
-                # If all else fails, assume neutral
-                sentiment_label = 'MIXED'
-                sentiment_score = 0.5
-                emotion = 'neutral'
+        logger.info("DECISION: Using ML model results")
+        sentiment_label = ml_sentiment_label
+        sentiment_score = ml_sentiment_score
+        emotion = ml_emotion
+        
+        # Apply some emotion-specific overrides
+        if 'worried' in text_lower or 'worry' in text_lower:
+            emotion = 'fear'
+            logger.info("EMOTION OVERRIDE: Detected 'worried' - setting to fear")
+        elif 'disappointed' in text_lower or 'let down' in text_lower:
+            emotion = 'sadness'
+            logger.info("EMOTION OVERRIDE: Detected 'disappointed' - setting to sadness")
+        elif 'hate' in text_lower or 'furious' in text_lower:
+            emotion = 'anger'
+            logger.info("EMOTION OVERRIDE: Detected 'hate' - setting to anger")
+        # Additional override: if sentiment is clearly negative but emotion is joy, change to appropriate emotion
+        elif sentiment_label == 'NEGATIVE' and emotion == 'joy' and any(word in text_lower for word in ['not good', 'bad', 'awful', 'terrible', 'horrible']):
+            emotion = 'sadness'
+            logger.info("EMOTION OVERRIDE: Negative sentiment with joy emotion - changing to sadness")
+    
+    logger.info(f"FINAL RESULT: Sentiment={sentiment_label}, Score={sentiment_score:.3f}, Emotion={emotion}")
+    
+    # Convert sentiment_score to percentage for display
+    final_sentiment_score = int(sentiment_score * 100)
+    
+    # Debug final emotion determination
+    logger.info(f"EMOTION DEBUG: Final emotion={emotion}, ML emotion was={ml_emotion}")
+    logger.info(f"EMOTION DEBUG: is_anger_expression={is_anger_expression}, is_sadness_expression={is_sadness_expression}")
+    logger.info(f"EMOTION DEBUG: Text contains 'hate'={'hate' in text_lower}, 'worried'={'worried' in text_lower}")
     
     # Determine priority based on sentiment and emotion
     priority = get_priority_level(sentiment_score, emotion)
@@ -463,13 +500,15 @@ def analyze_text(text):
     # Generate response suggestions based on sentiment and emotion
     response_suggestions = generate_response_suggestions(sentiment_label, emotion)
     
-    return {
+    result = {
         'sentiment': sentiment_label,
-        'sentiment_score': sentiment_score,
+        'sentiment_score': final_sentiment_score,
         'emotion': emotion,
         'priority': priority,
         'response_suggestions': response_suggestions
     }
+    
+    return result
 
 # Register blueprints
 app.register_blueprint(analytics, url_prefix='/api/analytics')

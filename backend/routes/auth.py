@@ -62,6 +62,71 @@ def validate_password(password):
         return False, "Password must contain at least one special character"
     return True, "Password is valid"
 
+def validate_email(email):
+    """
+    Comprehensive email validation with strict domain and TLD checking
+    """
+    # Basic format check
+    email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    if not re.match(email_pattern, email):
+        return False, "Invalid email format"
+    
+    # Extract domain parts
+    try:
+        local_part, domain_part = email.split('@', 1)
+        
+        # Check local part length (should be reasonable)
+        if len(local_part) < 1 or len(local_part) > 64:
+            return False, "Email address local part must be between 1 and 64 characters"
+        
+        # Check domain part
+        if '.' not in domain_part:
+            return False, "Invalid email domain format"
+        
+        domain_parts = domain_part.split('.')
+        domain_name = '.'.join(domain_parts[:-1])
+        tld = domain_parts[-1].lower()
+        
+        # Allowed TLDs (common and legitimate ones)
+        allowed_tlds = {
+            'com', 'org', 'net', 'edu', 'gov', 'mil', 'int',  # Generic TLDs
+            'uk', 'ca', 'au', 'de', 'fr', 'jp', 'br', 'in',   # Major country codes (3+ chars or major ones)
+            'info', 'biz', 'name', 'pro', 'tech', 'dev',      # Modern TLDs
+            'io', 'me', 'tv'  # Popular short TLDs for tech
+        }
+        
+        if tld not in allowed_tlds:
+            return False, f"Email domain '{tld}' is not allowed. Please use a common email provider."
+        
+        # Common email provider validation (prevent typos)
+        suspicious_domains = {
+            'gmai.com': 'gmail.com',
+            'gmail.co': 'gmail.com', 
+            'gmai.co': 'gmail.com',
+            'gma.com': 'gmail.com',
+            'gma.co': 'gmail.com',
+            'gmial.com': 'gmail.com',
+            'yahooo.com': 'yahoo.com',
+            'yaho.com': 'yahoo.com',
+            'hotmial.com': 'hotmail.com',
+            'hotmai.com': 'hotmail.com',
+            'outlok.com': 'outlook.com',
+            'outloo.com': 'outlook.com'
+        }
+        
+        if domain_part.lower() in suspicious_domains:
+            suggested = suspicious_domains[domain_part.lower()]
+            return False, f"Did you mean '{local_part}@{suggested}'? Please check your email address."
+        
+        # Check for minimum domain name length
+        if len(domain_name) < 2:
+            return False, "Email domain name is too short"
+        
+        return True, "Valid email"
+        
+    except ValueError:
+        return False, "Invalid email format"
+
 @auth.route('/register', methods=['POST'])
 def register():
     try:
@@ -83,9 +148,10 @@ def register():
         name = data.get('name', '')
         
         # Validate email format
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            logger.error("Invalid email format")
-            return jsonify({"error": "Invalid email format"}), 400
+        is_valid, msg = validate_email(email)
+        if not is_valid:
+            logger.error(f"Email validation failed: {msg}")
+            return jsonify({"error": msg}), 400
         
         # Validate password
         is_valid, msg = validate_password(password)

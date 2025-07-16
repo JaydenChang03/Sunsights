@@ -165,7 +165,7 @@ export default function SingleAnalysis() {
                     <div className="flex justify-between items-center">
                       <span className="text-text-muted">Score:</span>
                       <span className="font-medium text-text">
-                        {Math.round(result.sentiment_score * 100)}%
+                        {Math.round(result.sentiment_score)}%
                       </span>
                     </div>
                   </div>
