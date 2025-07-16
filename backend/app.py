@@ -292,7 +292,7 @@ def analyze_text(text):
         "horrible service", "unacceptable", "ridiculous", "infuriating", "frustrated",
         "annoyed", "irritated", "upset", "appalling", "terrible", "horrible", "awful",
         "worst", "hate", "disgusting", "pathetic", "useless", "waste", "poor service",
-        "bad service", "poor quality", "bad quality", "disappointed", "disappointing",
+        "bad service", "poor quality", "bad quality",
         "complaint", "complain", "unsatisfied", "dissatisfied", "not happy", "unhappy",
         "never again", "never use", "never buy", "never shop", "never return", "never recommend"
     ]
@@ -303,6 +303,12 @@ def analyze_text(text):
     if "!" in text and has_negative:
         is_anger_expression = True
     
+    # Debug logging for emotion pattern detection
+    logger.info(f"EMOTION PATTERNS: is_anger_expression={is_anger_expression}")
+    if is_anger_expression:
+        matched_anger_patterns = [pattern for pattern in anger_patterns if pattern in text_lower]
+        logger.info(f"EMOTION PATTERNS: Matched anger patterns: {matched_anger_patterns}")
+
     # Check for functionality issues (these should be high priority)
     has_functionality_issue = False
     functionality_issue_patterns = [
@@ -319,12 +325,18 @@ def analyze_text(text):
     # Check for expressions of sadness/disappointment
     is_sadness_expression = False
     sadness_patterns = [
-        "disappointed", "sad", "unhappy", "regret", "let down", "letdown",
+        "disappointed", "disappointing", "disappointment", "sad", "unhappy", "regret", "let down", "letdown",
         "not as expected", "not what i expected", "dissatisfied", "unsatisfied"
     ]
     if any(pattern in text_lower for pattern in sadness_patterns):
         is_sadness_expression = True
     
+    # Debug logging for sadness pattern detection
+    logger.info(f"EMOTION PATTERNS: is_sadness_expression={is_sadness_expression}")
+    if is_sadness_expression:
+        matched_sadness_patterns = [pattern for pattern in sadness_patterns if pattern in text_lower]
+        logger.info(f"EMOTION PATTERNS: Matched sadness patterns: {matched_sadness_patterns}")
+
     # Check for mixed sentiment expressions
     is_mixed_sentiment = False
     mixed_patterns = [
@@ -401,12 +413,20 @@ def analyze_text(text):
         if is_anger_expression or 'hate' in text_lower:
             emotion = 'anger'
             sentiment_score = max(sentiment_score, 0.85)  # Ensure anger gets high score
+            logger.info("EMOTION OVERRIDE (high-confidence): Detected anger expression - setting to anger")
         elif is_sadness_expression or any(word in text_lower for word in ['disappointed', 'let down', 'sad']):
             emotion = 'sadness'
+            logger.info("EMOTION OVERRIDE (high-confidence): Detected sadness expression - setting to sadness")
         elif 'worried' in text_lower or 'worry' in text_lower or "won't work" in text_lower:
             emotion = 'fear'
+            logger.info("EMOTION OVERRIDE (high-confidence): Detected worry/fear expression - setting to fear")
+        # NEW: Override for "not good" type patterns that shouldn't be joy
+        elif any(pattern in text_lower for pattern in ['not good', 'not great', 'not bad but', 'bad', 'awful', 'terrible', 'horrible']) and ml_emotion == 'joy':
+            emotion = 'sadness'
+            logger.info("EMOTION OVERRIDE (high-confidence): Detected negative pattern with joy emotion - changing to sadness")
         else:
             emotion = ml_emotion
+            logger.info(f"EMOTION (high-confidence): Using ML emotion '{ml_emotion}' - no overrides matched")
     # Special case for very clear positive expressions with high ML confidence
     elif ml_sentiment_label == 'POSITIVE' and ml_sentiment_score > 0.95:
         logger.info("DECISION: High-confidence positive ML result")
