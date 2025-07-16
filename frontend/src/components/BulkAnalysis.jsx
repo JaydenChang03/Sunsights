@@ -13,6 +13,11 @@ export default function BulkAnalysis() {
   const [csvData, setCsvData] = useState(null);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const fileInputRef = useRef(null);
+  
+  // Filter states for detailed results
+  const [sentimentFilter, setSentimentFilter] = useState('All');
+  const [emotionFilter, setEmotionFilter] = useState('All');
+  const [priorityFilter, setPriorityFilter] = useState('All');
 
   const handleDrag = useCallback((e) => {
     e.preventDefault();
@@ -134,6 +139,10 @@ export default function BulkAnalysis() {
 
       console.log('BulkAnalysis: Upload successful, response:', response.data);
       setResults(response.data);
+      // Reset filters when new results are loaded
+      setSentimentFilter('All');
+      setEmotionFilter('All');
+      setPriorityFilter('All');
       toast.success('Files uploaded and analyzed successfully!');
     } catch (error) {
       console.error('BulkAnalysis: Upload error:', error);
@@ -194,6 +203,47 @@ export default function BulkAnalysis() {
       neutral: 'text-text-muted'
     };
     return colors[emotion] || 'text-text-muted';
+  };
+
+  // Helper function to get unique filter options from results
+  const getFilterOptions = (results, field) => {
+    if (!results || !results.results) return ['All'];
+    const uniqueValues = [...new Set(results.results.map(item => item[field]))];
+    return ['All', ...uniqueValues.sort()];
+  };
+
+  // Filter function for detailed results
+  const getFilteredResults = () => {
+    if (!results || !results.results) return [];
+    
+    console.log('=== BULK ANALYSIS FILTER DEBUG ===');
+    console.log('Total results:', results.results.length);
+    console.log('Applied filters:', { sentimentFilter, emotionFilter, priorityFilter });
+    
+    const filtered = results.results.filter(result => {
+      const sentimentMatch = sentimentFilter === 'All' || result.sentiment === sentimentFilter;
+      const emotionMatch = emotionFilter === 'All' || result.emotion === emotionFilter;
+      const priorityMatch = priorityFilter === 'All' || result.priority === priorityFilter;
+      
+      return sentimentMatch && emotionMatch && priorityMatch;
+    });
+    
+    console.log('Filtered results count:', filtered.length);
+    console.log('Filter breakdown:', {
+      sentimentOptions: getFilterOptions(results, 'sentiment'),
+      emotionOptions: getFilterOptions(results, 'emotion'),
+      priorityOptions: getFilterOptions(results, 'priority')
+    });
+    
+    return filtered;
+  };
+
+  // Reset all filters
+  const resetFilters = () => {
+    console.log('Resetting all filters');
+    setSentimentFilter('All');
+    setEmotionFilter('All');
+    setPriorityFilter('All');
   };
 
   return (
@@ -414,28 +464,99 @@ export default function BulkAnalysis() {
 
               {results.results && (
                 <div>
-                  <h3 className="text-lg font-medium text-text mb-3">Detailed Results</h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <h3 className="text-lg font-medium text-text mb-3 sm:mb-0">Detailed Results</h3>
+                    <div className="text-sm text-text-muted">
+                      Showing {getFilteredResults().length} of {results.results.length} results
+                    </div>
+                  </div>
+                  
+                  {/* Filter Controls */}
+                  <div className="mb-4 p-4 card">
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex items-center space-x-2">
+                        <label className="text-sm font-medium text-text">Sentiment:</label>
+                        <select
+                          value={sentimentFilter}
+                          onChange={(e) => setSentimentFilter(e.target.value)}
+                          className="px-3 py-1 rounded-lg bg-bg border border-border text-text text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary focus:outline-none"
+                        >
+                          {getFilterOptions(results, 'sentiment').map(option => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <label className="text-sm font-medium text-text">Emotion:</label>
+                        <select
+                          value={emotionFilter}
+                          onChange={(e) => setEmotionFilter(e.target.value)}
+                          className="px-3 py-1 rounded-lg bg-bg border border-border text-text text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary focus:outline-none"
+                        >
+                          {getFilterOptions(results, 'emotion').map(option => (
+                            <option key={option} value={option}>
+                              {option === 'All' ? option : option.charAt(0).toUpperCase() + option.slice(1)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <label className="text-sm font-medium text-text">Priority:</label>
+                        <select
+                          value={priorityFilter}
+                          onChange={(e) => setPriorityFilter(e.target.value)}
+                          className="px-3 py-1 rounded-lg bg-bg border border-border text-text text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary focus:outline-none"
+                        >
+                          {getFilterOptions(results, 'priority').map(option => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <button
+                        onClick={resetFilters}
+                        className="px-3 py-1 text-sm bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors"
+                      >
+                        Reset Filters
+                      </button>
+                    </div>
+                  </div>
+                  
                   <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {results.results.map((result, index) => (
-                      <div key={index} className="card p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex-1">
-                            <p className="text-sm text-text mb-2">{result.text}</p>
-                            <div className="flex items-center space-x-4 text-xs">
-                              <span className={`font-medium ${getSentimentColor(result.sentiment)}`}>
-                                {result.sentiment}
-                              </span>
-                              <span className={`${getEmotionColor(result.emotion)}`}>
-                                {result.emotion}
-                              </span>
-                              <span className="text-text-muted">
-                                Priority: {result.priority}
-                              </span>
+                    {getFilteredResults().length > 0 ? (
+                      getFilteredResults().map((result, index) => (
+                        <div key={index} className="card p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-1">
+                              <p className="text-sm text-text mb-2">{result.text}</p>
+                              <div className="flex items-center space-x-4 text-xs">
+                                <span className={`font-medium ${getSentimentColor(result.sentiment)}`}>
+                                  {result.sentiment}
+                                </span>
+                                <span className={`${getEmotionColor(result.emotion)}`}>
+                                  {result.emotion}
+                                </span>
+                                <span className="text-text-muted">
+                                  Priority: {result.priority}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-text-muted mb-2">No results match the selected filters</p>
+                        <button
+                          onClick={resetFilters}
+                          className="text-primary hover:text-primary/80 text-sm"
+                        >
+                          Reset filters to view all results
+                        </button>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               )}
