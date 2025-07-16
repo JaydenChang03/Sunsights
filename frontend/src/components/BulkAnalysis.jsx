@@ -14,24 +14,7 @@ export default function BulkAnalysis() {
   const [selectedColumns, setSelectedColumns] = useState([]);
   const fileInputRef = useRef(null);
   
-  // Component mount debug
-  useEffect(() => {
-    console.log('🎯 BulkAnalysis component mounted');
-    console.log('🎯 Initial dragActive state:', dragActive);
-    
-    // Test if drag events are supported
-    const testDiv = document.createElement('div');
-    console.log('🎯 Browser drag event support check:', {
-      ondragenter: 'ondragenter' in testDiv,
-      ondragover: 'ondragover' in testDiv,
-      ondragleave: 'ondragleave' in testDiv,
-      ondrop: 'ondrop' in testDiv
-    });
-    
-    return () => {
-      console.log('🎯 BulkAnalysis component unmounting');
-    };
-  }, []);
+
   
   // Filter states for detailed results
   const [sentimentFilter, setSentimentFilter] = useState('All');
@@ -44,60 +27,29 @@ export default function BulkAnalysis() {
   const scrollContainerRef = useRef(null);
 
   const handleDrag = useCallback((e) => {
-    console.log('🎯 DRAG EVENT DEBUG:', {
-      eventType: e.type,
-      target: e.target.tagName,
-      currentTarget: e.currentTarget.tagName,
-      dragActive,
-      timestamp: new Date().toISOString()
-    });
-    
     e.preventDefault();
     e.stopPropagation();
     if (e.type === 'dragenter' || e.type === 'dragover') {
-      console.log('🎯 Setting dragActive to TRUE');
       setDragActive(true);
     } else if (e.type === 'dragleave') {
-      console.log('🎯 Setting dragActive to FALSE');
       setDragActive(false);
     }
-  }, [dragActive]);
+  }, []);
 
   const handleDrop = useCallback((e) => {
-    console.log('🎯 DROP EVENT DEBUG:', {
-      eventType: e.type,
-      target: e.target.tagName,
-      currentTarget: e.currentTarget.tagName,
-      filesCount: e.dataTransfer?.files?.length || 0,
-      timestamp: new Date().toISOString()
-    });
-    
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
     
     const droppedFiles = Array.from(e.dataTransfer.files);
-    console.log('🎯 Dropped files:', droppedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
     handleFiles(droppedFiles);
   }, []);
 
   const handleFiles = (fileList) => {
-    console.log('🎯 HANDLE FILES DEBUG:', {
-      fileListLength: fileList?.length || 0,
-      fileListType: typeof fileList,
-      files: Array.from(fileList || []).map(f => ({ name: f.name, type: f.type, size: f.size }))
-    });
-    
     const validFiles = Array.from(fileList).filter(file => {
       const isValidType = file.type === 'text/csv' || 
                          file.type === 'application/vnd.ms-excel' ||
                          file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-      
-      console.log('🎯 File validation:', { 
-        fileName: file.name, 
-        fileType: file.type, 
-        isValid: isValidType 
-      });
       
       if (!isValidType) {
         toast.error(`${file.name} is not a supported file type`);
@@ -106,19 +58,12 @@ export default function BulkAnalysis() {
       return true;
     });
 
-    console.log('🎯 Valid files after filtering:', validFiles.length);
-
     if (validFiles.length > 0) {
-      setFiles(prev => {
-        const newFiles = [...prev, ...validFiles];
-        console.log('🎯 Updated files state:', newFiles.map(f => f.name));
-        return newFiles;
-      });
+      setFiles(prev => [...prev, ...validFiles]);
       
       // If CSV file, parse it to show column selection
       validFiles.forEach(file => {
         if (file.type === 'text/csv') {
-          console.log('🎯 Parsing CSV file:', file.name);
           parseCSVFile(file);
         }
       });
@@ -153,10 +98,6 @@ export default function BulkAnalysis() {
   };
 
   const handleFileInput = (e) => {
-    console.log('🎯 FILE INPUT DEBUG:', {
-      filesCount: e.target.files?.length || 0,
-      files: Array.from(e.target.files || []).map(f => ({ name: f.name, type: f.type }))
-    });
     handleFiles(e.target.files);
   };
 
@@ -470,6 +411,57 @@ export default function BulkAnalysis() {
     setVisibleItems(5); // Reset to initial visible items when filters reset
   };
 
+  // Analyze another file - reset all states for new analysis
+  const startNewAnalysis = () => {
+    console.log('🔄 ANALYZE ANOTHER FILE DEBUG: Starting new analysis');
+    console.log('🔄 Current state before reset:', {
+      filesCount: files.length,
+      hasResults: !!results,
+      hasCsvData: !!csvData,
+      selectedColumnsCount: selectedColumns.length,
+      currentFilters: { sentimentFilter, emotionFilter, priorityFilter },
+      dragActive,
+      uploading,
+      analyzing
+    });
+
+    // Show user feedback
+    toast.success('Ready for new analysis!');
+
+    // Reset all relevant states
+    setFiles([]);
+    setResults(null);
+    setCsvData(null);
+    setSelectedColumns([]);
+    setDragActive(false);
+    setUploading(false);
+    setAnalyzing(false);
+    setAnalysisProgress(0);
+    
+    // Reset filters
+    setSentimentFilter('All');
+    setEmotionFilter('All');
+    setPriorityFilter('All');
+    setVisibleItems(5);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      console.log('🔄 File input cleared');
+    }
+    
+    console.log('🔄 State reset completed - ready for new analysis');
+    
+    // Scroll back to upload section for better UX
+    setTimeout(() => {
+      const uploadSection = document.getElementById('upload-section');
+      if (uploadSection) {
+        uploadSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        console.log('🔄 Scrolled to upload section');
+      }
+    }, 100);
+  };
+
   return (
     <div className="min-h-screen bg-bg p-6">
       <div className="max-w-6xl mx-auto">
@@ -479,8 +471,15 @@ export default function BulkAnalysis() {
         </div>
 
         {/* File Upload Section */}
-        <div className="card">
-          <h2 className="text-xl font-semibold text-text mb-4">Upload Text Files</h2>
+        <div className="card" id="upload-section">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-text">Upload Text Files</h2>
+            {files.length > 0 && (
+              <span className="text-sm text-text-muted">
+                {files.length} file{files.length !== 1 ? 's' : ''} selected
+              </span>
+            )}
+          </div>
           
           {/* File Upload Area */}
           <div
@@ -489,22 +488,10 @@ export default function BulkAnalysis() {
                 ? 'bg-primary/10 ring-2 ring-primary' 
                 : 'bg-bg-light/50 hover:bg-bg-light'
             }`}
-            onDragEnter={(e) => {
-              console.log('🎯 DIV onDragEnter triggered');
-              handleDrag(e);
-            }}
-            onDragLeave={(e) => {
-              console.log('🎯 DIV onDragLeave triggered');
-              handleDrag(e);
-            }}
-            onDragOver={(e) => {
-              console.log('🎯 DIV onDragOver triggered');
-              handleDrag(e);
-            }}
-            onDrop={(e) => {
-              console.log('🎯 DIV onDrop triggered');
-              handleDrop(e);
-            }}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
           >
             <div className="space-y-1 text-center">
               <div className="card absolute top-2 right-2 flex items-center px-3 py-1 z-10">
@@ -648,11 +635,23 @@ export default function BulkAnalysis() {
               {results.totalAnalyzed && (
                 <div className="mb-6">
                   <div className="bg-success/10 border border-primary rounded-xl p-4">
-                    <div className="flex items-center">
-                      <CheckCircleIcon className="h-5 w-5 text-success mr-2" />
-                      <span className="text-success font-medium">
-                        Successfully analyzed {results.totalAnalyzed} items
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <CheckCircleIcon className="h-5 w-5 text-success mr-2" />
+                        <span className="text-success font-medium">
+                          Successfully analyzed {results.totalAnalyzed} items
+                        </span>
+                      </div>
+                      <button
+                        onClick={startNewAnalysis}
+                        onMouseEnter={() => console.log('🎨 BUTTON HOVER: Mouse entered "Analyze Another File" button')}
+                        onMouseLeave={() => console.log('🎨 BUTTON HOVER: Mouse left "Analyze Another File" button')}
+                        onFocus={() => console.log('🎨 BUTTON FOCUS: "Analyze Another File" button focused')}
+                        onBlur={() => console.log('🎨 BUTTON BLUR: "Analyze Another File" button blurred')}
+                        className="bg-secondary hover:bg-primary hover:text-black text-black border border-secondary rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-primary focus:text-black hover:shadow-lg transform hover:-translate-y-0.5"
+                      >
+                        Analyze Another File
+                      </button>
                     </div>
                   </div>
                 </div>
