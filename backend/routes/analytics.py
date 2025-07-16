@@ -643,70 +643,151 @@ def analyze_bulk():
         current_user = get_jwt_identity()
         user_id = get_user_id_from_email(current_user)
         
+        # DEBUG: Log all files in request
+        logging.info(f"🔍 BULK ANALYSIS DEBUG: Total files in request: {len(request.files)}")
+        logging.info(f"🔍 File keys in request: {list(request.files.keys())}")
+        
         # Check if file is in request
         if 'file' not in request.files:
             return jsonify({'error': 'No file provided'}), 400
-            
-        file = request.files['file']
         
-        # Check if file is empty
-        if file.filename == '':
-            return jsonify({'error': 'Empty file provided'}), 400
+        # Get all files with 'file' key to handle multiple file uploads
+        files_list = request.files.getlist('file')
+        logging.info(f"🔍 Number of files with 'file' key: {len(files_list)}")
+        for i, f in enumerate(files_list):
+            logging.info(f"🔍 File {i+1}: {f.filename} (size: {f.content_length})")
+        
+        # Check if any files are empty
+        valid_files = []
+        for file in files_list:
+            if file.filename != '':
+                valid_files.append(file)
+            else:
+                logging.warning(f"🔍 Skipping empty file: {file.filename}")
+        
+        if len(valid_files) == 0:
+            return jsonify({'error': 'No valid files provided'}), 400
             
-        # Check extension
+        logging.info(f"🔍 Processing {len(valid_files)} valid files")
+            
+        # Check extensions for all files
         allowed_extensions = {'csv', 'xlsx', 'xls'}
-        file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
         
-        if file_ext not in allowed_extensions:
-            return jsonify({
-                'error': f'Invalid file type. Allowed types: {", ".join(allowed_extensions)}'
-            }), 400
+        for file in valid_files:
+            file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+            if file_ext not in allowed_extensions:
+                return jsonify({
+                    'error': f'Invalid file type for {file.filename}. Allowed types: {", ".join(allowed_extensions)}'
+                }), 400
             
-        # Process the file based on its extension
+        # Process all files and combine results
         try:
             import pandas as pd
             import io
+            import time
             
-            # Save the file to a temporary location
-            file_stream = io.BytesIO(file.read())
+            # Performance timing
+            start_time = time.time()
+            logging.info(f"🔍 PERFORMANCE: Starting bulk analysis of {len(valid_files)} files")
             
-            # Read the file with pandas based on its extension
-            if file_ext == 'csv':
-                df = pd.read_csv(file_stream)
-            else:  # xlsx or xls
-                df = pd.read_excel(file_stream)
+            # Initialize combined results
+            all_results = []
+            combined_sentiment_counts = {'Positive': 0, 'Negative': 0, 'Mixed': 0}
+            combined_priority_counts = {'High': 0, 'Medium': 0, 'Low': 0}
+            combined_total_sentiment = 0
+            combined_valid_count = 0
+            
+            # Process each file
+            for file_index, file in enumerate(valid_files):
+                logging.info(f"🔍 Processing file {file_index + 1}/{len(valid_files)}: {file.filename}")
                 
-            # Check if the dataframe has any data
-            if df.empty:
-                return jsonify({'error': 'The uploaded file is empty'}), 400
+                # Determine file extension
+                file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
                 
-            # Get the comment column (try common column names)
-            comment_col = None
-            possible_cols = ['comment', 'comments', 'text', 'feedback', 'review', 'message', 'content']
-            
-            for col in possible_cols:
-                if col in df.columns:
-                    comment_col = col
-                    break
+                # Save the file to a temporary location
+                file_stream = io.BytesIO(file.read())
+                
+                # Read the file with pandas based on its extension
+                if file_ext == 'csv':
+                    df = pd.read_csv(file_stream)
+                else:  # xlsx or xls
+                    df = pd.read_excel(file_stream)
                     
-            # If no matching column found, use the first text column
-            if comment_col is None:
-                for col in df.columns:
-                    if df[col].dtype == 'object':  # String/object type
+                # Check if the dataframe has any data
+                if df.empty:
+                    logging.warning(f"🔍 File {file.filename} is empty, skipping")
+                    continue
+                
+                # Get the comment column (try common column names)
+                comment_col = None
+                possible_cols = ['comment', 'comments', 'text', 'feedback', 'review', 'message', 'content']
+                
+                for col in possible_cols:
+                    if col in df.columns:
                         comment_col = col
                         break
                         
-            # If still no column found, return error
-            if comment_col is None:
-                return jsonify({'error': 'Could not identify a text column in your file'}), 400
+                # If no matching column found, use the first text column
+                if comment_col is None:
+                    for col in df.columns:
+                        if df[col].dtype == 'object':  # String/object type
+                            comment_col = col
+                            break
+                            
+                # If still no column found, skip this file
+                if comment_col is None:
+                    logging.warning(f"🔍 Could not identify text column in {file.filename}, skipping")
+                    continue
+                    
+                logging.info(f"🔍 Using column '{comment_col}' from {file.filename}")
                 
-            # Process each comment
-            results = []
-            # Only initialize sentiments that are actually used (no Neutral)
-            sentiment_counts = {'Positive': 0, 'Negative': 0, 'Mixed': 0}
-            priority_counts = {'High': 0, 'Medium': 0, 'Low': 0}
-            total_sentiment = 0
-            valid_count = 0
+                # Process each comment in this file
+                file_start_time = time.time()
+                file_results = []
+                file_valid_count = 0
+                
+                # Process each comment
+                for comment in df[comment_col].dropna():
+                    if isinstance(comment, str) and comment.strip():
+                        try:
+                            # Import analyze_text function if not already imported
+                            try:
+                                from app import analyze_text
+                            except ImportError:
+                                logging.error("Failed to import analyze_text function")
+                                return jsonify({'error': 'Internal server error: analyze_text function not available'}), 500
+                                
+                            result = analyze_text(comment.strip())
+                            
+                            # Normalize sentiment to title case to ensure consistency
+                            normalized_sentiment = result['sentiment'].title()
+                            
+                            # Add to file results
+                            file_result = {
+                                'text': comment[:100] + '...' if len(comment) > 100 else comment,
+                                'sentiment': normalized_sentiment,
+                                'sentiment_score': result['sentiment_score'],
+                                'emotion': result['emotion'],
+                                'priority': result['priority'],
+                                'source_file': file.filename
+                            }
+                            file_results.append(file_result)
+                            all_results.append(file_result)
+                            
+                            # Update combined counts using normalized sentiment
+                            combined_sentiment_counts[normalized_sentiment] = combined_sentiment_counts.get(normalized_sentiment, 0) + 1
+                            combined_priority_counts[result['priority']] = combined_priority_counts.get(result['priority'], 0) + 1
+                            
+                            # Update combined total sentiment
+                            combined_total_sentiment += result['sentiment_score']  # Already a percentage (0-100)
+                            combined_valid_count += 1
+                            file_valid_count += 1
+                        except Exception as e:
+                            logging.error(f"Error analyzing comment from {file.filename}: {str(e)}")
+                
+                file_end_time = time.time()
+                file_duration = file_end_time - file_start_time
+                logging.info(f"🔍 Processed {file_valid_count} comments from {file.filename} in {file_duration:.2f} seconds")
             
             # Get analytics data once to update bulk uploads count
             analytics_data = load_data(user_id)
@@ -714,105 +795,86 @@ def analyze_bulk():
             analytics_data['isNewAccount'] = False
             save_data(analytics_data, user_id)
             
-            # Process each comment
-            for comment in df[comment_col].dropna():
-                if isinstance(comment, str) and comment.strip():
-                    try:
-                        # Import analyze_text function if not already imported
-                        try:
-                            from app import analyze_text
-                        except ImportError:
-                            logging.error("Failed to import analyze_text function")
-                            return jsonify({'error': 'Internal server error: analyze_text function not available'}), 500
-                            
-                        result = analyze_text(comment.strip())
-                        
-                        # Normalize sentiment to title case to ensure consistency
-                        normalized_sentiment = result['sentiment'].title()
-                        
-                        # Add to results
-                        results.append({
-                            'text': comment[:100] + '...' if len(comment) > 100 else comment,
-                            'sentiment': normalized_sentiment,
-                            'sentiment_score': result['sentiment_score'],
-                            'emotion': result['emotion'],
-                            'priority': result['priority']
-                        })
-                        
-                        # Update counts using normalized sentiment
-                        sentiment_counts[normalized_sentiment] = sentiment_counts.get(normalized_sentiment, 0) + 1
-                        priority_counts[result['priority']] = priority_counts.get(result['priority'], 0) + 1
-                        
-                        # Update total sentiment
-                        total_sentiment += result['sentiment_score']  # Already a percentage (0-100)
-                        valid_count += 1
-                    except Exception as e:
-                        logging.error(f"Error analyzing comment: {str(e)}")
+            # Calculate combined average sentiment
+            combined_average_sentiment = combined_total_sentiment / combined_valid_count if combined_valid_count > 0 else 50
             
-            # Calculate average sentiment
-            average_sentiment = total_sentiment / valid_count if valid_count > 0 else 50
+            logging.info(f"🔍 COMBINED RESULTS: {combined_valid_count} total comments from {len(valid_files)} files")
+            logging.info(f"🔍 Combined sentiment distribution: {combined_sentiment_counts}")
+            logging.info(f"🔍 Combined average sentiment: {combined_average_sentiment}")
             
-            # Record individual analyses for each comment to ensure they appear in analytics
-            for result in results:
-                # Add each comment as an individual analysis in the user's data
-                # This ensures bulk analyses are included in sentiment trends and emotion distribution
-                analytics_data = load_data(user_id)
-                
-                # Update total analyses count
-                analytics_data['totalAnalyses'] += 1
-                
-                # Add activity for this analysis
-                analytics_data['activities'].insert(0, {
-                    'title': f"Analyzed comment from bulk upload",
-                    'description': f"Sentiment: {result['sentiment']}, Priority: {result['priority']}",
-                    'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    'type': 'analysis'
-                })
-                
-                # Track emotion counts
+            # OPTIMIZED: Batch update analytics data instead of saving after each comment
+            logging.info(f"🔍 PERFORMANCE: Batch updating analytics for {combined_valid_count} comments")
+            
+            # Load analytics data once
+            analytics_data = load_data(user_id)
+            
+            # Batch update total analyses count
+            analytics_data['totalAnalyses'] += combined_valid_count
+            
+            # Batch update emotion counts
+            emotion_batch_counts = {}
+            for result in all_results:
                 emotion = result.get('emotion', '')
                 if emotion:
                     # Normalize emotion name to match our categories
                     emotion_key = emotion.capitalize()
                     if emotion_key not in analytics_data.get('emotionCounts', {}):
-                        # If it's not one of our standard emotions, default to neutral
                         emotion_key = 'neutral'
-                    
-                    # Initialize emotionCounts if it doesn't exist
-                    if 'emotionCounts' not in analytics_data:
-                        analytics_data['emotionCounts'] = {
-                            'Joy': 0,
-                            'Sadness': 0,
-                            'Anger': 0,
-                            'Fear': 0,
-                            'Surprise': 0,
-                            'Love': 0,
-                            'neutral': 0
-                        }
-                    
-                    # Increment the emotion count
-                    analytics_data['emotionCounts'][emotion_key] = analytics_data['emotionCounts'].get(emotion_key, 0) + 1
-                
-                # Keep activities list manageable
-                if len(analytics_data['activities']) > 100:
-                    analytics_data['activities'] = analytics_data['activities'][:100]
-                
-                # Save the updated data
-                save_data(analytics_data, user_id)
+                    emotion_batch_counts[emotion_key] = emotion_batch_counts.get(emotion_key, 0) + 1
             
-            # Return all results to the frontend, don't limit to 100
-            response = {
-                'totalAnalyzed': valid_count,
-                'results': results,
-                'summary': {
-                    'sentimentDistribution': sentiment_counts,
-                    'priorityDistribution': priority_counts,
-                    'averageSentiment': average_sentiment
+            # Initialize emotionCounts if it doesn't exist
+            if 'emotionCounts' not in analytics_data:
+                analytics_data['emotionCounts'] = {
+                    'Joy': 0, 'Sadness': 0, 'Anger': 0, 'Fear': 0, 'Surprise': 0, 'Love': 0, 'neutral': 0
                 }
+            
+            # Apply batch emotion updates
+            for emotion_key, count in emotion_batch_counts.items():
+                analytics_data['emotionCounts'][emotion_key] = analytics_data['emotionCounts'].get(emotion_key, 0) + count
+            
+            # Add a single bulk analysis activity instead of one per comment
+            analytics_data['activities'].insert(0, {
+                'title': f"Bulk analysis completed",
+                'description': f"Analyzed {combined_valid_count} comments from {len(valid_files)} files. Avg sentiment: {combined_average_sentiment:.1f}%",
+                'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'type': 'analysis'
+            })
+            
+            # Keep activities list manageable
+            if len(analytics_data['activities']) > 100:
+                analytics_data['activities'] = analytics_data['activities'][:100]
+            
+            # Save the updated data ONCE at the end
+            analytics_start_time = time.time()
+            logging.info(f"🔍 PERFORMANCE: Saving analytics data once for all {combined_valid_count} comments")
+            save_data(analytics_data, user_id)
+            analytics_end_time = time.time()
+            
+            # Final performance summary
+            total_duration = time.time() - start_time
+            analytics_duration = analytics_end_time - analytics_start_time
+            logging.info(f"🔍 PERFORMANCE SUMMARY:")
+            logging.info(f"  📁 Files processed: {len(valid_files)}")
+            logging.info(f"  📝 Comments analyzed: {combined_valid_count}")
+            logging.info(f"  ⏱️  Total time: {total_duration:.2f} seconds")
+            logging.info(f"  💾 Analytics save time: {analytics_duration:.2f} seconds")
+            logging.info(f"  🚀 Comments per second: {combined_valid_count / total_duration:.2f}")
+            
+            # Return all combined results to the frontend
+            response = {
+                'totalAnalyzed': combined_valid_count,
+                'results': all_results,
+                'summary': {
+                    'sentimentDistribution': combined_sentiment_counts,
+                    'priorityDistribution': combined_priority_counts,
+                    'averageSentiment': combined_average_sentiment
+                },
+                'filesProcessed': len(valid_files),
+                'fileNames': [f.filename for f in valid_files]
             }
             
             # If no valid comments were found, add mock data to prevent empty analysis
-            if valid_count == 0:
+            if combined_valid_count == 0:
                 mock_results = [
                     {
                         'text': "This product exceeded my expectations!",

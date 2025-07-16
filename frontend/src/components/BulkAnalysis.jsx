@@ -117,12 +117,18 @@ export default function BulkAnalysis() {
     try {
       const formData = new FormData();
       
-      console.log('BulkAnalysis: Processing text files');
+      console.log('🔍 BULK ANALYSIS FRONTEND DEBUG: Processing text files');
+      console.log('🔍 Total files to upload:', files.length);
+      
       // Add text files
-      files.forEach(file => {
-        console.log('BulkAnalysis: Adding file to FormData:', file.name, file.type);
+      files.forEach((file, index) => {
+        console.log(`🔍 Adding file ${index + 1} to FormData:`, file.name, file.type, `size: ${file.size} bytes`);
         formData.append('file', file);
       });
+      
+      // Debug: Log FormData summary
+      const fileNames = files.map(f => f.name).join(', ');
+      console.log(`🔍 FormData ready: ${files.length} files (${fileNames})`);
       
       // Add selected columns if CSV data exists
       if (csvData && selectedColumns.length > 0) {
@@ -141,10 +147,17 @@ export default function BulkAnalysis() {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           console.log('BulkAnalysis: Upload progress:', percentCompleted + '%');
           setAnalysisProgress(percentCompleted);
-        }
+        },
+        timeout: 120000 // 2 minutes timeout specifically for bulk analysis
       });
 
-      console.log('BulkAnalysis: Upload successful, response:', response.data);
+      console.log('🔍 BULK ANALYSIS RESPONSE DEBUG:');
+      console.log('🔍 Files processed:', response.data.filesProcessed || 'Unknown');
+      console.log('🔍 File names:', response.data.fileNames || []);
+      console.log('🔍 Total analyzed items in response:', response.data.totalAnalyzed);
+      console.log('🔍 Results length:', response.data.results?.length || 0);
+      console.log('🔍 Sentiment distribution:', response.data.summary?.sentimentDistribution);
+      console.log('🔍 Full response:', response.data);
       setResults(response.data);
       // Reset filters when new results are loaded
       setSentimentFilter('All');
@@ -404,7 +417,7 @@ export default function BulkAnalysis() {
 
   // Reset all filters
   const resetFilters = () => {
-    console.log('Resetting all filters');
+    console.log('🔄 Resetting all filters');
     setSentimentFilter('All');
     setEmotionFilter('All');
     setPriorityFilter('All');
@@ -413,17 +426,7 @@ export default function BulkAnalysis() {
 
   // Analyze another file - reset all states for new analysis
   const startNewAnalysis = () => {
-    console.log('🔄 ANALYZE ANOTHER FILE DEBUG: Starting new analysis');
-    console.log('🔄 Current state before reset:', {
-      filesCount: files.length,
-      hasResults: !!results,
-      hasCsvData: !!csvData,
-      selectedColumnsCount: selectedColumns.length,
-      currentFilters: { sentimentFilter, emotionFilter, priorityFilter },
-      dragActive,
-      uploading,
-      analyzing
-    });
+    console.log('🔄 Starting new analysis - resetting all state');
 
     // Show user feedback
     toast.success('Ready for new analysis!');
@@ -447,17 +450,13 @@ export default function BulkAnalysis() {
     // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
-      console.log('🔄 File input cleared');
     }
-    
-    console.log('🔄 State reset completed - ready for new analysis');
     
     // Scroll back to upload section for better UX
     setTimeout(() => {
       const uploadSection = document.getElementById('upload-section');
       if (uploadSection) {
         uploadSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        console.log('🔄 Scrolled to upload section');
       }
     }, 100);
   };
@@ -617,7 +616,7 @@ export default function BulkAnalysis() {
               {uploading ? (
                 <div className="flex items-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-bg mr-2"></div>
-                  Uploading... ({analysisProgress}%)
+                  {analysisProgress < 100 ? `Uploading... (${analysisProgress}%)` : `Analyzing ${files.length} file${files.length !== 1 ? 's' : ''}...`}
                 </div>
               ) : (
                 'Upload & Analyze'
@@ -640,14 +639,14 @@ export default function BulkAnalysis() {
                         <CheckCircleIcon className="h-5 w-5 text-success mr-2" />
                         <span className="text-success font-medium">
                           Successfully analyzed {results.totalAnalyzed} items
+                          {results.filesProcessed && results.filesProcessed > 1 && 
+                            ` from ${results.filesProcessed} files`
+                          }
                         </span>
                       </div>
                       <button
                         onClick={startNewAnalysis}
-                        onMouseEnter={() => console.log('🎨 BUTTON HOVER: Mouse entered "Analyze Another File" button')}
-                        onMouseLeave={() => console.log('🎨 BUTTON HOVER: Mouse left "Analyze Another File" button')}
-                        onFocus={() => console.log('🎨 BUTTON FOCUS: "Analyze Another File" button focused')}
-                        onBlur={() => console.log('🎨 BUTTON BLUR: "Analyze Another File" button blurred')}
+
                         className="bg-secondary hover:bg-primary hover:text-black text-black border border-secondary rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-primary focus:text-black hover:shadow-lg transform hover:-translate-y-0.5"
                       >
                         Analyze Another File
@@ -768,20 +767,25 @@ export default function BulkAnalysis() {
                         {getVisibleResults().map((result, index) => (
                           <div key={index} className="card p-4">
                             <div className="flex justify-between items-start mb-2">
-                              <div className="flex-1">
-                                <p className="text-sm text-text mb-2">{result.text}</p>
-                                <div className="flex items-center space-x-4 text-xs">
-                                  <span className={`font-medium ${getSentimentColor(result.sentiment)}`}>
-                                    {result.sentiment}
-                                  </span>
-                                  <span className={`${getEmotionColor(result.emotion)}`}>
-                                    {result.emotion}
-                                  </span>
+                                                          <div className="flex-1">
+                              <p className="text-sm text-text mb-2">{result.text}</p>
+                              <div className="flex items-center space-x-4 text-xs">
+                                <span className={`font-medium ${getSentimentColor(result.sentiment)}`}>
+                                  {result.sentiment}
+                                </span>
+                                <span className={`${getEmotionColor(result.emotion)}`}>
+                                  {result.emotion}
+                                </span>
+                                <span className="text-text-muted text-xs">
+                                  Priority: <span className={`font-medium ${getPriorityColor(result.priority)}`}>{result.priority}</span>
+                                </span>
+                                {result.source_file && results.filesProcessed > 1 && (
                                   <span className="text-text-muted text-xs">
-                                    Priority: <span className={`font-medium ${getPriorityColor(result.priority)}`}>{result.priority}</span>
+                                    File: <span className="font-medium">{result.source_file}</span>
                                   </span>
-                                </div>
+                                )}
                               </div>
+                            </div>
                             </div>
                           </div>
                         ))}

@@ -7,7 +7,7 @@ const instance = axios.create({
         'Accept': 'application/json'
     },
     withCredentials: true,
-    timeout: 10000 // 10 second timeout
+    timeout: 120000 // 2 minutes timeout for bulk analysis
 });
 
 // Add request interceptor
