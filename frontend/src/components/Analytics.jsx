@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { ThemeContext } from '../App';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -34,6 +35,7 @@ ChartJS.register(
 export default function Analytics() {
   const [timeRange, setTimeRange] = useState('7d');
   const [drilldownData, setDrilldownData] = useState(null);
+  const { darkMode } = useContext(ThemeContext);
   
   const { 
     data, 
@@ -43,7 +45,7 @@ export default function Analytics() {
     refetch 
   } = useAnalyticsData(timeRange);
 
-  // Chart configuration
+  // Chart configuration with theme-aware colors
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -51,32 +53,32 @@ export default function Analytics() {
       legend: {
         position: 'top',
         labels: {
-          color: 'hsl(220, 100%, 98%)',
+          color: darkMode ? 'hsl(220, 100%, 98%)' : 'hsl(220, 100%, 2%)',
           font: { size: 12 }
         }
       },
       tooltip: {
         mode: 'index',
         intersect: false,
-        backgroundColor: 'hsl(220, 35%, 10%)',
-        titleColor: 'hsl(220, 100%, 98%)',
-        bodyColor: 'hsl(40, 53%, 60%)',
-        borderColor: 'hsl(220, 78%, 76%)',
+        backgroundColor: darkMode ? 'hsl(220, 35%, 10%)' : 'hsl(220, 35%, 90%)',
+        titleColor: darkMode ? 'hsl(220, 100%, 98%)' : 'hsl(220, 100%, 2%)',
+        bodyColor: darkMode ? 'hsl(40, 53%, 60%)' : 'hsl(40, 53%, 40%)',
+        borderColor: darkMode ? 'hsl(220, 78%, 76%)' : 'hsl(220, 78%, 24%)',
         borderWidth: 1
       }
     },
     scales: {
       x: {
         grid: {
-          color: 'rgba(220, 78, 76, 0.1)'
+          color: darkMode ? 'rgba(220, 78, 76, 0.1)' : 'rgba(96, 108, 56, 0.1)'
         },
-        ticks: { color: 'hsl(220, 100%, 98%)' }
+        ticks: { color: darkMode ? 'hsl(220, 100%, 98%)' : 'hsl(220, 100%, 2%)' }
       },
       y: {
         grid: {
-          color: 'rgba(220, 78, 76, 0.1)'
+          color: darkMode ? 'rgba(220, 78, 76, 0.1)' : 'rgba(96, 108, 56, 0.1)'
         },
-        ticks: { color: 'hsl(220, 100%, 98%)' }
+        ticks: { color: darkMode ? 'hsl(220, 100%, 98%)' : 'hsl(220, 100%, 2%)' }
       }
     },
     interaction: {
@@ -177,7 +179,11 @@ export default function Analytics() {
                       ...chartOptions.plugins,
                       legend: {
                         ...chartOptions.plugins.legend,
-                        position: 'right'
+                        position: 'right',
+                        labels: {
+                          ...chartOptions.plugins.legend.labels,
+                          color: darkMode ? 'hsl(220, 100%, 98%)' : 'hsl(220, 100%, 2%)'
+                        }
                       },
                       tooltip: {
                         ...chartOptions.plugins.tooltip,

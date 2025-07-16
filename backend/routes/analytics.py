@@ -677,7 +677,8 @@ def analyze_bulk():
                 
             # Process each comment
             results = []
-            sentiment_counts = {'Positive': 0, 'Negative': 0, 'Neutral': 0}
+            # Only initialize sentiments that are actually used (no Neutral)
+            sentiment_counts = {'Positive': 0, 'Negative': 0, 'Mixed': 0}
             priority_counts = {'High': 0, 'Medium': 0, 'Low': 0}
             total_sentiment = 0
             valid_count = 0
@@ -701,17 +702,20 @@ def analyze_bulk():
                             
                         result = analyze_text(comment.strip())
                         
+                        # Normalize sentiment to title case to ensure consistency
+                        normalized_sentiment = result['sentiment'].title()
+                        
                         # Add to results
                         results.append({
                             'text': comment[:100] + '...' if len(comment) > 100 else comment,
-                            'sentiment': result['sentiment'],
+                            'sentiment': normalized_sentiment,
                             'sentiment_score': result['sentiment_score'],
                             'emotion': result['emotion'],
                             'priority': result['priority']
                         })
                         
-                        # Update counts
-                        sentiment_counts[result['sentiment']] = sentiment_counts.get(result['sentiment'], 0) + 1
+                        # Update counts using normalized sentiment
+                        sentiment_counts[normalized_sentiment] = sentiment_counts.get(normalized_sentiment, 0) + 1
                         priority_counts[result['priority']] = priority_counts.get(result['priority'], 0) + 1
                         
                         # Update total sentiment

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { CloudArrowUpIcon, DocumentTextIcon, XMarkIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import axios from '../config/axios';
 import toast from 'react-hot-toast';
@@ -18,6 +18,11 @@ export default function BulkAnalysis() {
   const [sentimentFilter, setSentimentFilter] = useState('All');
   const [emotionFilter, setEmotionFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
+  
+  // Infinite scrolling state
+  const [visibleItems, setVisibleItems] = useState(5);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const scrollContainerRef = useRef(null);
 
   const handleDrag = useCallback((e) => {
     e.preventDefault();
@@ -173,6 +178,9 @@ export default function BulkAnalysis() {
         analysis: response.data
       }));
       
+      // Reset filters and pagination when new data arrives
+      resetFilters();
+      
       toast.success('Bulk analysis completed!');
     } catch (error) {
       console.error('Analysis error:', error);
@@ -184,12 +192,36 @@ export default function BulkAnalysis() {
 
   const getSentimentColor = (sentiment) => {
     const colors = {
-      POSITIVE: 'text-success',
-      NEGATIVE: 'text-danger',
-      NEUTRAL: 'text-text-muted',
-      MIXED: 'text-warning'
+      'Positive': 'text-green-500',
+      'Negative': 'text-red-500', 
+      'Mixed': 'text-yellow-500'
     };
-    return colors[sentiment] || 'text-text-muted';
+    return colors[sentiment] || 'text-gray-500';
+  };
+
+  const getPriorityColor = (priority) => {
+    const colors = {
+      'High': 'text-red-500',
+      'Medium': 'text-yellow-500',
+      'Low': 'text-green-500'
+    };
+    return colors[priority] || 'text-gray-500';
+  };
+
+  // Get ordered sentiment entries
+  const getOrderedSentimentEntries = (sentimentDistribution) => {
+    const order = ['Negative', 'Mixed', 'Positive'];
+    return order
+      .filter(sentiment => sentimentDistribution.hasOwnProperty(sentiment))
+      .map(sentiment => [sentiment, sentimentDistribution[sentiment]]);
+  };
+
+  // Get ordered priority entries  
+  const getOrderedPriorityEntries = (priorityDistribution) => {
+    const order = ['High', 'Medium', 'Low'];
+    return order
+      .filter(priority => priorityDistribution.hasOwnProperty(priority))
+      .map(priority => [priority, priorityDistribution[priority]]);
   };
 
   const getEmotionColor = (emotion) => {
@@ -238,12 +270,143 @@ export default function BulkAnalysis() {
     return filtered;
   };
 
+  // Get visible results for infinite scrolling
+  const getVisibleResults = () => {
+    const filtered = getFilteredResults();
+    return filtered.slice(0, visibleItems);
+  };
+
+  // Load more results automatically
+  const loadMoreResults = useCallback(() => {
+    if (isLoadingMore) {
+      console.log('LOAD MORE DEBUG: Already loading, skipping');
+      return;
+    }
+    
+    console.log('LOAD MORE DEBUG: Starting load more', {
+      currentVisibleItems: visibleItems,
+      totalFilteredResults: getFilteredResults().length,
+      willLoadMore: getFilteredResults().length > visibleItems
+    });
+    
+    setIsLoadingMore(true);
+    // Add a small delay to simulate loading and prevent rapid firing
+    setTimeout(() => {
+      setVisibleItems(prev => {
+        const newCount = prev + 5;
+        console.log('LOAD MORE DEBUG: Updated visible items', {
+          previous: prev,
+          new: newCount,
+          totalAvailable: getFilteredResults().length
+        });
+        return newCount;
+      });
+      setIsLoadingMore(false);
+    }, 300);
+  }, [isLoadingMore, visibleItems]);
+
+  // Check if there are more results to load
+  const hasMoreResults = () => {
+    const totalResults = getFilteredResults().length;
+    const hasMore = totalResults > visibleItems;
+    console.log('HAS MORE RESULTS DEBUG:', {
+      totalResults,
+      visibleItems,
+      hasMore
+    });
+    return hasMore;
+  };
+
+  // Infinite scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = scrollContainerRef.current;
+      if (!container) {
+        console.log('INFINITE SCROLL DEBUG: No container reference');
+        return;
+      }
+
+      if (isLoadingMore) {
+        console.log('INFINITE SCROLL DEBUG: Already loading, skipping');
+        return;
+      }
+
+      if (!hasMoreResults()) {
+        console.log('INFINITE SCROLL DEBUG: No more results available');
+        return;
+      }
+
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      console.log('INFINITE SCROLL DEBUG: Scroll metrics:', {
+        scrollTop,
+        scrollHeight,
+        clientHeight,
+        isScrollable: scrollHeight > clientHeight,
+        distanceFromBottom: scrollHeight - (scrollTop + clientHeight),
+        shouldTrigger: scrollTop + clientHeight >= scrollHeight - 100,
+        visibleItems,
+        totalResults: getFilteredResults().length
+      });
+
+      // Trigger load when user scrolls to within 100px of bottom
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        console.log('INFINITE SCROLL DEBUG: Triggering load more');
+        loadMoreResults();
+      }
+    };
+
+    const container = scrollContainerRef.current;
+    if (container) {
+      console.log('INFINITE SCROLL DEBUG: Setting up scroll listener', {
+        containerHeight: container.clientHeight,
+        containerScrollHeight: container.scrollHeight,
+        hasOverflow: container.scrollHeight > container.clientHeight
+      });
+      container.addEventListener('scroll', handleScroll);
+      
+      // Also check immediately if we need to load more (when content doesn't fill container)
+      const checkInitialLoad = () => {
+        const { scrollHeight, clientHeight } = container;
+        console.log('INFINITE SCROLL DEBUG: Initial load check:', {
+          scrollHeight,
+          clientHeight,
+          needsScroll: scrollHeight > clientHeight,
+          hasMoreResults: hasMoreResults(),
+          visibleItems,
+          totalResults: getFilteredResults().length
+        });
+        
+        // If container is not scrollable but we have more results, auto-load
+        if (scrollHeight <= clientHeight && hasMoreResults() && !isLoadingMore) {
+          console.log('INFINITE SCROLL DEBUG: Container not scrollable, auto-loading more items');
+          loadMoreResults();
+        }
+      };
+      
+      // Check after a small delay to ensure DOM is updated
+      setTimeout(checkInitialLoad, 100);
+      
+      return () => container.removeEventListener('scroll', handleScroll);
+    } else {
+      console.log('INFINITE SCROLL DEBUG: No container found for scroll listener');
+    }
+  }, [loadMoreResults, isLoadingMore, visibleItems, getFilteredResults]);
+
+  // Handle filter changes - reset visible items
+  const handleFilterChange = (filterType, value) => {
+    setVisibleItems(5);
+    if (filterType === 'sentiment') setSentimentFilter(value);
+    else if (filterType === 'emotion') setEmotionFilter(value);
+    else if (filterType === 'priority') setPriorityFilter(value);
+  };
+
   // Reset all filters
   const resetFilters = () => {
     console.log('Resetting all filters');
     setSentimentFilter('All');
     setEmotionFilter('All');
     setPriorityFilter('All');
+    setVisibleItems(5); // Reset to initial visible items when filters reset
   };
 
   return (
@@ -411,7 +574,7 @@ export default function BulkAnalysis() {
               
               {results.totalAnalyzed && (
                 <div className="mb-6">
-                  <div className="bg-success/10 border border-success/20 rounded-xl p-4">
+                  <div className="bg-success/10 border border-primary rounded-xl p-4">
                     <div className="flex items-center">
                       <CheckCircleIcon className="h-5 w-5 text-success mr-2" />
                       <span className="text-success font-medium">
@@ -429,7 +592,7 @@ export default function BulkAnalysis() {
                     <div className="card p-4">
                       <h4 className="text-sm font-medium text-text-muted mb-2">Sentiment Distribution</h4>
                       <div className="space-y-1">
-                        {Object.entries(results.summary.sentimentDistribution).map(([sentiment, count]) => (
+                        {getOrderedSentimentEntries(results.summary.sentimentDistribution).map(([sentiment, count]) => (
                           <div key={sentiment} className="flex justify-between">
                             <span className={`text-sm ${getSentimentColor(sentiment)}`}>
                               {sentiment}
@@ -443,9 +606,9 @@ export default function BulkAnalysis() {
                     <div className="card p-4">
                       <h4 className="text-sm font-medium text-text-muted mb-2">Priority Distribution</h4>
                       <div className="space-y-1">
-                        {Object.entries(results.summary.priorityDistribution).map(([priority, count]) => (
+                        {getOrderedPriorityEntries(results.summary.priorityDistribution).map(([priority, count]) => (
                           <div key={priority} className="flex justify-between">
-                            <span className="text-sm text-text">{priority}</span>
+                            <span className={`text-sm ${getPriorityColor(priority)}`}>{priority}</span>
                             <span className="text-sm text-text">{count}</span>
                           </div>
                         ))}
@@ -478,7 +641,7 @@ export default function BulkAnalysis() {
                         <label className="text-sm font-medium text-text">Sentiment:</label>
                         <select
                           value={sentimentFilter}
-                          onChange={(e) => setSentimentFilter(e.target.value)}
+                          onChange={(e) => handleFilterChange('sentiment', e.target.value)}
                           className="px-3 py-1 rounded-lg bg-bg border border-border text-text text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary focus:outline-none"
                         >
                           {getFilterOptions(results, 'sentiment').map(option => (
@@ -491,7 +654,7 @@ export default function BulkAnalysis() {
                         <label className="text-sm font-medium text-text">Emotion:</label>
                         <select
                           value={emotionFilter}
-                          onChange={(e) => setEmotionFilter(e.target.value)}
+                          onChange={(e) => handleFilterChange('emotion', e.target.value)}
                           className="px-3 py-1 rounded-lg bg-bg border border-border text-text text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary focus:outline-none"
                         >
                           {getFilterOptions(results, 'emotion').map(option => (
@@ -506,7 +669,7 @@ export default function BulkAnalysis() {
                         <label className="text-sm font-medium text-text">Priority:</label>
                         <select
                           value={priorityFilter}
-                          onChange={(e) => setPriorityFilter(e.target.value)}
+                          onChange={(e) => handleFilterChange('priority', e.target.value)}
                           className="px-3 py-1 rounded-lg bg-bg border border-border text-text text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary focus:outline-none"
                         >
                           {getFilterOptions(results, 'priority').map(option => (
@@ -524,28 +687,51 @@ export default function BulkAnalysis() {
                     </div>
                   </div>
                   
-                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                  <div 
+                    ref={scrollContainerRef}
+                    className="space-y-3 max-h-96 overflow-y-auto pr-2"
+                  >
                     {getFilteredResults().length > 0 ? (
-                      getFilteredResults().map((result, index) => (
-                        <div key={index} className="card p-4">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex-1">
-                              <p className="text-sm text-text mb-2">{result.text}</p>
-                              <div className="flex items-center space-x-4 text-xs">
-                                <span className={`font-medium ${getSentimentColor(result.sentiment)}`}>
-                                  {result.sentiment}
-                                </span>
-                                <span className={`${getEmotionColor(result.emotion)}`}>
-                                  {result.emotion}
-                                </span>
-                                <span className="text-text-muted">
-                                  Priority: {result.priority}
-                                </span>
+                      <>
+                        {getVisibleResults().map((result, index) => (
+                          <div key={index} className="card p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1">
+                                <p className="text-sm text-text mb-2">{result.text}</p>
+                                <div className="flex items-center space-x-4 text-xs">
+                                  <span className={`font-medium ${getSentimentColor(result.sentiment)}`}>
+                                    {result.sentiment}
+                                  </span>
+                                  <span className={`${getEmotionColor(result.emotion)}`}>
+                                    {result.emotion}
+                                  </span>
+                                  <span className="text-text-muted text-xs">
+                                    Priority: <span className={`font-medium ${getPriorityColor(result.priority)}`}>{result.priority}</span>
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))
+                        ))}
+                        
+                        {/* Loading indicator for infinite scroll */}
+                        {isLoadingMore && (
+                          <div className="text-center py-4">
+                            <div className="inline-flex items-center">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                              <span className="text-sm text-text-muted">Loading more...</span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {!hasMoreResults() && getFilteredResults().length > 5 && (
+                          <div className="text-center py-4">
+                            <div className="text-sm text-text-muted">
+                              Showing all {getFilteredResults().length} results
+                            </div>
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <div className="text-center py-8">
                         <p className="text-text-muted mb-2">No results match the selected filters</p>
