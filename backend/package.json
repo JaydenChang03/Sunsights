@@ -6,5 +6,8 @@
   "scripts": {
     "dev": "python app.py",
     "start": "python app.py"
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.5"
   }
-} 
+}

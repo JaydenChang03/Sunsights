@@ -7,10 +7,20 @@ import datetime
 import re
 import logging
 import os
+import sys
+
+# Add parent directory to path to import email_service
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from email_service import email_service
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# Log email service status after logger is configured
+logger.info(f"📧 EMAIL SERVICE IMPORT STATUS:")
+logger.info(f"   🔧 Service Configured: {email_service.is_configured()}")
+logger.info(f"   📍 Working Directory: {os.getcwd()}")
 
 auth = Blueprint('auth', __name__)
 
@@ -319,12 +329,34 @@ def forgot_password():
         conn.commit()
         logger.info(f"Password reset token generated for user: {email}")
         
-        # Send reset email (implement your email sending logic here)
-        # For now, we'll just return the token in the response
-        return jsonify({
-            'message': 'Password reset instructions sent',
-            'reset_token': reset_token  # In production, this should be sent via email
-        }), 200
+        # Get user name for personalized email
+        user_data = conn.execute('SELECT name FROM users WHERE email = ?', (email,)).fetchone()
+        user_name = user_data['name'] if user_data and user_data['name'] else None
+        
+        # Send reset email using email service
+        logger.info(f"🔄 CALLING EMAIL SERVICE:")
+        logger.info(f"   📧 Email: {email}")
+        logger.info(f"   👤 User Name: {user_name}")
+        logger.info(f"   🔑 Token Generated: {'✓' if reset_token else '✗'}")
+        
+        email_sent = email_service.send_password_reset_email(email, reset_token, user_name)
+        
+        logger.info(f"📬 EMAIL SERVICE RESULT: {'SUCCESS' if email_sent else 'FAILED'}")
+        
+        if email_sent:
+            logger.info(f"✅ Password reset email process completed for: {email}")
+            response_data = {'message': 'Password reset instructions sent to your email'}
+            
+            # In development mode, also include token for testing
+            if not email_service.is_configured():
+                response_data['reset_token'] = reset_token
+                response_data['dev_note'] = 'Token included for development testing'
+                logger.info(f"🛠️ Development mode: Token included in response")
+                
+            return jsonify(response_data), 200
+        else:
+            logger.error(f"❌ Failed to send password reset email to: {email}")
+            return jsonify({'error': 'Failed to send reset email. Please try again.'}), 500
         
     except Exception as e:
         logger.error(f"Forgot password error: {e}")
