@@ -67,23 +67,38 @@ const TutorialBubble = () => {
       ]
     },
     '/bulk-analysis': {
-      title: 'Bulk Analysis',
-      description: 'Process multiple customer feedbacks from files',
+      title: 'Bulk Analysis Guide',
+      description: 'Step-by-step guide for valid file uploads',
       steps: [
         {
-          title: 'Bulk Processing',
-          content: 'Upload CSV, XLS, or XLSX files containing multiple customer comments for batch analysis. Perfect for processing large volumes of feedback.',
+          title: '✅ Step 1: File Format Requirements',
+          content: 'SUPPORTED: CSV (.csv), Excel (.xlsx, .xls) files only. MAXIMUM: 10MB per file, up to 10,000 rows recommended. Each file should contain customer feedback text in columns.',
           icon: <AcademicCapIcon className="w-6 h-6" />
         },
         {
-          title: 'File Format Support',
-          content: 'Supports various file formats and automatically detects text columns. You can select which columns to analyze from your uploaded files.',
+          title: '✅ Step 2: Column Setup (CRITICAL)',
+          content: 'NAME your text columns: "comment", "comments", "text", "feedback", "review", "message", or "content". The system auto-detects these names. AVOID: Generic names like "Column1" or "Data".',
+          icon: <ExclamationTriangleIcon className="w-6 h-6" />
+        },
+        {
+          title: '✅ Step 3: Data Preparation',
+          content: 'INCLUDE: Customer reviews, support tickets, survey responses, social media posts (minimum 2 characters). EXCLUDE: Empty rows, pure numbers, single characters, or non-English text.',
           icon: <ChartBarIcon className="w-6 h-6" />
         },
         {
-          title: 'Batch Insights',
-          content: 'Get comprehensive summaries with sentiment distribution, emotion breakdowns, and priority classifications for all analyzed feedback.',
+          title: '✅ Step 4: Upload Process',
+          content: 'DRAG & DROP or click to upload multiple files. WAIT for "Processing 100%" before analyzing. CHECK the preview table to ensure correct data detection.',
+          icon: <HeartIcon className="w-6 h-6" />
+        },
+        {
+          title: '❌ Common Mistakes to AVOID',
+          content: 'DON\'T: Mix languages, use special characters in headers, include personal data (emails, names), upload corrupted files, or expect analysis of non-text content (images, links).',
           icon: <ExclamationTriangleIcon className="w-6 h-6" />
+        },
+        {
+          title: '🔧 Troubleshooting Tips',
+          content: 'IF ISSUES: Check file isn\'t corrupted, ensure UTF-8 encoding for CSVs, verify column headers match supported names, remove special characters, and try a smaller file first.',
+          icon: <ChartBarIcon className="w-6 h-6" />
         }
       ]
     },
@@ -163,6 +178,28 @@ const TutorialBubble = () => {
     setIsCompleted(completed === 'true');
     setCurrentStep(0);
     setIsOpen(false);
+    
+    // Enhanced tutorial content logging for bulk analysis
+    if (location.pathname === '/bulk-analysis') {
+      console.log('🔍 BULK ANALYSIS TUTORIAL VALIDATION:', {
+        contentLoaded: !!tutorialContent['/bulk-analysis'],
+        tutorialTitle: currentContent.title,
+        totalSteps: currentContent.steps.length,
+        stepTitles: currentContent.steps.map(step => step.title),
+        hasFileFormatGuidance: currentContent.steps.some(step => 
+          step.content.includes('CSV') || step.content.includes('Excel')
+        ),
+        hasColumnNaming: currentContent.steps.some(step => 
+          step.content.includes('comment') || step.content.includes('feedback')
+        ),
+        hasTroubleshooting: currentContent.steps.some(step => 
+          step.title.includes('Troubleshooting') || step.content.includes('IF ISSUES')
+        ),
+        hasDosDonts: currentContent.steps.some(step => 
+          step.title.includes('AVOID') || step.content.includes('DON\'T')
+        )
+      });
+    }
     
     // Log page navigation and tutorial status
     console.log('Tutorial Page Navigation:', {

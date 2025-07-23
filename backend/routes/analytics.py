@@ -670,15 +670,34 @@ def analyze_bulk():
             
         logging.info(f"🔍 Processing {len(valid_files)} valid files")
             
-        # Check extensions for all files
+        # Enhanced file validation with detailed logging
         allowed_extensions = {'csv', 'xlsx', 'xls'}
+        
+        logging.info(f"🔍 FILE VALIDATION for {len(valid_files)} files:")
         
         for file in valid_files:
             file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+            file_size_mb = file.content_length / (1024 * 1024) if file.content_length else 0
+            
+            logging.info(f"   📁 File: {file.filename}")
+            logging.info(f"   📏 Size: {file_size_mb:.2f} MB")
+            logging.info(f"   📂 Extension: {file_ext}")
+            
+            # Validate file extension
             if file_ext not in allowed_extensions:
+                logging.warning(f"   ❌ REJECTED: Unsupported file type '{file_ext}'")
                 return jsonify({
-                    'error': f'Invalid file type for {file.filename}. Allowed types: {", ".join(allowed_extensions)}'
+                    'error': f'Invalid file type for {file.filename}. Allowed types: {", ".join(allowed_extensions)}. Please use CSV (.csv) or Excel (.xlsx, .xls) files only.'
                 }), 400
+            
+            # Validate file size (10MB limit)
+            if file_size_mb > 10:
+                logging.warning(f"   ❌ REJECTED: File too large ({file_size_mb:.2f} MB)")
+                return jsonify({
+                    'error': f'File {file.filename} is too large ({file_size_mb:.1f} MB). Maximum file size is 10 MB.'
+                }), 400
+                
+            logging.info(f"   ✅ ACCEPTED: Valid {file_ext.upper()} file")
             
         # Process all files and combine results
         try:
@@ -718,37 +737,91 @@ def analyze_bulk():
                     logging.warning(f"🔍 File {file.filename} is empty, skipping")
                     continue
                 
-                # Get the comment column (try common column names)
+                # Enhanced column detection with detailed logging
                 comment_col = None
                 possible_cols = ['comment', 'comments', 'text', 'feedback', 'review', 'message', 'content']
                 
+                logging.info(f"🔍 COLUMN DETECTION for {file.filename}:")
+                logging.info(f"   📋 Available columns: {list(df.columns)}")
+                logging.info(f"   🎯 Looking for: {possible_cols}")
+                
+                # First try: exact match with preferred column names
                 for col in possible_cols:
-                    if col in df.columns:
-                        comment_col = col
-                        break
+                    if col.lower() in [c.lower() for c in df.columns]:
+                        # Find the actual column name (case-insensitive match)
+                        for actual_col in df.columns:
+                            if actual_col.lower() == col.lower():
+                                comment_col = actual_col
+                                logging.info(f"   ✅ FOUND preferred column: '{comment_col}' (matched '{col}')")
+                                break
+                        if comment_col:
+                            break
                         
-                # If no matching column found, use the first text column
+                # Second try: use the first text column if no preferred name found
                 if comment_col is None:
+                    logging.info(f"   ⚠️  No preferred column names found, checking data types...")
                     for col in df.columns:
                         if df[col].dtype == 'object':  # String/object type
                             comment_col = col
+                            logging.info(f"   📝 Using first text column: '{comment_col}' (dtype: {df[col].dtype})")
                             break
                             
-                # If still no column found, skip this file
+                # Final check: if still no column found, skip this file
                 if comment_col is None:
-                    logging.warning(f"🔍 Could not identify text column in {file.filename}, skipping")
+                    logging.error(f"   ❌ COLUMN DETECTION FAILED for {file.filename}")
+                    logging.error(f"   💡 SOLUTION: Rename a column to: {', '.join(possible_cols[:3])}")
+                    logging.error(f"   📋 Current columns: {list(df.columns)}")
                     continue
                     
-                logging.info(f"🔍 Using column '{comment_col}' from {file.filename}")
+                logging.info(f"   🎯 SELECTED column: '{comment_col}' for analysis")
                 
                 # Process each comment in this file
                 file_start_time = time.time()
                 file_results = []
                 file_valid_count = 0
                 
-                # Process each comment
-                for comment in df[comment_col].dropna():
-                    if isinstance(comment, str) and comment.strip():
+                # CSV PROCESSING DEBUG LOGS
+                total_rows = len(df)
+                total_rows_with_data = len(df[comment_col].dropna())
+                logging.info(f"🔍 CSV DEBUG for {file.filename}:")
+                logging.info(f"   📊 Total rows in CSV: {total_rows}")
+                logging.info(f"   📊 Rows with non-null data: {total_rows_with_data}")
+                logging.info(f"   📊 Null/NaN rows: {total_rows - total_rows_with_data}")
+                
+                # Count what we can convert to valid text
+                convertible_count = 0
+                truly_empty_count = 0
+                
+                for idx, comment in df[comment_col].items():
+                    if pd.isna(comment) or comment is None:
+                        comment_str = ""
+                    else:
+                        comment_str = str(comment).strip()
+                    
+                    if comment_str and len(comment_str) >= 2:
+                        convertible_count += 1
+                    else:
+                        truly_empty_count += 1
+                            
+                logging.info(f"   📊 Convertible to text: {convertible_count}")
+                logging.info(f"   📊 Truly empty/unusable: {truly_empty_count}")
+                logging.info(f"   📊 Expected to process: {convertible_count} (improved from {total_rows_with_data})")
+                
+                # Process each comment (including ALL rows, even with NaN)
+                processed_count = 0
+                skipped_count = 0
+                
+                # Use ALL rows, not just dropna() - handle NaN/null values as empty strings
+                for idx, comment in df[comment_col].items():
+                    # Convert any value to string and clean it
+                    if pd.isna(comment) or comment is None:
+                        comment_str = ""
+                    else:
+                        comment_str = str(comment).strip()
+                    
+                    # Only skip if truly empty after conversion (minimum 2 characters for meaningful analysis)
+                    if comment_str and len(comment_str) >= 2:
+                        processed_count += 1
                         try:
                             # Import analyze_text function if not already imported
                             try:
@@ -757,14 +830,14 @@ def analyze_bulk():
                                 logging.error("Failed to import analyze_text function")
                                 return jsonify({'error': 'Internal server error: analyze_text function not available'}), 500
                                 
-                            result = analyze_text(comment.strip())
+                            result = analyze_text(comment_str)
                             
                             # Normalize sentiment to title case to ensure consistency
                             normalized_sentiment = result['sentiment'].title()
                             
                             # Add to file results
                             file_result = {
-                                'text': comment[:100] + '...' if len(comment) > 100 else comment,
+                                'text': comment_str[:100] + '...' if len(comment_str) > 100 else comment_str,
                                 'sentiment': normalized_sentiment,
                                 'sentiment_score': result['sentiment_score'],
                                 'emotion': result['emotion'],
@@ -784,10 +857,20 @@ def analyze_bulk():
                             file_valid_count += 1
                         except Exception as e:
                             logging.error(f"Error analyzing comment from {file.filename}: {str(e)}")
+                            skipped_count += 1
+                    else:
+                        skipped_count += 1
+                        logging.debug(f"   ⚠️  Skipped empty row {idx}: original='{comment}', processed='{comment_str}'")
                 
                 file_end_time = time.time()
                 file_duration = file_end_time - file_start_time
-                logging.info(f"🔍 Processed {file_valid_count} comments from {file.filename} in {file_duration:.2f} seconds")
+                
+                # FINAL CSV PROCESSING SUMMARY
+                logging.info(f"🔍 CSV PROCESSING SUMMARY for {file.filename}:")
+                logging.info(f"   ✅ Successfully processed: {file_valid_count} comments")
+                logging.info(f"   ⚠️  Skipped: {skipped_count} rows")
+                logging.info(f"   📊 Processing rate: {file_valid_count}/{total_rows} = {(file_valid_count/total_rows*100):.1f}%")
+                logging.info(f"   ⏱️  Duration: {file_duration:.2f} seconds")
             
             # Get analytics data once to update bulk uploads count
             analytics_data = load_data(user_id)

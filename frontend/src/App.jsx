@@ -36,7 +36,12 @@ function App() {
   })
 
   useEffect(() => {
-    checkAuth()
+    // ALWAYS force authentication on app startup
+    console.log('🔐='.repeat(20));
+    console.log('🔐 APP STARTUP: FORCING FRESH AUTHENTICATION');
+    console.log('🔐 User will ALWAYS be redirected to auth page');
+    console.log('🔐='.repeat(20));
+    forceLogout();
   }, [])
 
   useEffect(() => {
@@ -56,17 +61,29 @@ function App() {
 
   const checkAuth = async () => {
     const token = localStorage.getItem('token')
+    
+    console.log('🔐 AUTH CHECK DEBUG:', {
+      hasToken: !!token,
+      tokenLength: token ? token.length : 0,
+      timestamp: new Date().toISOString(),
+      currentUser: user ? user.email : null
+    });
+    
     if (!token) {
+      console.log('🔐 No token found - showing auth page');
       setLoading(false)
       return
     }
 
+    console.log('🔐 Token found - validating with backend...');
     try {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       const response = await axios.get('/api/auth/user')
+      console.log('🔐 Token validation SUCCESS - auto-logging in user:', response.data.user.email);
       setUser(response.data.user)
     } catch (error) {
-      console.error('Error fetching user:', error)
+      console.error('🔐 Token validation FAILED:', error.response?.status, error.response?.data);
+      console.log('🔐 Clearing invalid token and showing auth page');
       localStorage.removeItem('token')
       delete axios.defaults.headers.common['Authorization']
     } finally {
@@ -79,9 +96,18 @@ function App() {
   }
 
   const handleLogout = () => {
+    console.log('🔐 Manual logout triggered');
     localStorage.removeItem('token')
     delete axios.defaults.headers.common['Authorization']
     setUser(null)
+  }
+
+  const forceLogout = () => {
+    console.log('🔐 Force logout on app startup - clearing all authentication data');
+    localStorage.removeItem('token')
+    delete axios.defaults.headers.common['Authorization']
+    setUser(null)
+    setLoading(false)
   }
 
   if (loading) {
@@ -96,7 +122,7 @@ function App() {
     <ThemeContext.Provider value={{ darkMode, toggleDarkMode }}>
       <Router>
         <Routes>
-          {/* Auth route - if user is logged in, redirect to dashboard */}
+          {/* Auth route - always show auth on startup since we force logout */}
           <Route path="/auth" element={
             user ? <Navigate to="/dashboard" replace /> : <Auth onAuthSuccess={handleAuthSuccess} />
           } />
@@ -158,3 +184,4 @@ function App() {
 }
 
 export default App
+

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+import jwt
 import sqlite3
 import datetime
 import re
@@ -61,6 +62,20 @@ def validate_password(password):
     if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
         return False, "Password must contain at least one special character"
     return True, "Password is valid"
+
+def decode_token(token):
+    """Decode JWT token safely"""
+    try:
+        # Get the JWT secret from environment or use a default (change in production!)
+        secret = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
+        decoded = jwt.decode(token, secret, algorithms=['HS256'])
+        return decoded
+    except jwt.ExpiredSignatureError:
+        logger.error("Token has expired")
+        return None
+    except jwt.InvalidTokenError:
+        logger.error("Invalid token")
+        return None
 
 def validate_email(email):
     """

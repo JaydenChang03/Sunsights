@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../config/axios';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
 const carouselContent = [
@@ -33,6 +33,37 @@ const Auth = ({ onAuthSuccess }) => {
     name: '',
   });
   const [loading, setLoading] = useState(false);
+  
+  // Forgot Password States
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+  const [forgotPasswordSent, setForgotPasswordSent] = useState(false);
+
+  // Add forgot password validation logging  
+  useEffect(() => {
+    console.log('🔍 FORGOT PASSWORD FEATURE VALIDATION:', {
+      backendSupport: {
+        endpoints: ['/api/auth/forgot-password', '/api/auth/reset-password'],
+        tokenGeneration: 'JWT with 1-hour expiration',
+        databaseField: 'reset_token in users table',
+        validation: 'Token verification with additional_claims'
+      },
+      frontendImplementation: {
+        currentState: 'NO UI implemented',
+        requiredStates: ['showForgotPassword', 'forgotPasswordEmail', 'forgotPasswordLoading', 'forgotPasswordSent'],
+        requiredFunctions: ['handleForgotPassword', 'resetForgotPasswordState'],
+        uiFlow: 'Login form -> Forgot password link -> Email input -> Success message'
+      },
+      implementationGaps: {
+        gap1: 'No forgot password link in login form',
+        gap2: 'No forgot password modal/form',
+        gap3: 'No email input for password reset',
+        gap4: 'No success/error handling for forgot password',
+        gap5: 'No integration with backend endpoints'
+      }
+    });
+  }, []);
 
   // Add useEffect to log color scheme debugging info
   useEffect(() => {
@@ -700,6 +731,47 @@ const Auth = ({ onAuthSuccess }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setForgotPasswordLoading(true);
+    
+    try {
+      console.log('🔍 FORGOT PASSWORD: Sending request for email:', forgotPasswordEmail);
+      
+      const response = await axios.post('/api/auth/forgot-password', {
+        email: forgotPasswordEmail.trim()
+      });
+
+      console.log('🔍 FORGOT PASSWORD: Success response:', response.data);
+      setForgotPasswordSent(true);
+      toast.success('Password reset instructions sent to your email');
+      
+      // For development: show the token in console (remove in production)
+      if (response.data.reset_token) {
+        console.log('🔧 DEV: Reset token:', response.data.reset_token);
+        console.log('🔧 DEV: You can use this token to test password reset');
+      }
+      
+    } catch (error) {
+      console.error('🔍 FORGOT PASSWORD: Error:', error);
+      console.error('🔍 Error response:', error.response?.data);
+      console.error('🔍 Error status:', error.response?.status);
+      
+      const errorMessage = error.response?.data?.error || 'Failed to send reset email';
+      toast.error(errorMessage);
+    } finally {
+      setForgotPasswordLoading(false);
+    }
+  };
+
+  const resetForgotPasswordState = () => {
+    console.log('🔄 FORGOT PASSWORD: Resetting state');
+    setShowForgotPassword(false);
+    setForgotPasswordEmail('');
+    setForgotPasswordLoading(false);
+    setForgotPasswordSent(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -1304,7 +1376,18 @@ const Auth = ({ onAuthSuccess }) => {
                   </div>
                 </div>
 
-
+                {/* Forgot Password Link - Only shown during login */}
+                {isLogin && (
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotPassword(true)}
+                      className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors duration-200"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
 
                 {/* Submit Button */}
                 <button
@@ -1351,6 +1434,102 @@ const Auth = ({ onAuthSuccess }) => {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-bg-light rounded-2xl shadow-2xl max-w-md w-full p-8">
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-text mb-2">
+                {forgotPasswordSent ? 'Check Your Email' : 'Reset Password'}
+              </h3>
+              <p className="text-text-muted">
+                {forgotPasswordSent 
+                  ? 'We sent password reset instructions to your email address.'
+                  : 'Enter your email address and we\'ll send you password reset instructions.'
+                }
+              </p>
+            </div>
+
+            {!forgotPasswordSent ? (
+              <form onSubmit={handleForgotPassword} className="space-y-6">
+                <div>
+                  <label htmlFor="forgot-email" className="block text-sm font-medium text-text mb-2">
+                    Email address
+                  </label>
+                  <input
+                    id="forgot-email"
+                    type="email"
+                    required
+                    className="w-full px-4 py-3 border border-border-muted rounded-lg focus:ring-2 focus:ring-primary focus:border-primary hover:border-primary hover:bg-bg-light hover:shadow-md transition-all duration-200 text-text placeholder-text-muted bg-bg"
+                    value={forgotPasswordEmail}
+                    onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                  />
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={resetForgotPasswordState}
+                    className="flex-1 py-3 px-4 border border-border-muted text-text hover:bg-bg hover:scale-105 rounded-lg transition-all duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={forgotPasswordLoading}
+                    className="flex-1 py-3 px-4 bg-primary text-bg font-semibold rounded-lg hover:bg-primary/90 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {forgotPasswordLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-bg mr-2"></div>
+                        Sending...
+                      </div>
+                    ) : (
+                      'Send Reset Email'
+                    )}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircleIcon className="w-8 h-8 text-success" />
+                  </div>
+                  <p className="text-sm text-text-muted mb-4">
+                    If an account exists with this email, you will receive password reset instructions within a few minutes.
+                  </p>
+                  <p className="text-xs text-text-muted">
+                    Didn't receive the email? Check your spam folder or try again.
+                  </p>
+                </div>
+                
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForgotPasswordSent(false);
+                      setForgotPasswordEmail('');
+                    }}
+                    className="flex-1 py-3 px-4 border border-border-muted text-text hover:bg-bg hover:scale-105 rounded-lg transition-all duration-200"
+                  >
+                    Try Again
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetForgotPasswordState}
+                    className="flex-1 py-3 px-4 bg-primary text-bg font-semibold rounded-lg hover:bg-primary/90 hover:scale-105 hover:shadow-lg transition-all duration-200"
+                  >
+                    Back to Login
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
