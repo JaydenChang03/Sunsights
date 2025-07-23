@@ -174,10 +174,29 @@ const TutorialBubble = () => {
 
   // Check if tutorial is completed for current page
   useEffect(() => {
+    console.log('🔄 TUTORIAL NAVIGATION DEBUG:', {
+      navigatingTo: location.pathname,
+      previousState: { isOpen, currentStep, isCompleted },
+      action: 'Closing tutorial on navigation'
+    });
+    
+    // Call the navigation close handler for debugging
+    if (isOpen) {
+      handleNavigationClose();
+    }
+    
     const completed = localStorage.getItem(`tutorial_completed_${location.pathname}`);
     setIsCompleted(completed === 'true');
     setCurrentStep(0);
-    setIsOpen(false);
+    setIsOpen(false); // This closes tutorial when navigating - could be causing empty screen
+    
+    // Log state after navigation
+    console.log('✅ TUTORIAL STATE AFTER NAVIGATION:', {
+      newPath: location.pathname,
+      isOpen: false, // forced to false
+      currentStep: 0, // reset to 0
+      isCompleted: completed === 'true'
+    });
     
     // Enhanced tutorial content logging for bulk analysis
     if (location.pathname === '/bulk-analysis') {
@@ -285,9 +304,21 @@ const TutorialBubble = () => {
       currentStep,
       totalSteps: currentContent.steps.length,
       completionPercentage: Math.round((currentStep / currentContent.steps.length) * 100),
-      closedAt: new Date().toISOString()
+      closedAt: new Date().toISOString(),
+      reason: 'user_closed'
     });
     setIsOpen(false);
+  };
+
+  // Handle forced close on navigation (add this for debugging)
+  const handleNavigationClose = () => {
+    console.log('🚨 TUTORIAL FORCED CLOSE ON NAVIGATION:', {
+      page: location.pathname,
+      wasOpen: isOpen,
+      currentStep,
+      reason: 'navigation_change',
+      timestamp: new Date().toISOString()
+    });
   };
 
   // Don't render on auth page
@@ -296,7 +327,7 @@ const TutorialBubble = () => {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-50 pointer-events-none">
       {/* Tutorial logging */}
       {console.log('Tutorial Bubble Render:', {
         currentPath: location.pathname,
@@ -304,12 +335,14 @@ const TutorialBubble = () => {
         currentStep,
         isCompleted,
         currentContent: currentContent.title,
-        totalSteps: currentContent.steps.length
+        totalSteps: currentContent.steps.length,
+        renderingBubble: true,
+        containerClasses: 'fixed bottom-4 right-4 z-50 pointer-events-none'
       })}
 
       {!isOpen ? (
         // Collapsed bubble
-        <div className="relative">
+        <div className="relative pointer-events-auto">
           <button
             onClick={handleOpen}
             className="bg-primary text-bg p-3 rounded-full shadow-lg hover:bg-primary/90 hover:scale-110 transition-all duration-200 group"
@@ -328,7 +361,7 @@ const TutorialBubble = () => {
         </div>
       ) : (
         // Expanded tutorial panel
-        <div className="bg-bg-light border border-border rounded-2xl shadow-2xl w-80 max-w-[90vw] max-h-[80vh] overflow-hidden">
+        <div className="bg-bg-light border border-border rounded-2xl shadow-2xl w-80 max-w-[90vw] max-h-[80vh] overflow-hidden pointer-events-auto">
           {/* Header */}
           <div className="bg-primary text-bg p-4 flex items-center justify-between">
             <div>
