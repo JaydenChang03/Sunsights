@@ -48,7 +48,7 @@ export default function Profile() {
         bio: response.data.bio || ''
       });
     } catch (error) {
-      console.error('Error fetching profile:', error);
+
       toast.error('Failed to load profile');
     } finally {
       setLoading(false);
@@ -61,7 +61,7 @@ export default function Profile() {
       const response = await axios.get('/api/notes');
       setNotes(response.data || []);
     } catch (error) {
-      console.error('Error fetching notes:', error);
+
       toast.error('Failed to load notes');
     } finally {
       setLoadingNotes(false);
@@ -83,7 +83,7 @@ export default function Profile() {
       setEditing(false);
       toast.success('Profile updated successfully');
     } catch (error) {
-      console.error('Error updating profile:', error);
+
       toast.error('Failed to update profile');
     }
   };
@@ -128,7 +128,7 @@ export default function Profile() {
       setUser(prev => ({ ...prev, avatar: fullAvatarUrl }));
       toast.success('Avatar updated successfully');
     } catch (error) {
-      console.error('Avatar upload error:', error);
+
       toast.error('Failed to upload avatar');
     } finally {
       setUploading(false);
@@ -156,7 +156,7 @@ export default function Profile() {
         toast.error('Note was saved but response format is unexpected');
       }
     } catch (error) {
-      console.error('Error adding note:', error);
+
       toast.error('Failed to add note');
     } finally {
       setAddingNote(false);
@@ -169,7 +169,7 @@ export default function Profile() {
       setNotes(prev => prev.filter(note => note.id !== noteId));
       toast.success('Note deleted successfully');
     } catch (error) {
-      console.error('Error deleting note:', error);
+
       toast.error('Failed to delete note');
     }
   };

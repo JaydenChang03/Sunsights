@@ -9,7 +9,7 @@ import logging
 import os
 
 # configure logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 
@@ -19,7 +19,7 @@ auth = Blueprint('auth', __name__)
 def get_db():
     try:
         db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'database.db')
-        logger.debug(f"Attempting to connect to database at: {db_path}")
+
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         return conn
@@ -71,14 +71,10 @@ def test_database():
         if table_exists:
             cursor.execute("PRAGMA table_info(users)")
             columns = cursor.fetchall()
-            logger.info("Users table structure:")
-            for column in columns:
-                logger.info(f"  {column[1]} {column[2]} {'NOT NULL' if column[3] else 'NULL'}")
                 
             # count existing users
             cursor.execute("SELECT COUNT(*) FROM users")
             user_count = cursor.fetchone()[0]
-            logger.info(f"Total users in database: {user_count}")
         else:
             logger.error("Users table does not exist!")
             
@@ -89,17 +85,14 @@ def test_database():
         return False
 
 # initialize database test
-logger.info("Testing database connection...")
 if test_database():
-    logger.info("Database connection test passed ✓")
-else:
-    logger.error("Database connection test failed ✗")
+    pass
 
 @auth.route('/test', methods=['GET'])
 def test_route():
     """Test route to verify auth blueprint is working"""
     try:
-        logger.info("Test route accessed")
+    
         return jsonify({
             "message": "Auth routes are working!",
             "timestamp": datetime.datetime.now().isoformat()
@@ -111,9 +104,9 @@ def test_route():
 @auth.route('/register', methods=['POST'])
 def register():
     try:
-        logger.info("Received registration request")
+
         data = request.get_json()
-        logger.debug(f"Registration data keys: {list(data.keys()) if data else 'No data'}")
+
         
         if not data:
             logger.error("No JSON data received")
@@ -160,7 +153,7 @@ def register():
             
             # create access token
             access_token = create_access_token(identity=email)
-            logger.info(f"User registered successfully: {email}")
+    
             
             return jsonify({
                 "message": "User registered successfully",
@@ -181,9 +174,9 @@ def register():
 @auth.route('/login', methods=['POST'])
 def login():
     try:
-        logger.info("Received login request")
+
         data = request.get_json()
-        logger.debug(f"Login data: {data}")
+
         
         if not data:
             logger.error("No JSON data received")
@@ -212,7 +205,7 @@ def login():
                 return jsonify({"error": "Invalid email or password"}), 401
                 
             access_token = create_access_token(identity=email)
-            logger.info(f"User logged in successfully: {email}")
+    
             
             return jsonify({
                 "token": access_token,
@@ -234,7 +227,7 @@ def login():
 def get_user():
     try:
         current_user_email = get_jwt_identity()
-        logger.info(f"Getting user data for: {current_user_email}")
+
         
         conn = get_db()
         try:
@@ -266,7 +259,7 @@ def get_user():
 def get_profile():
     try:
         current_user_email = get_jwt_identity()
-        logger.info(f"Getting profile data for: {current_user_email}")
+
         
         conn = get_db()
         try:
@@ -288,7 +281,7 @@ def get_profile():
                 "avatar": user['avatar'] if user['avatar'] else None
             }
             
-            logger.info(f"Profile data retrieved successfully for {current_user_email}")
+    
             return jsonify(profile_data), 200
             
         finally:
@@ -304,8 +297,8 @@ def update_profile():
     try:
         current_user_email = get_jwt_identity()
         data = request.get_json()
-        logger.info(f"Updating profile for: {current_user_email}")
-        logger.info(f"Profile update data: {data}")
+
+
         
         if not data:
             logger.error("No data provided for profile update")
@@ -345,7 +338,7 @@ def update_profile():
                 query = f"UPDATE users SET {', '.join(update_fields)} WHERE email = ?"
                 cursor.execute(query, update_values)
                 conn.commit()
-                logger.info(f"Profile updated successfully for {current_user_email}")
+        
             
             # get updated user data
             updated_user = cursor.execute(
@@ -380,7 +373,7 @@ def update_profile():
 def upload_avatar():
     try:
         current_user_email = get_jwt_identity()
-        logger.info(f"Avatar upload for user: {current_user_email}")
+
         
         if 'avatar' not in request.files:
             logger.error("No avatar file in request")
@@ -417,7 +410,7 @@ def upload_avatar():
                     (avatar_url, current_user_email)
                 )
                 conn.commit()
-                logger.info(f"Avatar updated successfully for {current_user_email}: {avatar_url}")
+
                 
                 return jsonify({
                     "message": "Avatar uploaded successfully",

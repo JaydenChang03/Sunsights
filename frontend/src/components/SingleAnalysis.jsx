@@ -61,7 +61,7 @@ export default function SingleAnalysis() {
       
       toast.success('Analysis completed successfully!');
     } catch (error) {
-      console.error('Error analyzing comment:', error);
+
       toast.error('Failed to analyze comment. Please try again.');
     } finally {
       setLoading(false);

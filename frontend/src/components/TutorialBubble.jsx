@@ -144,33 +144,7 @@ const TutorialBubble = () => {
   // get current page content
   const currentContent = tutorialContent[location.pathname] || tutorialContent['/dashboard'];
 
-  // tutorial implementation validation logging
-  console.log('Tutorial Bubble Implementation Status:', {
-    implementation: {
-      component: '✓ TutorialBubble component created',
-      integration: '✓ Integrated into Layout component',
-      positioning: '✓ Fixed bottom-right positioning with z-50',
-      stateManagement: '✓ localStorage for completion tracking',
-      responsiveDesign: '✓ Responsive with max-w-[90vw] and max-h-[80vh]'
-    },
-    contentStructure: {
-      totalPages: 5,
-      pagesWithContent: Object.keys(tutorialContent).length,
-      conceptsCovered: ['Sentiment', 'Emotion', 'Score', 'Priority', 'Sunsights Purpose'],
-      stepsByPage: Object.entries(tutorialContent).map(([page, content]) => ({
-        page,
-        steps: content.steps.length,
-        title: content.title
-      }))
-    },
-    currentState: {
-      pathname: location.pathname,
-      isOpen,
-      currentStep,
-      isCompleted,
-      availableContent: !!tutorialContent[location.pathname]
-    }
-  });
+
 
   // check if tutorial is completed for current page
   useEffect(() => {
@@ -183,35 +157,11 @@ const TutorialBubble = () => {
     setCurrentStep(0);
     setIsOpen(false); // this closes tutorial when navigating - could be causing empty screen
     
-    // log state after navigation
-    console.log('✅ TUTORIAL STATE AFTER NAVIGATION:', {
-      newPath: location.pathname,
-      isOpen: false, // forced to false
-      currentStep: 0, // reset to 0
-      isCompleted: completed === 'true'
-    });
-    
 
-    
-    // log page navigation and tutorial status
-    console.log('Tutorial Page Navigation:', {
-      navigatedTo: location.pathname,
-      pageTitle: currentContent.title,
-      hasContent: !!tutorialContent[location.pathname],
-      isCompleted: completed === 'true',
-      totalSteps: currentContent.steps.length,
-      navigationTime: new Date().toISOString()
-    });
   }, [location.pathname, currentContent.title, currentContent.steps.length]);
 
   // handle tutorial completion
   const handleComplete = () => {
-    console.log('Tutorial Completed:', {
-      page: location.pathname,
-      pageTitle: currentContent.title,
-      totalSteps: currentContent.steps.length,
-      completedAt: new Date().toISOString()
-    });
     localStorage.setItem(`tutorial_completed_${location.pathname}`, 'true');
     setIsCompleted(true);
     setIsOpen(false);
@@ -220,11 +170,6 @@ const TutorialBubble = () => {
 
   // handle restart tutorial
   const handleRestart = () => {
-    console.log('Tutorial Restarted:', {
-      page: location.pathname,
-      pageTitle: currentContent.title,
-      restartedAt: new Date().toISOString()
-    });
     localStorage.removeItem(`tutorial_completed_${location.pathname}`);
     setIsCompleted(false);
     setCurrentStep(0);
@@ -234,13 +179,6 @@ const TutorialBubble = () => {
   // navigation handlers
   const handleNext = () => {
     if (currentStep < currentContent.steps.length - 1) {
-      console.log('Tutorial Step Navigation:', {
-        page: location.pathname,
-        action: 'next',
-        fromStep: currentStep,
-        toStep: currentStep + 1,
-        stepTitle: currentContent.steps[currentStep + 1].title
-      });
       setCurrentStep(currentStep + 1);
     } else {
       handleComplete();
@@ -249,49 +187,21 @@ const TutorialBubble = () => {
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      console.log('Tutorial Step Navigation:', {
-        page: location.pathname,
-        action: 'previous',
-        fromStep: currentStep,
-        toStep: currentStep - 1,
-        stepTitle: currentContent.steps[currentStep - 1].title
-      });
       setCurrentStep(currentStep - 1);
     }
   };
 
   // handle tutorial open/close
   const handleOpen = () => {
-    console.log('Tutorial Opened:', {
-      page: location.pathname,
-      pageTitle: currentContent.title,
-      isCompleted,
-      openedAt: new Date().toISOString()
-    });
     setIsOpen(true);
   };
 
   const handleClose = () => {
-    console.log('Tutorial Closed:', {
-      page: location.pathname,
-      currentStep,
-      totalSteps: currentContent.steps.length,
-      completionPercentage: Math.round((currentStep / currentContent.steps.length) * 100),
-      closedAt: new Date().toISOString(),
-      reason: 'user_closed'
-    });
     setIsOpen(false);
   };
 
   // handle forced close on navigation (add this for debugging)
   const handleNavigationClose = () => {
-    console.log('🚨 TUTORIAL FORCED CLOSE ON NAVIGATION:', {
-      page: location.pathname,
-      wasOpen: isOpen,
-      currentStep,
-      reason: 'navigation_change',
-      timestamp: new Date().toISOString()
-    });
   };
 
   // dont render on auth page
@@ -301,17 +211,7 @@ const TutorialBubble = () => {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 pointer-events-none">
-      {/* Tutorial logging */}
-      {console.log('Tutorial Bubble Render:', {
-        currentPath: location.pathname,
-        isOpen,
-        currentStep,
-        isCompleted,
-        currentContent: currentContent.title,
-        totalSteps: currentContent.steps.length,
-        renderingBubble: true,
-        containerClasses: 'fixed bottom-4 right-4 z-50 pointer-events-none'
-      })}
+
 
       {!isOpen ? (
         // collapsed bubble

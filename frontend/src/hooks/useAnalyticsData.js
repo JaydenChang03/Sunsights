@@ -7,16 +7,16 @@ export default function useAnalyticsData(timeRange = '7d') {
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
-  // Fetch data based on time range
+  // fetch data based on time range
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Use the proper axios instance with authentication
+      // use the proper axios instance with authentication
       const params = { range: timeRange };
       
-      // Use Promise.all to fetch all data in parallel
+      // use Promise.all to fetch all data in parallel
       const [
         summaryResponse,
         sentimentResponse, 
@@ -31,7 +31,7 @@ export default function useAnalyticsData(timeRange = '7d') {
         axios.get(`/api/analytics/activity`, { params })
       ]);
 
-      // Use the actual data from the API instead of hardcoded values
+      // use the actual data from the API instead of hardcoded values
       setData({
         sentiment: sentimentResponse.data,
         emotions: emotionsResponse.data,
@@ -47,7 +47,7 @@ export default function useAnalyticsData(timeRange = '7d') {
       
       setLastUpdated(new Date());
     } catch (err) {
-      console.error('Error fetching analytics data:', err);
+      
       setError(err.message || 'Failed to fetch analytics data');
       
       // Keep any existing data if there's an error
@@ -70,12 +70,12 @@ export default function useAnalyticsData(timeRange = '7d') {
     }
   }, [timeRange]);
 
-  // Initial fetch
+  // initial fetch
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Set up polling for real-time updates (every 60 seconds)
+  // set up polling for real-time updates (every 60 seconds)
   useEffect(() => {
     const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);

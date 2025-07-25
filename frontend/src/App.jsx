@@ -68,7 +68,6 @@ function App() {
       const response = await axios.get('/api/auth/user')
       setUser(response.data.user)
     } catch (error) {
-      console.error('🔐 Token validation FAILED:', error.response?.status, error.response?.data);
       localStorage.removeItem('token')
       delete axios.defaults.headers.common['Authorization']
     } finally {
@@ -110,7 +109,7 @@ function App() {
             user ? <Navigate to="/dashboard" replace /> : <Auth onAuthSuccess={handleAuthSuccess} />
           } />
           
-          {/* Root route - always redirect to auth if not logged in */}
+          {/* root route - always redirect to auth if not logged in */}
           <Route path="/" element={
             <Navigate to="/auth" replace />
           } />

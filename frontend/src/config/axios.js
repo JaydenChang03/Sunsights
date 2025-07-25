@@ -10,7 +10,7 @@ const instance = axios.create({
     timeout: 120000 // 2 minutes timeout for bulk analysis
 });
 
-// Add request interceptor
+// add request interceptor
 instance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -20,32 +20,16 @@ instance.interceptors.request.use(
         return config;
     },
     (error) => {
-        console.error('Request interceptor error:', error);
         return Promise.reject(error);
     }
 );
 
-// Add response interceptor for better error handling
+// add response interceptor for better error handling
 instance.interceptors.response.use(
     (response) => {
         return response;
     },
     (error) => {
-        if (error.response) {
-            // The request was made and server responded with a status code
-            // that falls out of the range of 2xx
-            console.error('Response error:', {
-                status: error.response.status,
-                data: error.response.data,
-                headers: error.response.headers
-            });
-        } else if (error.request) {
-            // The request was made but no response was received
-            console.error('Request error - no response received');
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            console.error('Error setting up request:', error.message);
-        }
         return Promise.reject(error);
     }
 );

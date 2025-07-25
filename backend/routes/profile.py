@@ -4,8 +4,8 @@ import logging
 import sqlite3
 import os
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# configure logging
+logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 profile = Blueprint('profile', __name__)
@@ -13,7 +13,7 @@ profile = Blueprint('profile', __name__)
 def get_db():
     try:
         db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'database.db')
-        logger.debug(f"Attempting to connect to database at: {db_path}")
+
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         return conn
@@ -26,7 +26,7 @@ def init_db():
         conn = get_db()
         cursor = conn.cursor()
         
-        # Create profiles table if it doesn't exist
+        # create profiles table if it doesn't exist
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS profiles (
                 user_id INTEGER PRIMARY KEY,
@@ -42,7 +42,7 @@ def init_db():
             )
         ''')
         conn.commit()
-        logger.info("Profiles table initialized successfully")
+    
     except Exception as e:
         logger.error(f"Database initialization error: {e}")
         raise
@@ -54,11 +54,11 @@ def init_db():
 def get_profile():
     try:
         current_user = get_jwt_identity()
-        logger.info(f"Getting profile for user: {current_user}")
+    
         conn = get_db()
         cursor = conn.cursor()
         
-        # Get user ID from email
+        # get user ID from email
         user = cursor.execute(
             "SELECT id, name FROM users WHERE email = ?",
             (current_user,)
@@ -68,15 +68,15 @@ def get_profile():
             logger.error(f"User not found: {current_user}")
             return jsonify({"error": "User not found"}), 404
             
-        # Get profile data
+        # get profile data
         profile = cursor.execute(
             "SELECT * FROM profiles WHERE user_id = ?",
             (user['id'],)
         ).fetchone()
         
         if not profile:
-            logger.info(f"Creating default profile for user: {current_user}")
-            # Create default profile if none exists
+    
+            # create default profile if none exists
             default_profile = {
                 'name': user['name'] or 'New User',
                 'title': 'Photography Enthusiast',
@@ -109,7 +109,7 @@ def get_profile():
             conn.commit()
             return jsonify(default_profile)
             
-        # Return existing profile
+        # return existing profile
         return jsonify({
             'name': profile['name'],
             'title': profile['title'],
@@ -140,7 +140,7 @@ def update_profile():
         conn = get_db()
         cursor = conn.cursor()
         
-        # Get user ID from email
+        # get user ID from email
         user = cursor.execute(
             "SELECT id FROM users WHERE email = ?",
             (current_user,)
@@ -149,7 +149,7 @@ def update_profile():
         if not user:
             return jsonify({"error": "User not found"}), 404
             
-        # Update profile
+        # update profile
         cursor.execute(
             """UPDATE profiles 
                SET name = ?, title = ?, location = ?, bio = ?, 
@@ -169,5 +169,5 @@ def update_profile():
     finally:
         conn.close()
 
-# Initialize the database when the module is imported
+# initialize the database when the module is imported
 init_db()

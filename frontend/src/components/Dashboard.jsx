@@ -86,7 +86,6 @@ export default function Dashboard() {
       
       return date.toLocaleDateString();
     } catch (error) {
-      console.error('Error formatting timestamp:', error);
       return timestamp || 'Never';
     }
   };
@@ -116,7 +115,6 @@ export default function Dashboard() {
       
       setStats(updatedStats);
     } catch (err) {
-      console.error('Error fetching stats:', err);
       setStatsError('Failed to load dashboard statistics');
       toast.error('Failed to load dashboard statistics');
     } finally {
@@ -134,11 +132,9 @@ export default function Dashboard() {
       if (Array.isArray(response.data)) {
         setActivities(response.data);
       } else {
-        console.error('Activity data is not an array:', response.data);
         setActivityError('Invalid activity data format');
       }
     } catch (err) {
-      console.error('Error fetching activity:', err);
       setActivityError('Failed to load recent activity');
       toast.error('Failed to load recent activity');
     } finally {
@@ -165,7 +161,6 @@ export default function Dashboard() {
       // refresh dashboard data after successful analysis
       fetchDashboardData();
     } catch (err) {
-      console.error('Analysis error:', err);
       setError(err.response?.data?.message || 'Failed to analyze text. Please try again.');
       toast.error('Analysis failed. Please try again.');
     } finally {

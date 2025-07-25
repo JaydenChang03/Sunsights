@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 # configure logging
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.ERROR,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler('app.log'),
@@ -77,14 +77,14 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # initialize models
-logger.info("Loading sentiment analysis model...")
+
 sentiment_model = pipeline(
     "sentiment-analysis",
     model="distilbert-base-uncased-finetuned-sst-2-english",
     device=0 if torch.cuda.is_available() else -1
 )
 
-logger.info("Loading emotion classification model...")
+
 emotion_model = pipeline(
     "text-classification",
     model="bhadresh-savani/distilbert-base-uncased-emotion",
@@ -365,8 +365,7 @@ def analyze_text(text):
         ml_emotion = emotion_result['label'].lower()
         emotion_score = emotion_result['score']
         
-        logger.info(f"ML Sentiment: {ml_sentiment_label} ({ml_sentiment_score:.3f})")
-        logger.info(f"ML Emotion: {ml_emotion} ({emotion_score:.3f})")
+
     except Exception as e:
         logger.error(f"ML Model error: {str(e)}")
     

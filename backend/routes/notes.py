@@ -6,8 +6,8 @@ import os
 import json
 from datetime import datetime
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# configure logging
+logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 notes = Blueprint('notes', __name__)
@@ -15,7 +15,7 @@ notes = Blueprint('notes', __name__)
 def get_db():
     try:
         db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'database.db')
-        logger.debug(f"Attempting to connect to database at: {db_path}")
+
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         return conn
@@ -28,7 +28,7 @@ def init_db():
         conn = get_db()
         cursor = conn.cursor()
         
-        # Create notes table if it doesn't exist
+        # create notes table if it doesn't exist
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS notes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,7 +40,7 @@ def init_db():
             )
         ''')
         conn.commit()
-        logger.info("Notes table initialized successfully")
+    
     except Exception as e:
         logger.error(f"Database initialization error: {e}")
         raise
@@ -52,11 +52,11 @@ def init_db():
 def get_notes():
     try:
         current_user = get_jwt_identity()
-        logger.info(f"Getting notes for user: {current_user}")
+    
         conn = get_db()
         cursor = conn.cursor()
         
-        # Get user ID from email
+        # get user ID from email
         user = cursor.execute(
             "SELECT id FROM users WHERE email = ?",
             (current_user,)
@@ -66,13 +66,13 @@ def get_notes():
             logger.error(f"User not found: {current_user}")
             return jsonify({"error": "User not found"}), 404
             
-        # Get notes data
+        # get notes data
         notes = cursor.execute(
             "SELECT id, content, created_at, updated_at FROM notes WHERE user_id = ? ORDER BY created_at DESC",
             (user['id'],)
         ).fetchall()
         
-        # Convert to list of dicts
+        # convert to list of dicts
         notes_list = []
         for note in notes:
             notes_list.append({
@@ -103,7 +103,7 @@ def create_note():
         conn = get_db()
         cursor = conn.cursor()
         
-        # Get user ID from email
+        # get user ID from email
         user = cursor.execute(
             "SELECT id FROM users WHERE email = ?",
             (current_user,)
@@ -112,7 +112,7 @@ def create_note():
         if not user:
             return jsonify({"error": "User not found"}), 404
             
-        # Create note
+        # create note
         now = datetime.now().isoformat()
         cursor.execute(
             "INSERT INTO notes (user_id, content, created_at) VALUES (?, ?, ?)",
@@ -120,10 +120,10 @@ def create_note():
         )
         conn.commit()
         
-        # Get the ID of the new note
+        # get the ID of the new note
         note_id = cursor.lastrowid
         
-        # Update user's stats to increment the notes count
+        # update user's stats to increment the notes count
         cursor.execute(
             "SELECT stats FROM profiles WHERE user_id = ?",
             (user['id'],)
@@ -145,7 +145,7 @@ def create_note():
             except json.JSONDecodeError:
                 logger.error(f"Error decoding stats JSON for user {user['id']}")
         
-        # Add to recent activity
+        # add to recent activity
         cursor.execute(
             "SELECT recent_activity FROM profiles WHERE user_id = ?",
             (user['id'],)
@@ -156,14 +156,14 @@ def create_note():
             try:
                 activities = json.loads(activity_row['recent_activity'])
                 if isinstance(activities, list):
-                    # Add new activity
+                    # add new activity
                     new_activity = {
                         'description': f"Added a new note",
                         'time': now
                     }
                     activities.insert(0, new_activity)
                     
-                    # Keep only the most recent 10 activities
+                    # keep only the most recent 10 activities
                     if len(activities) > 10:
                         activities = activities[:10]
                     
@@ -201,7 +201,7 @@ def update_note(note_id):
         conn = get_db()
         cursor = conn.cursor()
         
-        # Get user ID from email
+        # get user ID from email
         user = cursor.execute(
             "SELECT id FROM users WHERE email = ?",
             (current_user,)
@@ -210,7 +210,7 @@ def update_note(note_id):
         if not user:
             return jsonify({"error": "User not found"}), 404
             
-        # Check if note exists and belongs to user
+        # check if note exists and belongs to user
         note = cursor.execute(
             "SELECT id FROM notes WHERE id = ? AND user_id = ?",
             (note_id, user['id'])
@@ -219,7 +219,7 @@ def update_note(note_id):
         if not note:
             return jsonify({"error": "Note not found or access denied"}), 404
             
-        # Update note
+        # update note
         now = datetime.now().isoformat()
         cursor.execute(
             "UPDATE notes SET content = ?, updated_at = ? WHERE id = ?",
@@ -247,7 +247,7 @@ def delete_note(note_id):
         conn = get_db()
         cursor = conn.cursor()
         
-        # Get user ID from email
+        # get user ID from email
         user = cursor.execute(
             "SELECT id FROM users WHERE email = ?",
             (current_user,)
@@ -256,7 +256,7 @@ def delete_note(note_id):
         if not user:
             return jsonify({"error": "User not found"}), 404
             
-        # Check if note exists and belongs to user
+        # check if note exists and belongs to user
         note = cursor.execute(
             "SELECT id FROM notes WHERE id = ? AND user_id = ?",
             (note_id, user['id'])
@@ -265,14 +265,14 @@ def delete_note(note_id):
         if not note:
             return jsonify({"error": "Note not found or access denied"}), 404
             
-        # Delete note
+        # delete note
         cursor.execute(
             "DELETE FROM notes WHERE id = ?",
             (note_id,)
         )
         conn.commit()
         
-        # Update user's stats to decrement the notes count
+        # update user's stats to decrement the notes count
         cursor.execute(
             "SELECT stats FROM profiles WHERE user_id = ?",
             (user['id'],)
@@ -302,5 +302,5 @@ def delete_note(note_id):
     finally:
         conn.close()
 
-# Initialize the database when the module is imported
+# initialize the database when the module is imported
 init_db()

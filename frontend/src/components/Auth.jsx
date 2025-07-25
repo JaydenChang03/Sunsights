@@ -77,7 +77,7 @@ const Auth = ({ onAuthSuccess }) => {
         throw new Error('Invalid response format from server');
       }
     } catch (error) {
-      console.error('Authentication error:', error);
+
       let errorMessage = 'An error occurred during authentication';
       
       if (error.response) {

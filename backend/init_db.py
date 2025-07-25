@@ -24,21 +24,18 @@ def initialize_database():
         # dont want to break existing user data
         try:
             cursor.execute('ALTER TABLE users ADD COLUMN bio TEXT')
-            print("Added bio column to users table")
         except sqlite3.OperationalError:
             pass  # already exists, all good
             
         try:
             cursor.execute('ALTER TABLE users ADD COLUMN avatar TEXT')
-            print("Added avatar column to users table")
         except sqlite3.OperationalError:
             pass  # this one too
         
         conn.commit()
-        print("Database is ready to go!")
         
     except Exception as e:
-        print(f"Hmm, something went wrong setting up the database: {e}")
+        pass
     finally:
         conn.close()
 

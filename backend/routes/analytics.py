@@ -44,7 +44,7 @@ DEFAULT_DATA = {
 def get_db():
     try:
         db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'database.db')
-        logging.debug(f"Attempting to connect to database at: {db_path}")
+
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         return conn
@@ -625,61 +625,44 @@ def analyze_bulk():
         current_user = get_jwt_identity()
         user_id = get_user_id_from_email(current_user)
         
-        # DEBUG: Log all files in request
-        logging.info(f"🔍 BULK ANALYSIS DEBUG: Total files in request: {len(request.files)}")
-        logging.info(f"🔍 File keys in request: {list(request.files.keys())}")
-        
-        # Check if file is in request
+        # check if file is in request
         if 'file' not in request.files:
             return jsonify({'error': 'No file provided'}), 400
         
-        # Get all files with 'file' key to handle multiple file uploads
+        # get all files with 'file' key to handle multiple file uploads
         files_list = request.files.getlist('file')
-        logging.info(f"🔍 Number of files with 'file' key: {len(files_list)}")
-        for i, f in enumerate(files_list):
-            logging.info(f"🔍 File {i+1}: {f.filename} (size: {f.content_length})")
         
         # Check if any files are empty
         valid_files = []
         for file in files_list:
             if file.filename != '':
                 valid_files.append(file)
-            else:
-                logging.warning(f"🔍 Skipping empty file: {file.filename}")
         
         if len(valid_files) == 0:
             return jsonify({'error': 'No valid files provided'}), 400
             
-        logging.info(f"🔍 Processing {len(valid_files)} valid files")
-            
-        # Enhanced file validation with detailed logging
+        # enhanced file validation
         allowed_extensions = {'csv', 'xlsx', 'xls'}
-        
-        logging.info(f"🔍 FILE VALIDATION for {len(valid_files)} files:")
         
         for file in valid_files:
             file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
             file_size_mb = file.content_length / (1024 * 1024) if file.content_length else 0
             
-            logging.info(f"   📁 File: {file.filename}")
-            logging.info(f"   📏 Size: {file_size_mb:.2f} MB")
-            logging.info(f"   📂 Extension: {file_ext}")
+
             
             # Validate file extension
             if file_ext not in allowed_extensions:
-                logging.warning(f"   ❌ REJECTED: Unsupported file type '{file_ext}'")
                 return jsonify({
                     'error': f'Invalid file type for {file.filename}. Allowed types: {", ".join(allowed_extensions)}. Please use CSV (.csv) or Excel (.xlsx, .xls) files only.'
                 }), 400
             
             # Validate file size (10MB limit)
             if file_size_mb > 10:
-                logging.warning(f"   ❌ REJECTED: File too large ({file_size_mb:.2f} MB)")
                 return jsonify({
                     'error': f'File {file.filename} is too large ({file_size_mb:.1f} MB). Maximum file size is 10 MB.'
                 }), 400
                 
-            logging.info(f"   ✅ ACCEPTED: Valid {file_ext.upper()} file")
+            
             
         # Process all files and combine results
         try:
@@ -689,7 +672,7 @@ def analyze_bulk():
             
             # Performance timing
             start_time = time.time()
-            logging.info(f"🔍 PERFORMANCE: Starting bulk analysis of {len(valid_files)} files")
+
             
             # Initialize combined results
             all_results = []
@@ -700,7 +683,6 @@ def analyze_bulk():
             
             # Process each file
             for file_index, file in enumerate(valid_files):
-                logging.info(f"🔍 Processing file {file_index + 1}/{len(valid_files)}: {file.filename}")
                 
                 # Determine file extension
                 file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
@@ -716,16 +698,13 @@ def analyze_bulk():
                     
                 # Check if the dataframe has any data
                 if df.empty:
-                    logging.warning(f"🔍 File {file.filename} is empty, skipping")
                     continue
                 
                 # Enhanced column detection with detailed logging
                 comment_col = None
                 possible_cols = ['comment', 'comments', 'text', 'feedback', 'review', 'message', 'content']
                 
-                logging.info(f"🔍 COLUMN DETECTION for {file.filename}:")
-                logging.info(f"   📋 Available columns: {list(df.columns)}")
-                logging.info(f"   🎯 Looking for: {possible_cols}")
+
                 
                 # First try: exact match with preferred column names
                 for col in possible_cols:
@@ -734,28 +713,20 @@ def analyze_bulk():
                         for actual_col in df.columns:
                             if actual_col.lower() == col.lower():
                                 comment_col = actual_col
-                                logging.info(f"   ✅ FOUND preferred column: '{comment_col}' (matched '{col}')")
                                 break
                         if comment_col:
                             break
                         
                 # Second try: use the first text column if no preferred name found
                 if comment_col is None:
-                    logging.info(f"   ⚠️  No preferred column names found, checking data types...")
                     for col in df.columns:
                         if df[col].dtype == 'object':  # String/object type
                             comment_col = col
-                            logging.info(f"   📝 Using first text column: '{comment_col}' (dtype: {df[col].dtype})")
                             break
                             
                 # Final check: if still no column found, skip this file
                 if comment_col is None:
-                    logging.error(f"   ❌ COLUMN DETECTION FAILED for {file.filename}")
-                    logging.error(f"   💡 SOLUTION: Rename a column to: {', '.join(possible_cols[:3])}")
-                    logging.error(f"   📋 Current columns: {list(df.columns)}")
                     continue
-                    
-                logging.info(f"   🎯 SELECTED column: '{comment_col}' for analysis")
                 
                 # Process each comment in this file
                 file_start_time = time.time()
@@ -765,10 +736,7 @@ def analyze_bulk():
                 # CSV PROCESSING DEBUG LOGS
                 total_rows = len(df)
                 total_rows_with_data = len(df[comment_col].dropna())
-                logging.info(f"🔍 CSV DEBUG for {file.filename}:")
-                logging.info(f"   📊 Total rows in CSV: {total_rows}")
-                logging.info(f"   📊 Rows with non-null data: {total_rows_with_data}")
-                logging.info(f"   📊 Null/NaN rows: {total_rows - total_rows_with_data}")
+
                 
                 # Count what we can convert to valid text
                 convertible_count = 0
@@ -785,9 +753,7 @@ def analyze_bulk():
                     else:
                         truly_empty_count += 1
                             
-                logging.info(f"   📊 Convertible to text: {convertible_count}")
-                logging.info(f"   📊 Truly empty/unusable: {truly_empty_count}")
-                logging.info(f"   📊 Expected to process: {convertible_count} (improved from {total_rows_with_data})")
+
                 
                 # Process each comment (including ALL rows, even with NaN)
                 processed_count = 0
@@ -842,17 +808,13 @@ def analyze_bulk():
                             skipped_count += 1
                     else:
                         skipped_count += 1
-                        logging.debug(f"   ⚠️  Skipped empty row {idx}: original='{comment}', processed='{comment_str}'")
+        
                 
                 file_end_time = time.time()
                 file_duration = file_end_time - file_start_time
                 
                 # FINAL CSV PROCESSING SUMMARY
-                logging.info(f"🔍 CSV PROCESSING SUMMARY for {file.filename}:")
-                logging.info(f"   ✅ Successfully processed: {file_valid_count} comments")
-                logging.info(f"   ⚠️  Skipped: {skipped_count} rows")
-                logging.info(f"   📊 Processing rate: {file_valid_count}/{total_rows} = {(file_valid_count/total_rows*100):.1f}%")
-                logging.info(f"   ⏱️  Duration: {file_duration:.2f} seconds")
+
             
             # Get analytics data once to update bulk uploads count
             analytics_data = load_data(user_id)
@@ -863,12 +825,7 @@ def analyze_bulk():
             # Calculate combined average sentiment
             combined_average_sentiment = combined_total_sentiment / combined_valid_count if combined_valid_count > 0 else 50
             
-            logging.info(f"🔍 COMBINED RESULTS: {combined_valid_count} total comments from {len(valid_files)} files")
-            logging.info(f"🔍 Combined sentiment distribution: {combined_sentiment_counts}")
-            logging.info(f"🔍 Combined average sentiment: {combined_average_sentiment}")
-            
-            # OPTIMIZED: Batch update analytics data instead of saving after each comment
-            logging.info(f"🔍 PERFORMANCE: Batch updating analytics for {combined_valid_count} comments")
+            # optimized: batch update analytics data instead of saving after each comment
             
             # Load analytics data once
             analytics_data = load_data(user_id)
@@ -911,19 +868,14 @@ def analyze_bulk():
             
             # Save the updated data ONCE at the end
             analytics_start_time = time.time()
-            logging.info(f"🔍 PERFORMANCE: Saving analytics data once for all {combined_valid_count} comments")
+
             save_data(analytics_data, user_id)
             analytics_end_time = time.time()
             
             # Final performance summary
             total_duration = time.time() - start_time
             analytics_duration = analytics_end_time - analytics_start_time
-            logging.info(f"🔍 PERFORMANCE SUMMARY:")
-            logging.info(f"  📁 Files processed: {len(valid_files)}")
-            logging.info(f"  📝 Comments analyzed: {combined_valid_count}")
-            logging.info(f"  ⏱️  Total time: {total_duration:.2f} seconds")
-            logging.info(f"  💾 Analytics save time: {analytics_duration:.2f} seconds")
-            logging.info(f"  🚀 Comments per second: {combined_valid_count / total_duration:.2f}")
+
             
             # Return all combined results to the frontend
             response = {

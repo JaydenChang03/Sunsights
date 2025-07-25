@@ -154,7 +154,7 @@ export default function BulkAnalysis() {
       setPriorityFilter('All');
       toast.success('Files uploaded and analyzed successfully!');
     } catch (error) {
-      console.error('BulkAnalysis: Upload error:', error);
+
       toast.error(error.response?.data?.error || 'Failed to upload files');
     } finally {
       setUploading(false);
@@ -185,7 +185,7 @@ export default function BulkAnalysis() {
       
       toast.success('Bulk analysis completed!');
     } catch (error) {
-      console.error('Analysis error:', error);
+
       toast.error(error.response?.data?.error || 'Failed to analyze files');
     } finally {
       setAnalyzing(false);
