@@ -197,14 +197,14 @@ const Auth = ({ onAuthSuccess }) => {
           <div className="lg:w-3/5 bg-bg-light p-8 lg:p-12 flex flex-col justify-start items-start relative">
             {/* Logo and Title - Top Left Aligned */}
             <div className="mb-8 w-full">
-              <div className="logo-container flex items-center mb-6 hover:scale-105 transition-transform duration-300 cursor-pointer">
+              <div className="logo-container flex items-center mb-6">
                 <img 
                   src="/sunsightsLogo.png" 
                   alt="Sunsights" 
-                  className="h-16 w-auto mr-4 hover:drop-shadow-lg transition-all duration-300" 
+                  className="h-16 w-auto mr-4" 
                 />
                 <h1 
-                  className="font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent hover:drop-shadow-sm transition-all duration-300"
+                  className="font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
                   style={{ fontSize: '2rem' }}
                 >
                   Sunsights

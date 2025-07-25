@@ -92,11 +92,10 @@ const Layout = ({ children, onLogout }) => {
         <div className="relative p-6 border-b border-border-muted backdrop-blur-sm">
           <div className="flex items-center gap-4 group">
             <div className="relative overflow-hidden rounded-lg logo-glow">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-30 transition-opacity duration-700"></div>
               <img 
                 src="/sunsightsLogo.png" 
                 alt="Sunsights" 
-                className="h-12 w-auto relative z-10 group-hover:scale-110 transition-transform duration-500 ease-out"
+                className="h-12 w-auto relative z-10"
               />
             </div>
             <h1 className="text-2xl font-bold relative">
