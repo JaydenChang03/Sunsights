@@ -1,0 +1,42 @@
+{
+  "totalAnalyses": 219,
+  "bulkUploads": 1,
+  "averageSentiment": 86.21999999999998,
+  "lastAnalysisTime": "2025-07-25 16:42:44",
+  "emotionCounts": {
+    "Joy": 123,
+    "Sadness": 21,
+    "Anger": 36,
+    "Fear": 13,
+    "Surprise": 3,
+    "Love": 7,
+    "neutral": 16
+  },
+  "activities": [
+    {
+      "title": "Bulk analysis completed",
+      "description": "Analyzed 217 comments from 2 files. Avg sentiment: 94.3%",
+      "time": "2025-07-25 16:42:59",
+      "type": "analysis"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-25 16:42:44",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: NEGATIVE, Emotion: anger, Priority: High",
+      "time": "2025-07-25 16:42:39",
+      "type": "success"
+    },
+    {
+      "title": "Welcome to Sunsights",
+      "description": "Your sentiment analysis dashboard is ready",
+      "time": "2025-07-25 16:42:32",
+      "type": "info"
+    }
+  ],
+  "isNewAccount": false
+}
