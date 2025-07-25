@@ -10,7 +10,7 @@ import Analytics from './components/Analytics'
 import Profile from './components/Profile'
 import Auth from './components/Auth'
 
-// Create a theme context
+// create a theme context
 export const ThemeContext = React.createContext({
   darkMode: false,
   toggleDarkMode: () => {},
@@ -30,24 +30,24 @@ function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [darkMode, setDarkMode] = useState(() => {
-    // Check if user has a preference stored
+    // check if user has a preference stored
     const savedPreference = localStorage.getItem('darkMode');
     return savedPreference ? JSON.parse(savedPreference) : false;
   })
 
   useEffect(() => {
-    // ALWAYS force authentication on app startup
+    // always force authentication on app startup
     forceLogout();
   }, [])
 
   useEffect(() => {
-    // Apply dark mode class to body
+    // apply dark mode class to body
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-    // Save preference to localStorage
+    // save preference to localstorage
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
   }, [darkMode])
 

@@ -16,12 +16,12 @@ export default function BulkAnalysis() {
   
 
   
-  // Filter states for detailed results
+  // filter states for detailed results
   const [sentimentFilter, setSentimentFilter] = useState('All');
   const [emotionFilter, setEmotionFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
   
-  // Infinite scrolling state
+  // infinite scrolling state
   const [visibleItems, setVisibleItems] = useState(5);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const scrollContainerRef = useRef(null);
@@ -61,7 +61,7 @@ export default function BulkAnalysis() {
     if (validFiles.length > 0) {
       setFiles(prev => [...prev, ...validFiles]);
       
-      // If CSV file, parse it to show column selection
+      // if csv file, parse it to show column selection
       validFiles.forEach(file => {
         if (file.type === 'text/csv') {
           parseCSVFile(file);
@@ -116,17 +116,17 @@ export default function BulkAnalysis() {
 
       
       
-      // Add text files
+      // add text files
       files.forEach((file, index) => {
         
         formData.append('file', file);
       });
       
-      // Debug: Log FormData summary
+      // debug: log formdata summary
       const fileNames = files.map(f => f.name).join(', ');
       
       
-      // Add selected columns if CSV data exists
+              // add selected columns if csv data exists
       if (csvData && selectedColumns.length > 0) {
         formData.append('columns', JSON.stringify(selectedColumns));
       }
@@ -148,7 +148,7 @@ export default function BulkAnalysis() {
       
       
       setResults(response.data);
-      // Reset filters when new results are loaded
+              // reset filters when new results are loaded
       setSentimentFilter('All');
       setEmotionFilter('All');
       setPriorityFilter('All');
@@ -180,7 +180,7 @@ export default function BulkAnalysis() {
         analysis: response.data
       }));
       
-      // Reset filters and pagination when new data arrives
+      // reset filters and pagination when new data arrives
       resetFilters();
       
       toast.success('Bulk analysis completed!');
@@ -210,7 +210,7 @@ export default function BulkAnalysis() {
     return colors[priority] || 'text-gray-500';
   };
 
-  // Get ordered sentiment entries
+  // get ordered sentiment entries
   const getOrderedSentimentEntries = (sentimentDistribution) => {
     const order = ['Negative', 'Mixed', 'Positive'];
     return order
@@ -218,7 +218,7 @@ export default function BulkAnalysis() {
       .map(sentiment => [sentiment, sentimentDistribution[sentiment]]);
   };
 
-  // Get ordered priority entries  
+  // get ordered priority entries  
   const getOrderedPriorityEntries = (priorityDistribution) => {
     const order = ['High', 'Medium', 'Low'];
     return order
@@ -239,14 +239,14 @@ export default function BulkAnalysis() {
     return colors[emotion] || 'text-text-muted';
   };
 
-  // Helper function to get unique filter options from results
+  // helper function to get unique filter options from results
   const getFilterOptions = (results, field) => {
     if (!results || !results.results) return ['All'];
     const uniqueValues = [...new Set(results.results.map(item => item[field]))];
     return ['All', ...uniqueValues.sort()];
   };
 
-  // Filter function for detailed results
+  // filter function for detailed results
   const getFilteredResults = () => {
     if (!results || !results.results) return [];
     
@@ -266,33 +266,33 @@ export default function BulkAnalysis() {
     return filtered;
   };
 
-  // Get visible results for infinite scrolling
+  // get visible results for infinite scrolling
   const getVisibleResults = () => {
     const filtered = getFilteredResults();
     return filtered.slice(0, visibleItems);
   };
 
-  // Load more results automatically
+  // load more results automatically
   const loadMoreResults = useCallback(() => {
     if (isLoadingMore) {
       return;
     }
     
     setIsLoadingMore(true);
-    // Add a small delay to simulate loading and prevent rapid firing
+    // add a small delay to simulate loading and prevent rapid firing
     setTimeout(() => {
       setVisibleItems(prev => prev + 5);
       setIsLoadingMore(false);
     }, 300);
   }, [isLoadingMore, visibleItems]);
 
-  // Check if there are more results to load
+  // check if there are more results to load
   const hasMoreResults = () => {
     const totalResults = getFilteredResults().length;
     return totalResults > visibleItems;
   };
 
-  // Infinite scroll effect
+  // infinite scroll effect
   useEffect(() => {
     const handleScroll = () => {
       const container = scrollContainerRef.current;
@@ -310,7 +310,7 @@ export default function BulkAnalysis() {
 
       const { scrollTop, scrollHeight, clientHeight } = container;
 
-      // Trigger load when user scrolls to within 100px of bottom
+      // trigger load when user scrolls to within 100px of bottom
       if (scrollTop + clientHeight >= scrollHeight - 100) {
         loadMoreResults();
       }
@@ -320,17 +320,17 @@ export default function BulkAnalysis() {
     if (container) {
       container.addEventListener('scroll', handleScroll);
       
-      // Also check immediately if we need to load more (when content doesn't fill container)
+      // also check immediately if we need to load more (when content doesnt fill container)
       const checkInitialLoad = () => {
         const { scrollHeight, clientHeight } = container;
         
-        // If container is not scrollable but we have more results, auto-load
+        // if container is not scrollable but we have more results, auto-load
         if (scrollHeight <= clientHeight && hasMoreResults() && !isLoadingMore) {
           loadMoreResults();
         }
       };
       
-      // Check after a small delay to ensure DOM is updated
+              // check after a small delay to ensure dom is updated
       setTimeout(checkInitialLoad, 100);
       
       return () => container.removeEventListener('scroll', handleScroll);
@@ -339,7 +339,7 @@ export default function BulkAnalysis() {
     }
   }, [loadMoreResults, isLoadingMore, visibleItems, getFilteredResults]);
 
-  // Handle filter changes - reset visible items
+  // handle filter changes - reset visible items
   const handleFilterChange = (filterType, value) => {
     setVisibleItems(5);
     if (filterType === 'sentiment') setSentimentFilter(value);
@@ -347,20 +347,20 @@ export default function BulkAnalysis() {
     else if (filterType === 'priority') setPriorityFilter(value);
   };
 
-  // Reset all filters
+  // reset all filters
   const resetFilters = () => {
     setSentimentFilter('All');
     setEmotionFilter('All');
     setPriorityFilter('All');
-    setVisibleItems(5); // Reset to initial visible items when filters reset
+    setVisibleItems(5); // reset to initial visible items when filters reset
   };
 
-  // Analyze another file - reset all states for new analysis
+  // analyze another file - reset all states for new analysis
   const startNewAnalysis = () => {
-    // Show user feedback
+    // show user feedback
     toast.success('Ready for new analysis!');
 
-    // Reset all relevant states
+    // reset all relevant states
     setFiles([]);
     setResults(null);
     setCsvData(null);
@@ -370,18 +370,18 @@ export default function BulkAnalysis() {
     setAnalyzing(false);
     setAnalysisProgress(0);
     
-    // Reset filters
+    // reset filters
     setSentimentFilter('All');
     setEmotionFilter('All');
     setPriorityFilter('All');
     setVisibleItems(5);
     
-    // Reset file input
+    // reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
     
-    // Scroll back to upload section for better UX
+    // scroll back to upload section for better ux
     setTimeout(() => {
       const uploadSection = document.getElementById('upload-section');
       if (uploadSection) {

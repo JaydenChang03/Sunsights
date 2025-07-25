@@ -18,7 +18,7 @@ import useAnalyticsData from '../hooks/useAnalyticsData';
 import FilterBar from './analytics/FilterBar';
 import DrilldownModal from './analytics/DrilldownModal';
 
-// Register ChartJS components
+// register chartjs components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -45,7 +45,7 @@ export default function Analytics() {
     refetch 
   } = useAnalyticsData(timeRange);
 
-  // Chart configuration with theme-aware colors
+  // chart configuration with theme-aware colors
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -198,11 +198,11 @@ export default function Analytics() {
                         }
                       }
                     },
-                    // Fix tooltip hover issue by disabling hover mode
+                    // fix tooltip hover issue by disabling hover mode
                     hover: {
                       mode: null
                     },
-                    // Ensure tooltips are accurate
+                    // ensure tooltips are accurate
                     interaction: {
                       mode: 'point',
                       intersect: true

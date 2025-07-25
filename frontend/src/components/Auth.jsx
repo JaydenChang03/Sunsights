@@ -37,7 +37,7 @@ const Auth = ({ onAuthSuccess }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Component initialization
+    // component initialization
   }, []);
 
 
@@ -50,7 +50,7 @@ const Auth = ({ onAuthSuccess }) => {
     e.preventDefault();
     setLoading(true);
     
-    // Validate input
+    // validate input
     if (!formData.email || !formData.password || (!isLogin && !formData.name)) {
       toast.error('Please fill in all required fields');
       setLoading(false);

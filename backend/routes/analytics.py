@@ -10,13 +10,13 @@ import re
 
 analytics = Blueprint('analytics', __name__)
 
-# Base directory for data storage
+# base directory for data storage
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 
-# Ensure data directory exists
+# ensure data directory exists
 os.makedirs(DATA_DIR, exist_ok=True)
 
-# Default data structure
+# default data structure
 DEFAULT_DATA = {
     'totalAnalyses': 0,
     'bulkUploads': 0,
@@ -63,7 +63,7 @@ def get_user_id_from_email(email):
         ).fetchone()
         
         if user:
-            # Convert the ID to a string to ensure compatibility with file paths
+            # convert the id to a string to ensure compatibility with file paths
             return str(user['id'])
         return None
     except Exception as e:
@@ -82,18 +82,18 @@ def get_data_file_for_user(user_id):
 def load_data(user_id=None):
     """Load analytics data from file for specific user or create with defaults if it doesn't exist"""
     try:
-        # Make sure user_id is a string
+        # make sure user_id is a string
         if user_id is not None:
             user_id = str(user_id)
         
-        # Create user directory if it doesn't exist
+        # create user directory if it doesnt exist
         user_dir = os.path.join(DATA_DIR, user_id)
         os.makedirs(user_dir, exist_ok=True)
         
-        # Path to user's analytics data file
+        # path to users analytics data file
         data_file = os.path.join(user_dir, 'analytics.json')
         
-        # If file doesn't exist, create it with default structure
+        # if file doesnt exist, create it with default structure
         if not os.path.exists(data_file):
             default_data = {
                 'totalAnalyses': 0,
@@ -117,24 +117,24 @@ def load_data(user_id=None):
                         'type': 'info'
                     }
                 ],
-                'isNewAccount': True  # Flag to identify new accounts
+                'isNewAccount': True  # flag to identify new accounts
             }
             with open(data_file, 'w') as f:
                 json.dump(default_data, f)
             return default_data
         
-        # Load existing data
+        # load existing data
         with open(data_file, 'r') as f:
             data = json.load(f)
             
-        # If this is the first time loading data, mark it as not a new account
+        # if this is the first time loading data, mark it as not a new account
         if 'isNewAccount' not in data:
             data['isNewAccount'] = False
             
         return data
     except Exception as e:
         logging.error(f"Error loading data for user {user_id}: {str(e)}")
-        # Return empty default structure if there's an error
+        # return empty default structure if theres an error
         return {
             'totalAnalyses': 0,
             'bulkUploads': 0,
@@ -163,15 +163,15 @@ def load_data(user_id=None):
 def save_data(data, user_id=None):
     """Save analytics data to file for specific user"""
     try:
-        # Make sure user_id is a string
+        # make sure user_id is a string
         if user_id is not None:
             user_id = str(user_id)
         
-        # Create user directory if it doesn't exist
+        # create user directory if it doesnt exist
         user_dir = os.path.join(DATA_DIR, user_id)
         os.makedirs(user_dir, exist_ok=True)
         
-        # Path to user's analytics data file
+        # path to users analytics data file
         data_file = os.path.join(user_dir, 'analytics.json')
         
         with open(data_file, 'w') as f:
@@ -208,12 +208,12 @@ def get_sentiment():
     current_user = get_jwt_identity()
     user_id = get_user_id_from_email(current_user)
     
-    # Load the user's data
+    # load the users data
     user_data = load_data(user_id)
     
-    # Check if this is a new account with no analyses
+    # check if this is a new account with no analyses
     if user_data.get('isNewAccount', False) and user_data.get('totalAnalyses', 0) == 0:
-        # Return empty sentiment data for new accounts
+        # return empty sentiment data for new accounts
         return jsonify({
             'labels': ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
             'datasets': [

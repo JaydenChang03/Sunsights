@@ -3,7 +3,7 @@ import { ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
 import axios from '../config/axios';
 import toast from 'react-hot-toast';
 
-// Emotion icons mapping
+// emotion icons mapping
 const EmotionIcon = ({ emotion }) => {
   const icons = {
     joy: '😊',
@@ -17,7 +17,7 @@ const EmotionIcon = ({ emotion }) => {
   return <span className="text-2xl">{icons[emotion] || '😐'}</span>;
 };
 
-// Priority badge component
+// priority badge component
 const PriorityBadge = ({ priority }) => {
   const colors = {
     High: 'bg-danger/20 text-danger',
@@ -52,7 +52,7 @@ export default function SingleAnalysis() {
         text: comment
       });
       
-      // Check if response.data has result property
+      // check if response.data has result property
       if (response.data.result) {
         setResult(response.data.result);
       } else {

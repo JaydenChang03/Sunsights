@@ -8,7 +8,7 @@ import re
 import logging
 import os
 
-# Configure logging
+# configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -58,13 +58,13 @@ def decode_token(token):
         logger.error(f"Token decode error: {e}")
         return None
 
-# Test database connection and table structure
+# test database connection and table structure
 def test_database():
     try:
         conn = get_db()
         cursor = conn.cursor()
         
-        # Check if users table exists and get its structure
+        # check if users table exists and get its structure
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
         table_exists = cursor.fetchone()
         
@@ -75,7 +75,7 @@ def test_database():
             for column in columns:
                 logger.info(f"  {column[1]} {column[2]} {'NOT NULL' if column[3] else 'NULL'}")
                 
-            # Count existing users
+            # count existing users
             cursor.execute("SELECT COUNT(*) FROM users")
             user_count = cursor.fetchone()[0]
             logger.info(f"Total users in database: {user_count}")
@@ -88,7 +88,7 @@ def test_database():
         logger.error(f"Database test failed: {e}")
         return False
 
-# Initialize database test
+# initialize database test
 logger.info("Testing database connection...")
 if test_database():
     logger.info("Database connection test passed ✓")
@@ -127,18 +127,18 @@ def register():
         password = data['password']
         name = data['name'].strip()
         
-        # Validate email format
+        # validate email format
         if not validate_email(email):
             logger.error(f"Invalid email format: {email}")
             return jsonify({"error": "Invalid email format"}), 400
             
-        # Validate password
+        # validate password
         is_valid, message = validate_password(password)
         if not is_valid:
             logger.error(f"Password validation failed: {message}")
             return jsonify({"error": message}), 400
             
-        # Check if user already exists
+        # check if user already exists
         conn = get_db()
         try:
             cursor = conn.cursor()
@@ -150,7 +150,7 @@ def register():
                 logger.error(f"User already exists: {email}")
                 return jsonify({"error": "User already exists"}), 409
                 
-            # Create new user
+            # create new user
             hashed_password = generate_password_hash(password)
             cursor.execute(
                 "INSERT INTO users (email, password, name) VALUES (?, ?, ?)",
@@ -158,7 +158,7 @@ def register():
             )
             conn.commit()
             
-            # Create access token
+            # create access token
             access_token = create_access_token(identity=email)
             logger.info(f"User registered successfully: {email}")
             
@@ -279,7 +279,7 @@ def get_profile():
                 logger.error(f"User not found: {current_user_email}")
                 return jsonify({"error": "User not found"}), 404
             
-            # Return profile data
+            # return profile data
             profile_data = {
                 "id": user['id'],
                 "email": user['email'],
@@ -315,7 +315,7 @@ def update_profile():
         try:
             cursor = conn.cursor()
             
-            # Get current user
+            # get current user
             user = cursor.execute(
                 "SELECT id FROM users WHERE email = ?", (current_user_email,)
             ).fetchone()
@@ -324,7 +324,7 @@ def update_profile():
                 logger.error(f"User not found: {current_user_email}")
                 return jsonify({"error": "User not found"}), 404
             
-            # Update user profile
+            # update user profile
             update_fields = []
             update_values = []
             
@@ -341,13 +341,13 @@ def update_profile():
                 update_values.append(data['bio'])
             
             if update_fields:
-                update_values.append(current_user_email)  # for WHERE clause
+                update_values.append(current_user_email)  # for where clause
                 query = f"UPDATE users SET {', '.join(update_fields)} WHERE email = ?"
                 cursor.execute(query, update_values)
                 conn.commit()
                 logger.info(f"Profile updated successfully for {current_user_email}")
             
-            # Get updated user data
+            # get updated user data
             updated_user = cursor.execute(
                 "SELECT id, email, name, bio, avatar FROM users WHERE email = ?", 
                 (data.get('email', current_user_email),)  # Use new email if updated
@@ -396,17 +396,17 @@ def upload_avatar():
             import os
             from werkzeug.utils import secure_filename
             
-            # Generate unique filename
+            # generate unique filename
             file_extension = os.path.splitext(secure_filename(file.filename))[1]
             unique_filename = f"avatar_{uuid.uuid4().hex}{file_extension}"
             
-            # Save file
+            # save file
             upload_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'uploads')
             os.makedirs(upload_folder, exist_ok=True)
             file_path = os.path.join(upload_folder, unique_filename)
             file.save(file_path)
             
-            # Update user avatar in database
+            # update user avatar in database
             avatar_url = f"/uploads/{unique_filename}"
             
             conn = get_db()

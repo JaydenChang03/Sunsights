@@ -17,7 +17,7 @@ const TutorialBubble = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
 
-  // Tutorial content structure
+  // tutorial content structure
   const tutorialContent = {
     '/dashboard': {
       title: 'Dashboard Overview',
@@ -141,10 +141,10 @@ const TutorialBubble = () => {
     }
   };
 
-  // Get current page content
+  // get current page content
   const currentContent = tutorialContent[location.pathname] || tutorialContent['/dashboard'];
 
-  // Tutorial implementation validation logging
+  // tutorial implementation validation logging
   console.log('Tutorial Bubble Implementation Status:', {
     implementation: {
       component: '✓ TutorialBubble component created',
@@ -172,7 +172,7 @@ const TutorialBubble = () => {
     }
   });
 
-  // Check if tutorial is completed for current page
+  // check if tutorial is completed for current page
   useEffect(() => {
     if (isOpen) {
       handleNavigationClose();
@@ -181,9 +181,9 @@ const TutorialBubble = () => {
     const completed = localStorage.getItem(`tutorial_completed_${location.pathname}`);
     setIsCompleted(completed === 'true');
     setCurrentStep(0);
-    setIsOpen(false); // This closes tutorial when navigating - could be causing empty screen
+    setIsOpen(false); // this closes tutorial when navigating - could be causing empty screen
     
-    // Log state after navigation
+    // log state after navigation
     console.log('✅ TUTORIAL STATE AFTER NAVIGATION:', {
       newPath: location.pathname,
       isOpen: false, // forced to false
@@ -193,7 +193,7 @@ const TutorialBubble = () => {
     
 
     
-    // Log page navigation and tutorial status
+    // log page navigation and tutorial status
     console.log('Tutorial Page Navigation:', {
       navigatedTo: location.pathname,
       pageTitle: currentContent.title,
@@ -204,7 +204,7 @@ const TutorialBubble = () => {
     });
   }, [location.pathname, currentContent.title, currentContent.steps.length]);
 
-  // Handle tutorial completion
+  // handle tutorial completion
   const handleComplete = () => {
     console.log('Tutorial Completed:', {
       page: location.pathname,
@@ -218,7 +218,7 @@ const TutorialBubble = () => {
     setCurrentStep(0);
   };
 
-  // Handle restart tutorial
+  // handle restart tutorial
   const handleRestart = () => {
     console.log('Tutorial Restarted:', {
       page: location.pathname,
@@ -231,7 +231,7 @@ const TutorialBubble = () => {
     setIsOpen(true);
   };
 
-  // Navigation handlers
+  // navigation handlers
   const handleNext = () => {
     if (currentStep < currentContent.steps.length - 1) {
       console.log('Tutorial Step Navigation:', {
@@ -260,7 +260,7 @@ const TutorialBubble = () => {
     }
   };
 
-  // Handle tutorial open/close
+  // handle tutorial open/close
   const handleOpen = () => {
     console.log('Tutorial Opened:', {
       page: location.pathname,
@@ -283,7 +283,7 @@ const TutorialBubble = () => {
     setIsOpen(false);
   };
 
-  // Handle forced close on navigation (add this for debugging)
+  // handle forced close on navigation (add this for debugging)
   const handleNavigationClose = () => {
     console.log('🚨 TUTORIAL FORCED CLOSE ON NAVIGATION:', {
       page: location.pathname,
@@ -294,7 +294,7 @@ const TutorialBubble = () => {
     });
   };
 
-  // Don't render on auth page
+  // dont render on auth page
   if (location.pathname === '/auth' || location.pathname === '/') {
     return null;
   }
@@ -314,7 +314,7 @@ const TutorialBubble = () => {
       })}
 
       {!isOpen ? (
-        // Collapsed bubble
+        // collapsed bubble
         <div className="relative pointer-events-auto">
           <button
             onClick={handleOpen}
@@ -333,7 +333,7 @@ const TutorialBubble = () => {
           </div>
         </div>
       ) : (
-        // Expanded tutorial panel
+        // expanded tutorial panel
         <div className="bg-bg-light border border-border rounded-2xl shadow-2xl w-80 max-w-[90vw] max-h-[80vh] overflow-hidden pointer-events-auto">
           {/* Header */}
           <div className="bg-primary text-bg p-4 flex items-center justify-between">

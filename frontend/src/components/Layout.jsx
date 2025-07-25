@@ -21,7 +21,7 @@ const Layout = ({ children, onLogout }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { darkMode, toggleDarkMode } = useContext(ThemeContext);
 
-  // Add effect to handle mount animation
+  // add effect to handle mount animation
   useEffect(() => {
     setMounted(true);
     

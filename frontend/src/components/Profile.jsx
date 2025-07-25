@@ -35,7 +35,7 @@ export default function Profile() {
     try {
       const response = await axios.get('/api/auth/profile');
       
-      // Convert relative avatar URL to absolute
+      // convert relative avatar url to absolute
       const profileData = { ...response.data };
       if (profileData.avatar && !profileData.avatar.startsWith('http')) {
         profileData.avatar = `http://localhost:5000${profileData.avatar}`;
@@ -76,7 +76,7 @@ export default function Profile() {
         setUser(prev => ({
           ...prev,
           ...response.data.user,
-          avatar: prev.avatar // Keep existing avatar URL
+          avatar: prev.avatar // keep existing avatar url
         }));
       }
       
@@ -120,7 +120,7 @@ export default function Profile() {
         },
       });
       
-      // Update user state with full avatar URL
+      // update user state with full avatar url
       const fullAvatarUrl = response.data.avatar.startsWith('http') 
         ? response.data.avatar 
         : `http://localhost:5000${response.data.avatar}`;
@@ -211,7 +211,7 @@ export default function Profile() {
                     alt="Default Profile" 
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      // If profilePictureIcon.png fails to load, show UserIcon as ultimate fallback
+                      // if profilePictureIcon.png fails to load, show UserIcon as ultimate fallback
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'block';
                     }}

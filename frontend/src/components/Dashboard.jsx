@@ -3,7 +3,7 @@ import { ClockIcon, ChartBarIcon, DocumentTextIcon, DocumentDuplicateIcon } from
 import axios from '../config/axios';
 import toast from 'react-hot-toast';
 
-// Initial stats structure
+// initial stats structure
 const initialStats = [
   {
     id: 1,
@@ -36,13 +36,13 @@ const initialStats = [
 ];
 
 export default function Dashboard() {
-  // Text analysis states
+  // text analysis states
   const [text, setText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [error, setError] = useState(null);
   
-  // Dashboard stats states
+  // dashboard stats states
   const [stats, setStats] = useState(initialStats);
   const [activities, setActivities] = useState([]);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
@@ -50,27 +50,27 @@ export default function Dashboard() {
   const [statsError, setStatsError] = useState(null);
   const [activityError, setActivityError] = useState(null);
 
-  // Fetch dashboard data on component mount
+  // fetch dashboard data on component mount
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
-  // Function to fetch all dashboard data
+  // function to fetch all dashboard data
   const fetchDashboardData = async () => {
     fetchStats();
     fetchActivity();
   };
 
-  // Function to format timestamp
+  // function to format timestamp
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return 'Never';
     
     try {
       const date = new Date(timestamp);
       
-      // Check if date is valid
+      // check if date is valid
       if (isNaN(date.getTime())) {
-        return timestamp; // Return as is if not a valid date
+        return timestamp; // return as is if not a valid date
       }
       
       const now = new Date();
@@ -91,7 +91,7 @@ export default function Dashboard() {
     }
   };
 
-  // Function to fetch stats
+  // function to fetch stats
   const fetchStats = async () => {
     setIsLoadingStats(true);
     setStatsError(null);
@@ -100,18 +100,18 @@ export default function Dashboard() {
       const response = await axios.get('/api/analytics/summary');
       const data = response.data;
       
-      // Update stats with real data
+      // update stats with real data
       const updatedStats = [...initialStats];
       updatedStats[0].value = data.totalAnalyses.toString();
       
-      // For bulk uploads, we'll use a percentage of total analyses as an example
-      const bulkUploads = Math.floor(data.totalAnalyses * 0.2); // Assuming 20% are bulk uploads
+          // for bulk uploads, well use a percentage of total analyses as an example
+    const bulkUploads = Math.floor(data.totalAnalyses * 0.2); // assuming 20% are bulk uploads
       updatedStats[1].value = bulkUploads.toString();
       
-      // Format average sentiment as percentage
+      // format average sentiment as percentage
       updatedStats[2].value = `${parseFloat(data.averageSentiment).toFixed(2)}%`;
       
-      // Format last analysis time
+      // format last analysis time
       updatedStats[3].value = formatTimestamp(data.lastAnalysisTime);
       
       setStats(updatedStats);
@@ -124,7 +124,7 @@ export default function Dashboard() {
     }
   };
 
-  // Function to fetch recent activity
+  // function to fetch recent activity
   const fetchActivity = async () => {
     setIsLoadingActivity(true);
     setActivityError(null);
@@ -146,7 +146,7 @@ export default function Dashboard() {
     }
   };
 
-  // Function to handle text analysis
+  // function to handle text analysis
   const handleAnalyzeText = async () => {
     if (!text.trim()) {
       toast.error('Please enter some text to analyze');
@@ -162,7 +162,7 @@ export default function Dashboard() {
       setAnalysisResult(response.data.result);
       toast.success('Analysis completed successfully!');
       
-      // Refresh dashboard data after successful analysis
+      // refresh dashboard data after successful analysis
       fetchDashboardData();
     } catch (err) {
       console.error('Analysis error:', err);
@@ -173,7 +173,7 @@ export default function Dashboard() {
     }
   };
 
-  // Helper function to get color based on sentiment
+  // helper function to get color based on sentiment
   const getSentimentColor = (sentiment) => {
     if (!sentiment) return 'text-secondary';
     switch (sentiment) {
@@ -184,7 +184,7 @@ export default function Dashboard() {
     }
   };
 
-  // Helper function to get color based on priority
+  // helper function to get color based on priority
   const getPriorityColor = (priority) => {
     if (!priority) return 'bg-gray-200';
     switch (priority.toLowerCase()) {
@@ -195,7 +195,7 @@ export default function Dashboard() {
     }
   };
 
-  // Helper function to get color based on emotion
+  // helper function to get color based on emotion
   const getEmotionColor = (emotion) => {
     if (!emotion) return 'text-secondary';
     const emotionColors = {
@@ -209,7 +209,7 @@ export default function Dashboard() {
     return emotionColors[emotion.toLowerCase()] || 'text-secondary';
   };
 
-  // Helper function to get color based on activity type
+  // helper function to get color based on activity type
   const getActivityTypeColor = (type) => {
     const typeColors = {
       success: 'bg-green-500',
@@ -228,7 +228,7 @@ export default function Dashboard() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {isLoadingStats ? (
-            // Loading skeleton for stats
+            // loading skeleton for stats
             Array(4).fill(0).map((_, index) => (
               <div key={index} className="card animate-pulse">
                 <div className="flex items-center mb-4">
@@ -239,7 +239,7 @@ export default function Dashboard() {
               </div>
             ))
           ) : statsError ? (
-            // Error state for stats
+            // error state for stats
             <div className="col-span-4 card bg-danger/10">
               <p className="text-danger">{statsError}</p>
               <button 
@@ -250,7 +250,7 @@ export default function Dashboard() {
               </button>
             </div>
           ) : (
-            // Stats display
+            // stats display
             stats.map(stat => (
               <div key={stat.id} className="card">
                 <div className="flex items-center mb-4">
@@ -333,7 +333,7 @@ export default function Dashboard() {
             <h2 className="text-xl font-semibold text-text mb-4">Recent Activity</h2>
             
             {isLoadingActivity ? (
-              // Loading skeleton for activity
+              // loading skeleton for activity
               Array(3).fill(0).map((_, index) => (
                 <div key={index} className="animate-pulse mb-4">
                   <div className="flex items-center mb-2">
@@ -345,7 +345,7 @@ export default function Dashboard() {
                 </div>
               ))
             ) : activityError ? (
-              // Error state for activity
+              // error state for activity
               <div className="bg-danger/10 backdrop-blur-sm rounded-xl p-4">
                 <p className="text-danger">{activityError}</p>
                 <button 
@@ -356,12 +356,12 @@ export default function Dashboard() {
                 </button>
               </div>
             ) : activities.length === 0 ? (
-              // Empty state
+              // empty state
               <div className="text-center py-6">
                 <p className="text-text-muted">No recent activity</p>
               </div>
             ) : (
-              // Activity list
+              // activity list
               <div className="space-y-4">
                 {activities.map((activity, index) => (
                   <div key={index} className="relative pl-5">
