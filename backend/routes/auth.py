@@ -22,14 +22,7 @@ logger.info(f"📧 EMAIL SERVICE IMPORT STATUS:")
 logger.info(f"   🔧 Service Configured: {email_service.is_configured()}")
 logger.info(f"   📍 Working Directory: {os.getcwd()}")
 
-# Log forgot password removal status
-logger.info(f"🔍 FORGOT PASSWORD REMOVAL VALIDATION - Phase 2 Complete:")
-logger.info(f"   ❌ Backend forgot password endpoints removed")
-logger.info(f"   ❌ /api/auth/forgot-password route removed")
-logger.info(f"   ❌ /api/auth/reset-password route removed")
-logger.info(f"   ❌ verify_reset_token function removed")
-logger.info(f"   ✅ Core authentication functionality preserved")
-logger.info(f"   📧 Email service import kept for potential future use")
+
 
 auth = Blueprint('auth', __name__)
 

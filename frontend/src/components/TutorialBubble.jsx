@@ -174,13 +174,6 @@ const TutorialBubble = () => {
 
   // Check if tutorial is completed for current page
   useEffect(() => {
-    console.log('🔄 TUTORIAL NAVIGATION DEBUG:', {
-      navigatingTo: location.pathname,
-      previousState: { isOpen, currentStep, isCompleted },
-      action: 'Closing tutorial on navigation'
-    });
-    
-    // Call the navigation close handler for debugging
     if (isOpen) {
       handleNavigationClose();
     }
@@ -198,27 +191,7 @@ const TutorialBubble = () => {
       isCompleted: completed === 'true'
     });
     
-    // Enhanced tutorial content logging for bulk analysis
-    if (location.pathname === '/bulk-analysis') {
-      console.log('🔍 BULK ANALYSIS TUTORIAL VALIDATION:', {
-        contentLoaded: !!tutorialContent['/bulk-analysis'],
-        tutorialTitle: currentContent.title,
-        totalSteps: currentContent.steps.length,
-        stepTitles: currentContent.steps.map(step => step.title),
-        hasFileFormatGuidance: currentContent.steps.some(step => 
-          step.content.includes('CSV') || step.content.includes('Excel')
-        ),
-        hasColumnNaming: currentContent.steps.some(step => 
-          step.content.includes('comment') || step.content.includes('feedback')
-        ),
-        hasTroubleshooting: currentContent.steps.some(step => 
-          step.title.includes('Troubleshooting') || step.content.includes('IF ISSUES')
-        ),
-        hasDosDonts: currentContent.steps.some(step => 
-          step.title.includes('AVOID') || step.content.includes('DON\'T')
-        )
-      });
-    }
+
     
     // Log page navigation and tutorial status
     console.log('Tutorial Page Navigation:', {

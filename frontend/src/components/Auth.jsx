@@ -59,23 +59,11 @@ const Auth = ({ onAuthSuccess }) => {
 
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      console.log('Attempting authentication:', {
-        endpoint,
-        email: formData.email,
-        hasPassword: !!formData.password,
-        hasName: !!formData.name
-      });
 
       const response = await axios.post(endpoint, {
         email: formData.email.trim(),
         password: formData.password,
         ...(isLogin ? {} : { name: formData.name.trim() })
-      });
-
-      console.log('Authentication successful:', {
-        status: response.status,
-        hasToken: !!response.data.token,
-        hasUser: !!response.data.user
       });
 
       const { token, user } = response.data;
@@ -93,16 +81,10 @@ const Auth = ({ onAuthSuccess }) => {
       let errorMessage = 'An error occurred during authentication';
       
       if (error.response) {
-        console.error('Server response:', {
-          status: error.response.status,
-          data: error.response.data
-        });
         errorMessage = error.response.data?.error || error.response.data?.message || errorMessage;
       } else if (error.request) {
-        console.error('No response received');
         errorMessage = 'Unable to reach the server. Please check your connection.';
       } else {
-        console.error('Request setup error:', error.message);
         errorMessage = error.message;
       }
       

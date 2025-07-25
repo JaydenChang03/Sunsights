@@ -103,13 +103,9 @@ export default function BulkAnalysis() {
 
   const uploadFiles = async () => {
     if (files.length === 0) {
-      console.log('BulkAnalysis: No text files selected');
       toast.error('Please select files to upload');
       return;
     }
-
-    console.log('BulkAnalysis: Starting file upload');
-    console.log('BulkAnalysis: Files:', files);
     
     setUploading(true);
     setAnalysisProgress(0);
@@ -117,47 +113,40 @@ export default function BulkAnalysis() {
     try {
       const formData = new FormData();
       
-      console.log('🔍 BULK ANALYSIS FRONTEND DEBUG: Processing text files');
-      console.log('🔍 Total files to upload:', files.length);
+
+      
       
       // Add text files
       files.forEach((file, index) => {
-        console.log(`🔍 Adding file ${index + 1} to FormData:`, file.name, file.type, `size: ${file.size} bytes`);
+        
         formData.append('file', file);
       });
       
       // Debug: Log FormData summary
       const fileNames = files.map(f => f.name).join(', ');
-      console.log(`🔍 FormData ready: ${files.length} files (${fileNames})`);
+      
       
       // Add selected columns if CSV data exists
       if (csvData && selectedColumns.length > 0) {
-        console.log('BulkAnalysis: Adding selected columns:', selectedColumns);
         formData.append('columns', JSON.stringify(selectedColumns));
       }
       
       const endpoint = '/api/analytics/analyze-bulk';
-
-      console.log('BulkAnalysis: Making request to endpoint:', endpoint);
       const response = await axios.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          console.log('BulkAnalysis: Upload progress:', percentCompleted + '%');
           setAnalysisProgress(percentCompleted);
         },
         timeout: 120000 // 2 minutes timeout specifically for bulk analysis
       });
 
-      console.log('🔍 BULK ANALYSIS RESPONSE DEBUG:');
-      console.log('🔍 Files processed:', response.data.filesProcessed || 'Unknown');
-      console.log('🔍 File names:', response.data.fileNames || []);
-      console.log('🔍 Total analyzed items in response:', response.data.totalAnalyzed);
-      console.log('🔍 Results length:', response.data.results?.length || 0);
-      console.log('🔍 Sentiment distribution:', response.data.summary?.sentimentDistribution);
-      console.log('🔍 Full response:', response.data);
+
+      
+      
+      
       setResults(response.data);
       // Reset filters when new results are loaded
       setSentimentFilter('All');
@@ -166,8 +155,6 @@ export default function BulkAnalysis() {
       toast.success('Files uploaded and analyzed successfully!');
     } catch (error) {
       console.error('BulkAnalysis: Upload error:', error);
-      console.error('BulkAnalysis: Error response:', error.response?.data);
-      console.error('BulkAnalysis: Error status:', error.response?.status);
       toast.error(error.response?.data?.error || 'Failed to upload files');
     } finally {
       setUploading(false);
@@ -263,9 +250,8 @@ export default function BulkAnalysis() {
   const getFilteredResults = () => {
     if (!results || !results.results) return [];
     
-    console.log('=== BULK ANALYSIS FILTER DEBUG ===');
-    console.log('Total results:', results.results.length);
-    console.log('Applied filters:', { sentimentFilter, emotionFilter, priorityFilter });
+    
+    
     
     const filtered = results.results.filter(result => {
       const sentimentMatch = sentimentFilter === 'All' || result.sentiment === sentimentFilter;
@@ -275,12 +261,7 @@ export default function BulkAnalysis() {
       return sentimentMatch && emotionMatch && priorityMatch;
     });
     
-    console.log('Filtered results count:', filtered.length);
-    console.log('Filter breakdown:', {
-      sentimentOptions: getFilterOptions(results, 'sentiment'),
-      emotionOptions: getFilterOptions(results, 'emotion'),
-      priorityOptions: getFilterOptions(results, 'priority')
-    });
+
     
     return filtered;
   };
@@ -294,28 +275,13 @@ export default function BulkAnalysis() {
   // Load more results automatically
   const loadMoreResults = useCallback(() => {
     if (isLoadingMore) {
-      console.log('LOAD MORE DEBUG: Already loading, skipping');
       return;
     }
-    
-    console.log('LOAD MORE DEBUG: Starting load more', {
-      currentVisibleItems: visibleItems,
-      totalFilteredResults: getFilteredResults().length,
-      willLoadMore: getFilteredResults().length > visibleItems
-    });
     
     setIsLoadingMore(true);
     // Add a small delay to simulate loading and prevent rapid firing
     setTimeout(() => {
-      setVisibleItems(prev => {
-        const newCount = prev + 5;
-        console.log('LOAD MORE DEBUG: Updated visible items', {
-          previous: prev,
-          new: newCount,
-          totalAvailable: getFilteredResults().length
-        });
-        return newCount;
-      });
+      setVisibleItems(prev => prev + 5);
       setIsLoadingMore(false);
     }, 300);
   }, [isLoadingMore, visibleItems]);
@@ -323,13 +289,7 @@ export default function BulkAnalysis() {
   // Check if there are more results to load
   const hasMoreResults = () => {
     const totalResults = getFilteredResults().length;
-    const hasMore = totalResults > visibleItems;
-    console.log('HAS MORE RESULTS DEBUG:', {
-      totalResults,
-      visibleItems,
-      hasMore
-    });
-    return hasMore;
+    return totalResults > visibleItems;
   };
 
   // Infinite scroll effect
@@ -337,63 +297,35 @@ export default function BulkAnalysis() {
     const handleScroll = () => {
       const container = scrollContainerRef.current;
       if (!container) {
-        console.log('INFINITE SCROLL DEBUG: No container reference');
         return;
       }
 
       if (isLoadingMore) {
-        console.log('INFINITE SCROLL DEBUG: Already loading, skipping');
         return;
       }
 
       if (!hasMoreResults()) {
-        console.log('INFINITE SCROLL DEBUG: No more results available');
         return;
       }
 
       const { scrollTop, scrollHeight, clientHeight } = container;
-      console.log('INFINITE SCROLL DEBUG: Scroll metrics:', {
-        scrollTop,
-        scrollHeight,
-        clientHeight,
-        isScrollable: scrollHeight > clientHeight,
-        distanceFromBottom: scrollHeight - (scrollTop + clientHeight),
-        shouldTrigger: scrollTop + clientHeight >= scrollHeight - 100,
-        visibleItems,
-        totalResults: getFilteredResults().length
-      });
 
       // Trigger load when user scrolls to within 100px of bottom
       if (scrollTop + clientHeight >= scrollHeight - 100) {
-        console.log('INFINITE SCROLL DEBUG: Triggering load more');
         loadMoreResults();
       }
     };
 
     const container = scrollContainerRef.current;
     if (container) {
-      console.log('INFINITE SCROLL DEBUG: Setting up scroll listener', {
-        containerHeight: container.clientHeight,
-        containerScrollHeight: container.scrollHeight,
-        hasOverflow: container.scrollHeight > container.clientHeight
-      });
       container.addEventListener('scroll', handleScroll);
       
       // Also check immediately if we need to load more (when content doesn't fill container)
       const checkInitialLoad = () => {
         const { scrollHeight, clientHeight } = container;
-        console.log('INFINITE SCROLL DEBUG: Initial load check:', {
-          scrollHeight,
-          clientHeight,
-          needsScroll: scrollHeight > clientHeight,
-          hasMoreResults: hasMoreResults(),
-          visibleItems,
-          totalResults: getFilteredResults().length
-        });
         
         // If container is not scrollable but we have more results, auto-load
         if (scrollHeight <= clientHeight && hasMoreResults() && !isLoadingMore) {
-          console.log('INFINITE SCROLL DEBUG: Container not scrollable, auto-loading more items');
           loadMoreResults();
         }
       };
@@ -403,7 +335,7 @@ export default function BulkAnalysis() {
       
       return () => container.removeEventListener('scroll', handleScroll);
     } else {
-      console.log('INFINITE SCROLL DEBUG: No container found for scroll listener');
+
     }
   }, [loadMoreResults, isLoadingMore, visibleItems, getFilteredResults]);
 
@@ -417,7 +349,6 @@ export default function BulkAnalysis() {
 
   // Reset all filters
   const resetFilters = () => {
-    console.log('🔄 Resetting all filters');
     setSentimentFilter('All');
     setEmotionFilter('All');
     setPriorityFilter('All');
@@ -426,8 +357,6 @@ export default function BulkAnalysis() {
 
   // Analyze another file - reset all states for new analysis
   const startNewAnalysis = () => {
-    console.log('🔄 Starting new analysis - resetting all state');
-
     // Show user feedback
     toast.success('Ready for new analysis!');
 

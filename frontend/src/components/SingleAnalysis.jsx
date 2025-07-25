@@ -48,38 +48,20 @@ export default function SingleAnalysis() {
 
     setLoading(true);
     try {
-      console.log('=== SINGLE ANALYSIS DEBUG ===');
-      console.log('Comment to analyze:', comment);
-      console.log('Making request to: /api/analytics/analyze with method: post');
-      console.log('Request payload:', { text: comment });
-
       const response = await axios.post('/api/analytics/analyze', {
         text: comment
       });
       
-      console.log('Response received:', response);
-      console.log('Response data:', response.data);
-      console.log('Response data type:', typeof response.data);
-      console.log('Response data keys:', Object.keys(response.data));
-      
       // Check if response.data has result property
       if (response.data.result) {
-        console.log('Found result property:', response.data.result);
-        console.log('Result keys:', Object.keys(response.data.result));
         setResult(response.data.result);
       } else {
-        console.log('No result property found, using response.data directly');
         setResult(response.data);
       }
       
       toast.success('Analysis completed successfully!');
     } catch (error) {
-      console.error('=== SINGLE ANALYSIS ERROR ===');
       console.error('Error analyzing comment:', error);
-      console.error('Error response:', error.response);
-      console.error('Error status:', error.response?.status);
-      console.error('Error data:', error.response?.data);
-      
       toast.error('Failed to analyze comment. Please try again.');
     } finally {
       setLoading(false);

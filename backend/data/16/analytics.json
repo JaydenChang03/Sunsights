@@ -1,18 +1,36 @@
 {
-  "totalAnalyses": 1,
-  "bulkUploads": 0,
-  "averageSentiment": 82.2,
-  "lastAnalysisTime": "2025-07-25 13:23:01",
+  "totalAnalyses": 28,
+  "bulkUploads": 1,
+  "averageSentiment": 90.258,
+  "lastAnalysisTime": "2025-07-25 14:00:25",
   "emotionCounts": {
-    "Joy": 0,
-    "Sadness": 0,
-    "Anger": 0,
-    "Fear": 0,
+    "Joy": 16,
+    "Sadness": 1,
+    "Anger": 3,
+    "Fear": 1,
     "Surprise": 0,
-    "Love": 1,
-    "neutral": 0
+    "Love": 3,
+    "neutral": 4
   },
   "activities": [
+    {
+      "title": "Bulk analysis completed",
+      "description": "Analyzed 25 comments from 1 files. Avg sentiment: 90.4%",
+      "time": "2025-07-25 14:00:32",
+      "type": "analysis"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-25 14:00:25",
+      "type": "success"
+    },
+    {
+      "title": "Text Analysis Completed",
+      "description": "Sentiment: POSITIVE, Emotion: joy, Priority: Low",
+      "time": "2025-07-25 14:00:22",
+      "type": "success"
+    },
     {
       "title": "Text Analysis Completed",
       "description": "Sentiment: POSITIVE, Emotion: love, Priority: Low",

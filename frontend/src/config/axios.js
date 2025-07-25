@@ -13,9 +13,6 @@ const instance = axios.create({
 // Add request interceptor
 instance.interceptors.request.use(
     (config) => {
-        // Log the request for debugging
-        console.log('Making request to:', config.url, 'with method:', config.method);
-        
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -31,7 +28,6 @@ instance.interceptors.request.use(
 // Add response interceptor for better error handling
 instance.interceptors.response.use(
     (response) => {
-        console.log('Received successful response:', response.status);
         return response;
     },
     (error) => {

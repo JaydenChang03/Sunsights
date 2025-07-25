@@ -37,10 +37,6 @@ function App() {
 
   useEffect(() => {
     // ALWAYS force authentication on app startup
-    console.log('🔐='.repeat(20));
-    console.log('🔐 APP STARTUP: FORCING FRESH AUTHENTICATION');
-    console.log('🔐 User will ALWAYS be redirected to auth page');
-    console.log('🔐='.repeat(20));
     forceLogout();
   }, [])
 
@@ -62,28 +58,17 @@ function App() {
   const checkAuth = async () => {
     const token = localStorage.getItem('token')
     
-    console.log('🔐 AUTH CHECK DEBUG:', {
-      hasToken: !!token,
-      tokenLength: token ? token.length : 0,
-      timestamp: new Date().toISOString(),
-      currentUser: user ? user.email : null
-    });
-    
     if (!token) {
-      console.log('🔐 No token found - showing auth page');
       setLoading(false)
       return
     }
 
-    console.log('🔐 Token found - validating with backend...');
     try {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       const response = await axios.get('/api/auth/user')
-      console.log('🔐 Token validation SUCCESS - auto-logging in user:', response.data.user.email);
       setUser(response.data.user)
     } catch (error) {
       console.error('🔐 Token validation FAILED:', error.response?.status, error.response?.data);
-      console.log('🔐 Clearing invalid token and showing auth page');
       localStorage.removeItem('token')
       delete axios.defaults.headers.common['Authorization']
     } finally {
@@ -96,14 +81,12 @@ function App() {
   }
 
   const handleLogout = () => {
-    console.log('🔐 Manual logout triggered');
     localStorage.removeItem('token')
     delete axios.defaults.headers.common['Authorization']
     setUser(null)
   }
 
   const forceLogout = () => {
-    console.log('🔐 Force logout on app startup - clearing all authentication data');
     localStorage.removeItem('token')
     delete axios.defaults.headers.common['Authorization']
     setUser(null)

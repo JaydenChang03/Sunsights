@@ -481,16 +481,10 @@ def get_summary():
     # Load the user's data
     user_data = load_data(user_id)
     
-    # Debug logging for analytics summary
-    logging.info(f"=== ANALYTICS SUMMARY DEBUG ===")
-    logging.info(f"User ID: {user_id}")
-    logging.info(f"Raw averageSentiment from data: {user_data.get('averageSentiment', 75)}")
-    logging.info(f"totalAnalyses: {user_data.get('totalAnalyses', 0)}")
-    logging.info(f"isNewAccount: {user_data.get('isNewAccount', False)}")
+
     
     # Check if this is a new account with no analyses
     if user_data.get('isNewAccount', False) and user_data.get('totalAnalyses', 0) == 0:
-        logging.info("Returning empty data for new account")
         return jsonify({
             'totalAnalyses': 0,
             'averageSentiment': 0,
@@ -501,7 +495,6 @@ def get_summary():
     
     # Get the average sentiment value
     avg_sentiment = user_data.get('averageSentiment', 75)
-    logging.info(f"Final averageSentiment being sent: {avg_sentiment}")
     
     # Otherwise, return the actual data INCLUDING lastAnalysisTime
     result = {
@@ -512,7 +505,6 @@ def get_summary():
         'lastAnalysisTime': user_data.get('lastAnalysisTime')
     }
     
-    logging.info(f"Analytics summary result: {result}")
     return jsonify(result)
 
 @analytics.route('/analyze', methods=['POST'])
@@ -585,23 +577,13 @@ def analyze_single():
         old_avg = analytics_data.get('averageSentiment', 75)
         total_analyses = analytics_data.get('totalAnalyses', 1)
         
-        # Debug logging for sentiment calculation
-        logging.info(f"=== SENTIMENT CALCULATION DEBUG ===")
-        logging.info(f"New sentiment_score from analysis: {sentiment_score}% (already percentage)")
-        logging.info(f"Old average: {old_avg}")
-        logging.info(f"Total analyses: {total_analyses}")
-        
         # Weighted average with more weight to current score for newer accounts
         if total_analyses <= 5:
             # For new accounts, give more weight to recent analyses
             analytics_data['averageSentiment'] = (old_avg * 0.7) + (sentiment_score * 0.3)
-            logging.info(f"New account calculation: ({old_avg} * 0.7) + ({sentiment_score} * 0.3) = {analytics_data['averageSentiment']}")
         else:
             # For established accounts, use regular average
             analytics_data['averageSentiment'] = (old_avg * (total_analyses - 1) + sentiment_score) / total_analyses
-            logging.info(f"Regular calculation: ({old_avg} * {total_analyses - 1} + {sentiment_score}) / {total_analyses} = {analytics_data['averageSentiment']}")
-        
-        logging.info(f"Final averageSentiment stored: {analytics_data['averageSentiment']}")
         
         # Save updated data
         save_data(analytics_data, user_id)

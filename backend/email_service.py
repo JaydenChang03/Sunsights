@@ -38,13 +38,7 @@ class EmailService:
         logger.info(f"   Password Set: {'✓' if self.smtp_password else '✗'}")
         logger.info(f"   🎯 Service Mode: {'PRODUCTION (will send emails)' if self.is_configured() else 'DEVELOPMENT (console only)'}")
         
-        # DETAILED DEBUG: Show exact environment variable values
-        logger.info(f"🔍 DETAILED ENVIRONMENT VARIABLES DEBUG:")
-        logger.info(f"   SMTP_USERNAME value: '{self.smtp_username}' (length: {len(self.smtp_username)})")
-        logger.info(f"   SMTP_PASSWORD value: '{'*' * len(self.smtp_password)}' (length: {len(self.smtp_password)})")
-        logger.info(f"   is_configured() result: {self.is_configured()}")
-        logger.info(f"   bool(smtp_username): {bool(self.smtp_username)}")
-        logger.info(f"   bool(smtp_password): {bool(self.smtp_password)}")
+
         
     def is_configured(self):
         """Check if email service is properly configured"""
@@ -58,11 +52,7 @@ class EmailService:
         logger.info(f"   🔑 Token Length: {len(reset_token) if reset_token else 0}")
         logger.info(f"   ⚙️ Service Configured: {self.is_configured()}")
         
-        # FORCE LOG EMAIL SERVICE CONFIGURATION STATUS
-        logger.info(f"🔍 FORCING EMAIL SERVICE DEBUG:")
-        logger.info(f"   SMTP_USERNAME: '{self.smtp_username}' (len: {len(self.smtp_username)})")
-        logger.info(f"   SMTP_PASSWORD: '{'*' * len(self.smtp_password)}' (len: {len(self.smtp_password)})")
-        logger.info(f"   FROM_EMAIL: '{self.from_email}'")
+
         logger.info(f"   FROM_NAME: '{self.from_name}'")
         logger.info(f"   is_configured(): {self.is_configured()}")
         
