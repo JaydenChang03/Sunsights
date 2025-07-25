@@ -1,269 +1,190 @@
-# Sunsights: AI-Powered Customer Feedback Analysis Platform
+# Sunsights - Emotion and Sentiment Analysis Platform
 
-Sunsights is a full-stack web application that revolutionizes customer service operations through AI-powered sentiment analysis. It helps customer service teams automatically analyze, prioritize, and respond to customer feedback with precision and speed.
+Sunsights is a full-stack web application that helps teams understand emotions and sentiment in text data. Whether you have one comment or thousands, Sunsights gives you instant insights into what people are really feeling.
 
-## 🚀 Overview
+## What it does
 
-In today's high-volume customer service environment, manually processing feedback is inefficient and prone to human error. Sunsights solves this by providing automated text analysis that detects emotions, sentiment, and priority levels from customer communications, enabling teams to respond faster and more effectively.
+This app takes any text - customer feedback, social media posts, survey responses, etc - and tells you the emotional tone behind it. It goes beyond just "positive" or "negative" to detect specific emotions like joy, anger, sadness, fear, surprise, and love. Plus it automatically figures out which items need urgent attention.
 
-### Key Problems Solved
-- **Manual Triage Bottlenecks**: Automatically prioritize urgent customer issues
-- **Emotional Context Loss**: AI detection of customer emotions beyond just positive/negative
-- **Response Consistency**: Generate contextual response suggestions
-- **Trend Blindness**: Visual analytics to spot patterns in customer sentiment over time
+## Key features
 
-## ✨ Core Features
+### Single text analysis
+- Paste any text and get instant results
+- See sentiment (positive/negative/neutral) with confidence scores  
+- Detect specific emotions with detailed breakdowns
+- Get priority level (high/medium/low) for action planning
+- Built-in response suggestions to help craft better replies
 
-### 🔍 Single Text Analysis
-- **Real-time Analysis**: Paste any customer message for instant sentiment and emotion detection
-- **Multi-dimensional Insights**: Get sentiment polarity, specific emotions (joy, anger, sadness, fear, surprise, love), and priority levels
-- **Smart Response Suggestions**: Receive contextually appropriate response templates
-- **Priority Classification**: Automatic categorization into High, Medium, or Low priority
+### Bulk file processing
+- Upload CSV, Excel, or text files with multiple entries
+- Process hundreds or thousands of items at once
+- Get comprehensive summaries and breakdowns
+- Export results for further analysis
+- Smart column detection finds text data automatically
 
-### 📊 Bulk Data Processing
-- **File Upload Support**: Process CSV, XLS, and XLSX files containing multiple customer comments
-- **Scalable Analysis**: Handle hundreds of customer feedback entries simultaneously
-- **Batch Insights**: Comprehensive summary with sentiment distribution and priority breakdown
-- **Export Ready**: Results formatted for easy integration into existing workflows
+### Analytics dashboard
+- Visual charts showing sentiment trends over time
+- Emotion distribution breakdowns
+- Priority level analytics
+- Activity timeline of all your analyses
+- Filter by date ranges and drill down into details
 
-### 📈 Advanced Analytics Dashboard
-- **Sentiment Trends**: Time-series visualization of positive/negative sentiment patterns
-- **Emotion Distribution**: Pie charts showing the emotional makeup of customer feedback
-- **Priority Analytics**: Bar charts displaying urgent vs. routine case distribution
-- **Activity Timeline**: Chronological feed of all analysis activities
-- **Filtering & Drilldown**: Interactive charts with date range filtering and detailed breakdowns
+### User system
+- Secure login and registration
+- Personal profile with avatar upload
+- Built-in notes system for tracking insights
+- Complete history of all your analyses
+- Personal dashboard with your stats
 
-### 👤 User Management System
-- **Secure Authentication**: JWT-based login with password validation
-- **Personal Profiles**: Customizable user profiles with avatar support
-- **Analysis History**: Complete record of all user analyses and activities
-- **Personal Notes**: Built-in notepad for tracking insights and action items
-- **Password Recovery**: Secure password reset functionality
+## Tech stack
 
-## 🛠 Technology Stack
+### Frontend
+- React 18 with modern hooks and functional components
+- Vite for fast development and optimized builds
+- Tailwind CSS for responsive design
+- Chart.js for interactive data visualization
+- React Router for navigation
+- Axios for API communication
+- React Hot Toast for notifications
 
-### Frontend Architecture
-- **Framework**: React 18.2.0 with modern hooks and functional components
-- **Build Tool**: Vite for lightning-fast development and optimized production builds
-- **Styling**: Tailwind CSS for responsive, utility-first design
-- **Charts**: Chart.js with React wrapper for interactive data visualization
-- **Animations**: Framer Motion for smooth, professional transitions
-- **Routing**: React Router DOM for seamless single-page application navigation
-- **HTTP Client**: Axios with pre-configured interceptors and error handling
-- **Notifications**: React Hot Toast for user-friendly alerts and confirmations
+### Backend
+- Flask with blueprint architecture for organization
+- JWT authentication for secure user sessions
+- SQLite database with optimized connection handling
+- Hugging Face Transformers for AI models
+- Rate limiting and CORS protection
+- Pandas for file processing
+- Comprehensive error handling and logging
 
-### Backend Infrastructure
-- **Framework**: Flask with modular blueprint architecture
-- **Authentication**: Flask-JWT-Extended for secure token-based auth
-- **Database**: SQLite with optimized schema and connection pooling
-- **AI Models**: 
-  - DistilBERT for sentiment analysis (Hugging Face Transformers)
-  - Emotion classification with fine-tuned models
-- **Security**: CORS protection, rate limiting, input validation
-- **File Processing**: Pandas integration for Excel/CSV parsing
-- **Logging**: Comprehensive error tracking and performance monitoring
+### AI models
+- DistilBERT for sentiment analysis (fine-tuned on SST-2)
+- Emotion classification model for 6 core emotions
+- Priority scoring algorithms combining sentiment and emotion data
+- Response suggestion system with contextual templates
 
-### AI & Machine Learning
-- **Sentiment Analysis**: DistilBERT base model fine-tuned on SST-2 dataset
-- **Emotion Detection**: Custom emotion classifier for 6 core emotions plus neutral
-- **Priority Algorithms**: Rule-based system combining sentiment scores and emotion intensity
-- **Response Generation**: Template-based system with contextual awareness
-- **Batch Processing**: Optimized pipeline for handling large datasets
+## Getting started
 
-## 📋 Prerequisites
+### What you need
+- Python 3.8 or newer
+- Node.js 16 or newer
+- Git for cloning the repo
 
-- **Python**: 3.8 or higher
-- **Node.js**: 16.0 or higher
-- **npm**: 8.0 or higher
-- **Git**: For version control
+### Installation
 
-## 🚀 Installation & Setup
-
-### 1. Clone the Repository
+1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone <your-repo-url>
 cd Sunsights
 ```
 
-### 2. Backend Setup
+2. Set up the backend
 ```bash
-# Navigate to backend directory
 cd backend
 
-# Install Python dependencies
+# Install Python packages
 pip install -r ../requirements.txt
 
-# Initialize the database
+# Set up the database
 python init_db.py
-
-# Verify installation
-python app.py
 ```
 
-### 3. Frontend Setup
+3. Set up the frontend
 ```bash
-# Navigate to frontend directory
 cd frontend
 
-# Install Node.js dependencies
+# Install Node packages
 npm install
+```
 
-# Start development server
+4. Start everything up
+```bash
+# Terminal 1: Start the backend (from backend folder)
+cd backend
+npm run start
+
+# Terminal 2: Start the frontend (from frontend folder) 
+cd frontend
 npm run dev
 ```
 
-### 4. Start the Application
-```bash
-# Terminal 1: Start backend server
-python run.py
+The app will be running at:
+- Frontend: http://localhost:3001
+- Backend API: http://localhost:5000
 
-# Terminal 2: Start frontend development server (in frontend/)
-npm run dev
-```
+## Available commands
 
-Access the application:
-- **Frontend**: http://localhost:3001
-- **Backend API**: http://localhost:5000
+### Frontend
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Check code quality
 
-## 🔧 Available Scripts
+### Backend  
+- `npm run start` - Start the server
+- `npm run dev` - Start with auto-reload
+- `python init_db.py` - Reset the database
 
-### Frontend Scripts
-```bash
-npm run dev          # Start development server with hot reload
-npm run build        # Build optimized production bundle
-npm run preview      # Preview production build locally
-npm run lint         # Run ESLint for code quality checks
-```
+## API endpoints
 
-### Backend Scripts
-```bash
-python run.py        # Start development server
-python init_db.py    # Initialize/reset database
-python view_db.py    # View database contents (debugging)
-```
+### Authentication
+- `POST /api/auth/register` - Create new account
+- `POST /api/auth/login` - Sign in
+- `GET /api/auth/user` - Get current user info
+- `GET /api/auth/profile` - Get user profile
+- `PUT /api/auth/profile` - Update profile
+- `POST /api/auth/upload-avatar` - Upload profile picture
 
-## 🌐 API Documentation
+### Analytics
+- `POST /api/analytics/analyze` - Analyze single text
+- `POST /api/analytics/analyze-bulk` - Upload and analyze files
+- `POST /api/analytics/analyze/process` - Process uploaded files
+- `GET /api/analytics/summary` - Get dashboard summary
+- `GET /api/analytics/sentiment` - Get sentiment trend data
+- `GET /api/analytics/emotions` - Get emotion distribution
+- `GET /api/analytics/priority` - Get priority breakdowns
+- `GET /api/analytics/activity` - Get analysis history
 
-### Authentication Endpoints
+### Notes
+- `GET /api/notes` - Get all user notes
+- `POST /api/notes` - Create new note
+- `PUT /api/notes/:id` - Update existing note
+- `DELETE /api/notes/:id` - Delete note
 
-POST /api/auth/register
-POST /api/auth/login
-GET /api/auth/user
-POST /api/auth/forgot-password
-POST /api/auth/reset-password
+### Profile (legacy endpoints)
+- `GET /api/profile` - Get profile data
+- `PUT /api/profile` - Update profile
 
-### Analytics Endpoints
-POST /api/analytics/analyze # Single text analysis
-POST /api/analytics/analyze-bulk # Bulk file upload analysis
-GET /api/analytics/sentiment # Sentiment trend data
-GET /api/analytics/emotions # Emotion distribution data
-GET /api/analytics/priority # Priority breakdown data
-GET /api/analytics/activity # User activity timeline
-GET /api/analytics/summary # Dashboard summary statistics
+## Database structure
 
-### User Management Endpoints
-GET /api/profile # Get user profile
-PUT /api/profile # Update user profile
-GET /api/notes # Get user notes
-POST /api/notes # Create new note
-PUT /api/notes/:id # Update existing note
-DELETE /api/notes/:id # Delete note
+The app uses SQLite with these main tables:
 
-### Example API Usage
-
-#### Single Text Analysis
-```javascript
-POST /api/analytics/analyze
-Content-Type: application/json
-Authorization: Bearer <jwt_token>
-
-{
-  "text": "I'm extremely disappointed with the delayed delivery and poor customer service."
-}
-
-Response:
-{
-  "result": {
-    "sentiment": "NEGATIVE",
-    "sentiment_score": 0.15,
-    "emotion": "anger", 
-    "priority": "High",
-    "response_suggestions": [
-      "We're sorry to hear about your experience...",
-      "We understand your frustration and would like to resolve this issue...",
-      "Please let us know what we can do to address your concerns."
-    ]
-  }
-}
-```
-
-#### Bulk File Analysis
-```javascript
-POST /api/analytics/analyze-bulk
-Content-Type: multipart/form-data
-Authorization: Bearer <jwt_token>
-
-FormData: file=<csv/xlsx file>
-
-Response:
-{
-  "totalAnalyzed": 150,
-  "results": [...],
-  "summary": {
-    "sentimentDistribution": {"Positive": 45, "Negative": 30, "Neutral": 75},
-    "priorityDistribution": {"High": 15, "Medium": 60, "Low": 75},
-    "averageSentiment": 62.5
-  }
-}
-```
-
-## 📁 Project Structure
-Sunsights/
-├── frontend/ # React application
-│ ├── src/
-│ │ ├── components/ # Reusable UI components
-│ │ │ ├── analytics/ # Analytics-specific components
-│ │ │ ├── Auth.jsx # Authentication forms
-│ │ │ ├── Dashboard.jsx # Main dashboard
-│ │ │ ├── Analytics.jsx # Analytics visualizations
-│ │ │ ├── BulkAnalysis.jsx # Bulk upload interface
-│ │ │ ├── SingleAnalysis.jsx # Single text analysis
-│ │ │ ├── Profile.jsx # User profile management
-│ │ │ └── Navbar.jsx # Navigation component
-│ │ ├── hooks/ # Custom React hooks
-│ │ ├── config/ # Configuration files
-│ │ └── assets/ # Static assets
-│ ├── public/ # Public assets
-│ └── package.json # Dependencies and scripts
-├── backend/ # Flask application
-│ ├── routes/ # API route definitions
-│ │ ├── analytics.py # Analytics endpoints
-│ │ ├── auth.py # Authentication endpoints
-│ │ ├── profile.py # Profile management
-│ │ └── notes.py # Notes CRUD operations
-│ ├── data/ # User analytics data storage
-│ ├── uploads/ # Temporary file storage
-│ ├── app.py # Main Flask application
-│ ├── init_db.py # Database initialization
-│ └── database.db # SQLite database
-├── requirements.txt # Python dependencies
-└── run.py # Application entry point
-
-## 💾 Database Schema
-
-### Users Table
+### Users table
 ```sql
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     name TEXT,
+    bio TEXT,
+    avatar TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     reset_token TEXT
 );
 ```
 
-### Profiles Table
+### Notes table  
+```sql
+CREATE TABLE notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT,
+    FOREIGN KEY (user_id) REFERENCES users (id)
+);
+```
+
+### Profiles table (legacy)
 ```sql
 CREATE TABLE profiles (
     user_id INTEGER PRIMARY KEY,
@@ -279,104 +200,77 @@ CREATE TABLE profiles (
 );
 ```
 
-### Notes Table
-```sql
-CREATE TABLE notes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    content TEXT NOT NULL,
-    created_at TEXT NOT NULL,
-    updated_at TEXT,
-    FOREIGN KEY (user_id) REFERENCES users (id)
-);
+
+## Example usage
+
+### Single text analysis
+```javascript
+// Send text for analysis
+POST /api/analytics/analyze
+{
+  "text": "I absolutely love this new feature! It makes everything so much easier."
+}
+
+// Get back detailed results
+{
+  "result": {
+    "sentiment": "POSITIVE",
+    "sentiment_score": 0.89,
+    "emotion": "joy",
+    "priority": "Low",
+    "response_suggestions": [
+      "Thank you for the positive feedback!",
+      "We're so glad you're enjoying the new feature!",
+      "Your enthusiasm means a lot to our team!"
+    ]
+  }
+}
 ```
 
-## 🔐 Security Features
+### Bulk file analysis
+Just upload a CSV or Excel file with text data, and the app will automatically:
+- Detect which columns contain text to analyze
+- Process all entries in batches
+- Generate summary statistics
+- Provide downloadable results
 
-- **JWT Authentication**: Secure token-based authentication with 30-day expiration
-- **Password Security**: Enforced complexity requirements and secure hashing
-- **Rate Limiting**: API protection against abuse (1000/day, 300/hour per IP)
-- **CORS Protection**: Configured for specific origins only
-- **Input Validation**: Comprehensive sanitization of user inputs
-- **SQL Injection Prevention**: Parameterized queries throughout
-- **File Upload Security**: Type validation and size limits for uploads
+## Security features
 
-## 🎯 Usage Examples
+- JWT token authentication with 30-day expiration
+- Password hashing with werkzeug security
+- Rate limiting (1000 requests per day, 300 per hour)
+- CORS protection for specific origins only
+- Input validation and sanitization
+- SQL injection prevention with parameterized queries
+- File upload type and size restrictions
 
-### Customer Service Team Workflow
-1. **Morning Triage**: Upload overnight customer emails via bulk analysis
-2. **Priority Queue**: Sort results by priority to handle urgent issues first
-3. **Response Drafting**: Use AI-generated suggestions as response templates
-4. **Trend Monitoring**: Check dashboard for emerging sentiment patterns
-5. **Team Notes**: Document insights and action items in personal notes
+## Common issues and fixes
 
-### Supported File Formats
-- **CSV**: Comma-separated values with header row
-- **Excel**: .xlsx and .xls formats
-- **Column Detection**: Automatic identification of text columns (comment, feedback, review, etc.)
-
-## 🚀 Deployment
-
-### Environment Variables
-```bash
-# Backend (.env)
-SECRET_KEY=your-production-secret-key
-JWT_SECRET_KEY=your-jwt-secret-key
-DATABASE_URL=sqlite:///database.db
-FLASK_ENV=production
-
-# Frontend
-VITE_API_URL=https://your-api-domain.com
-```
-
-### Production Build
-```bash
-# Frontend production build
-cd frontend
-npm run build
-
-# Backend production setup
-pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 run:app
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-**Backend won't start:**
-- Ensure Python 3.8+ is installed
-- Run `pip install -r requirements.txt`
-- Check if port 5000 is available
+**Backend wont start:**
+- Make sure Python 3.8+ is installed
+- Run `pip install -r requirements.txt` to install dependencies
+- Check that port 5000 is available
 
 **Frontend connection errors:**
-- Verify backend is running on port 5000
-- Check CORS settings in app.py
-- Ensure frontend is accessing correct API URL
+- Verify the backend is running on port 5000
+- Check browser console for CORS errors
+- Make sure both servers are running
 
 **Database errors:**
-- Run `python init_db.py` to reset database
-- Check file permissions in backend directory
-- Verify SQLite is properly installed
+- Run `python init_db.py` to reset the database
+- Check file permissions in the backend directory
+- Make sure SQLite is working properly
 
-**AI Model loading issues:**
-- Ensure stable internet connection for initial model download
-- Check available disk space (models are ~500MB)
-- Verify PyTorch installation compatibility
+**AI model issues:**
+- First run downloads models from Hugging Face (needs internet)
+- Models are about 500MB total - make sure you have space
+- Check that PyTorch installed correctly
 
-### Performance Optimization
-- For large bulk uploads (>1000 rows), consider processing in batches
-- Monitor memory usage during AI model inference
-- Use production database (PostgreSQL) for better concurrent access
+## Performance tips
+
+- For large files (1000+ rows), the app processes in batches automatically
+- Monitor memory usage during AI analysis
+- Consider using a proper database like PostgreSQL for production
+- The app works best with text entries between 10-500 words each
+
+
