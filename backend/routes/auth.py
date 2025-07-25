@@ -7,20 +7,10 @@ import datetime
 import re
 import logging
 import os
-import sys
-
-# Add parent directory to path to import email_service
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from email_service import email_service
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-# Log email service status after logger is configured
-logger.info(f"📧 EMAIL SERVICE IMPORT STATUS:")
-logger.info(f"   🔧 Service Configured: {email_service.is_configured()}")
-logger.info(f"   📍 Working Directory: {os.getcwd()}")
 
 
 

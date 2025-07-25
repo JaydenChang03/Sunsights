@@ -2,11 +2,11 @@ import sqlite3
 
 def initialize_database():
     try:
-        # Connect to database (this will create it if it doesn't exist)
+        # Connect to the database - SQLite will create it if it's not there yet
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         
-        # Create users table
+        # Set up the main users table with all the fields we need
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,24 +20,25 @@ def initialize_database():
             )
         ''')
         
-        # Add bio and avatar columns if they don't exist (for existing databases)
+        # These next parts handle adding new columns to existing databases
+        # so we don't break anything if someone already has data
         try:
             cursor.execute('ALTER TABLE users ADD COLUMN bio TEXT')
             print("Added bio column to users table")
         except sqlite3.OperationalError:
-            pass  # Column already exists
+            pass  # already there, no worries
             
         try:
             cursor.execute('ALTER TABLE users ADD COLUMN avatar TEXT')
             print("Added avatar column to users table")
         except sqlite3.OperationalError:
-            pass  # Column already exists
+            pass  # already there too
         
         conn.commit()
-        print("Database initialized successfully!")
+        print("Database is ready to go!")
         
     except Exception as e:
-        print(f"Error initializing database: {e}")
+        print(f"Hmm, something went wrong setting up the database: {e}")
     finally:
         conn.close()
 
