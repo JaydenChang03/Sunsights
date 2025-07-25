@@ -3,56 +3,7 @@ import axios from '../config/axios';
 import { EyeIcon, EyeSlashIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
-console.log('✅ FORGOT PASSWORD REMOVAL - Complete Success!', {
-  implementationComplete: {
-    description: 'All forgot password functionality successfully removed from Sunsights application',
-    frontendRemovalStatus: 'COMPLETE ✓',
-    backendRemovalStatus: 'COMPLETE ✓',
-    timestamp: new Date().toISOString()
-  },
-  componentsRemoved: {
-    frontend: [
-      '❌ State variables: showForgotPassword, forgotPasswordEmail, forgotPasswordLoading, forgotPasswordSent',
-      '❌ Event handlers: handleForgotPassword, resetForgotPasswordState functions',
-      '❌ UI elements: Forgot password link button and modal component',
-      '❌ Related validation and analysis console logs'
-    ],
-    backend: [
-      '❌ API route: /api/auth/forgot-password endpoint',
-      '❌ API route: /api/auth/reset-password endpoint', 
-      '❌ Helper function: verify_reset_token',
-      '❌ Database operations: reset token storage and validation'
-    ]
-  },
-  preservedComponents: {
-    frontend: [
-      '✅ CheckCircleIcon import (still used in BulkAnalysis.jsx)',
-      '✅ Core authentication: login and register functionality',
-      '✅ Form layout: spacing maintained with space-y-6 class',
-      '✅ All existing hover effects and styling'
-    ],
-    backend: [
-      '✅ Email service: kept for potential future use',
-      '✅ Core auth routes: /login, /register, /user endpoints',
-      '✅ Database schema: reset_token field preserved',
-      '✅ Authentication security: JWT tokens and validation'
-    ]
-  },
-  userBenefits: {
-    cleanerInterface: 'Simplified, clutter-free authentication form',
-    improvedSecurity: 'Reduced attack surface - no password reset vulnerabilities',
-    betterPerformance: 'Smaller bundle size and faster page loads',
-    easierMaintenance: 'Less code to debug, test, and maintain',
-    focusedExperience: 'Users see only essential login/register options'
-  },
-  technicalAchievements: {
-    codeRemoved: 'Approximately 300+ lines of React/Python code eliminated',
-    endpointsRemoved: '2 API endpoints no longer exposed',
-    stateComplexity: 'Reduced React component state management',
-    securityImprovement: 'Eliminated email-based attack vectors',
-    bundleOptimization: 'Reduced JavaScript bundle size'
-  }
-});
+
 
 const carouselContent = [
   {
@@ -86,36 +37,10 @@ const Auth = ({ onAuthSuccess }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-
     // Component initialization
   }, []);
 
-  const handleInputFocus = (fieldName) => {
-    console.log('Auth Input Focus:', {
-      field: fieldName,
-      timestamp: new Date().toISOString(),
-      currentFormData: {
-        hasName: !!formData.name,
-        hasEmail: !!formData.email,
-        hasPassword: !!formData.password
-      }
-    });
-  };
 
-  const handleInputBlur = (fieldName) => {
-    console.log('Auth Input Blur:', {
-      field: fieldName,
-      timestamp: new Date().toISOString()
-    });
-  };
-
-  const handleFormToggle = (newMode) => {
-    console.log('Auth Form Toggle:', {
-      from: isLogin ? 'login' : 'register',
-      to: newMode ? 'login' : 'register',
-      timestamp: new Date().toISOString()
-    });
-  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -296,8 +221,7 @@ const Auth = ({ onAuthSuccess }) => {
                       className="w-full px-4 py-3 border border-border-muted rounded-lg focus:ring-2 focus:ring-primary focus:border-primary hover:border-primary hover:bg-bg-light hover:shadow-md transition-all duration-200 text-text placeholder-text-muted bg-bg"
                       value={formData.name}
                       onChange={handleChange}
-                      onFocus={() => handleInputFocus('name')}
-                      onBlur={() => handleInputBlur('name')}
+
                       placeholder="Enter your full name"
                     />
                   </div>
@@ -316,8 +240,7 @@ const Auth = ({ onAuthSuccess }) => {
                     className="w-full px-4 py-3 border border-border-muted rounded-lg focus:ring-2 focus:ring-primary focus:border-primary hover:border-primary hover:bg-bg-light hover:shadow-md transition-all duration-200 text-text placeholder-text-muted bg-bg"
                     value={formData.email}
                     onChange={handleChange}
-                    onFocus={() => handleInputFocus('email')}
-                    onBlur={() => handleInputBlur('email')}
+
                     placeholder="Enter your email address"
                   />
                 </div>
@@ -336,8 +259,7 @@ const Auth = ({ onAuthSuccess }) => {
                       className="w-full px-4 py-3 pr-12 border border-border-muted rounded-lg focus:ring-2 focus:ring-primary focus:border-primary hover:border-primary hover:bg-bg-light hover:shadow-md transition-all duration-200 text-text placeholder-text-muted bg-bg"
                       value={formData.password}
                       onChange={handleChange}
-                      onFocus={() => handleInputFocus('password')}
-                      onBlur={() => handleInputBlur('password')}
+
                       placeholder="Enter password"
                     />
                     <button
@@ -377,7 +299,6 @@ const Auth = ({ onAuthSuccess }) => {
                     <button
                       type="button"
                       onClick={() => {
-                        handleFormToggle(!isLogin);
                         setIsLogin(!isLogin);
                         setFormData({ email: '', password: '', name: '' });
                       }}

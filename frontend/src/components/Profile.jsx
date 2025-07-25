@@ -29,61 +29,16 @@ export default function Profile() {
   useEffect(() => {
     fetchProfile();
     fetchNotes();
-    testProfileEndpoints();
   }, []);
-
-  const testProfileEndpoints = async () => {
-    console.log('Profile: Testing API endpoints...');
-    
-    // Test auth profile endpoint
-    try {
-      console.log('Profile: Testing /api/auth/profile endpoint...');
-      const response = await axios.get('/api/auth/profile');
-      console.log('Profile: /api/auth/profile SUCCESS:', response.status, response.data);
-    } catch (error) {
-      console.error('Profile: /api/auth/profile FAILED:', error.response?.status, error.response?.data);
-    }
-    
-    // Test notes endpoint
-    try {
-      console.log('Profile: Testing /api/notes endpoint...');
-      const response = await axios.get('/api/notes');
-      console.log('Profile: /api/notes SUCCESS:', response.status, response.data);
-    } catch (error) {
-      console.error('Profile: /api/notes FAILED:', error.response?.status, error.response?.data);
-    }
-    
-    // Test auth user endpoint
-    try {
-      console.log('Profile: Testing /api/auth/user endpoint...');
-      const response = await axios.get('/api/auth/user');
-      console.log('Profile: /api/auth/user SUCCESS:', response.status, response.data);
-    } catch (error) {
-      console.error('Profile: /api/auth/user FAILED:', error.response?.status, error.response?.data);
-    }
-  };
 
   const fetchProfile = async () => {
     try {
-      console.log('Profile: Attempting to fetch profile from /api/auth/profile');
       const response = await axios.get('/api/auth/profile');
-      console.log('Profile: Successfully fetched profile:', response.data);
-      console.log('Profile: Profile response status:', response.status);
-      console.log('Profile: Avatar URL from fetch:', response.data.avatar);
-      console.log('Profile: Avatar state analysis:', {
-        hasAvatar: !!response.data.avatar,
-        avatarValue: response.data.avatar,
-        isEmptyString: response.data.avatar === '',
-        isNull: response.data.avatar === null,
-        isUndefined: response.data.avatar === undefined,
-        shouldShowPlaceholder: !response.data.avatar
-      });
       
       // Convert relative avatar URL to absolute
       const profileData = { ...response.data };
       if (profileData.avatar && !profileData.avatar.startsWith('http')) {
         profileData.avatar = `http://localhost:5000${profileData.avatar}`;
-        console.log('Profile: Converted avatar URL to:', profileData.avatar);
       }
       
       setUser(profileData);
@@ -93,10 +48,7 @@ export default function Profile() {
         bio: response.data.bio || ''
       });
     } catch (error) {
-      console.error('Profile: Error fetching profile:', error);
-      console.error('Profile: Error response:', error.response?.data);
-      console.error('Profile: Error status:', error.response?.status);
-      console.error('Profile: Error message:', error.message);
+      console.error('Error fetching profile:', error);
       toast.error('Failed to load profile');
     } finally {
       setLoading(false);
@@ -106,16 +58,10 @@ export default function Profile() {
   const fetchNotes = async () => {
     setLoadingNotes(true);
     try {
-      console.log('Profile: Attempting to fetch notes from /api/notes');
       const response = await axios.get('/api/notes');
-      console.log('Profile: Successfully fetched notes:', response.data);
-      console.log('Profile: Notes response status:', response.status);
       setNotes(response.data || []);
     } catch (error) {
-      console.error('Profile: Error fetching notes:', error);
-      console.error('Profile: Error response:', error.response?.data);
-      console.error('Profile: Error status:', error.response?.status);
-      console.error('Profile: Error message:', error.message);
+      console.error('Error fetching notes:', error);
       toast.error('Failed to load notes');
     } finally {
       setLoadingNotes(false);
@@ -124,38 +70,20 @@ export default function Profile() {
 
   const handleSave = async () => {
     try {
-      console.log('Profile: Attempting to save profile to /api/auth/profile');
-      console.log('Profile: Form data being sent:', formData);
-      console.log('Profile: Current user state before save:', user);
-      
       const response = await axios.put('/api/auth/profile', formData);
-      console.log('Profile: Successfully saved profile:', response.data);
-      console.log('Profile: Save response status:', response.status);
-      console.log('Profile: Response data structure:', {
-        hasUser: !!response.data.user,
-        userKeys: response.data.user ? Object.keys(response.data.user) : [],
-        fullResponse: response.data
-      });
       
       if (response.data.user) {
-        console.log('Profile: Updating user state with:', response.data.user);
         setUser(prev => ({
           ...prev,
           ...response.data.user,
           avatar: prev.avatar // Keep existing avatar URL
         }));
-      } else {
-        console.log('Profile: No user data in response, keeping current user state');
       }
       
       setEditing(false);
       toast.success('Profile updated successfully');
     } catch (error) {
-      console.error('Profile: Error updating profile:', error);
-      console.error('Profile: Error response:', error.response?.data);
-      console.error('Profile: Error status:', error.response?.status);
-      console.error('Profile: Error message:', error.message);
-      console.error('Profile: Full error object:', error);
+      console.error('Error updating profile:', error);
       toast.error('Failed to update profile');
     }
   };
@@ -171,21 +99,12 @@ export default function Profile() {
 
   const handleAvatarUpload = async (event) => {
     const file = event.target.files[0];
-    console.log('Profile: Avatar upload started, file:', file);
     
     if (!file) {
-      console.log('Profile: No file selected for avatar upload');
       return;
     }
 
-    console.log('Profile: File details:', {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    });
-
     if (file.size > 5 * 1024 * 1024) {
-      console.log('Profile: File too large:', file.size);
       toast.error('File size must be less than 5MB');
       return;
     }
@@ -193,8 +112,6 @@ export default function Profile() {
     setUploading(true);
     const formData = new FormData();
     formData.append('avatar', file);
-    
-    console.log('Profile: FormData created, making request to /api/auth/upload-avatar');
 
     try {
       const response = await axios.post('/api/auth/upload-avatar', formData, {
@@ -202,22 +119,16 @@ export default function Profile() {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log('Profile: Avatar upload successful:', response.data);
-      console.log('Profile: Avatar URL from response:', response.data.avatar);
-      console.log('Profile: Full avatar URL will be:', `http://localhost:5000${response.data.avatar}`);
       
       // Update user state with full avatar URL
       const fullAvatarUrl = response.data.avatar.startsWith('http') 
         ? response.data.avatar 
         : `http://localhost:5000${response.data.avatar}`;
       
-      console.log('Profile: Setting avatar URL to:', fullAvatarUrl);
       setUser(prev => ({ ...prev, avatar: fullAvatarUrl }));
       toast.success('Avatar updated successfully');
     } catch (error) {
-      console.error('Profile: Avatar upload error:', error);
-      console.error('Profile: Avatar upload error response:', error.response?.data);
-      console.error('Profile: Avatar upload error status:', error.response?.status);
+      console.error('Avatar upload error:', error);
       toast.error('Failed to upload avatar');
     } finally {
       setUploading(false);
@@ -225,55 +136,27 @@ export default function Profile() {
   };
 
   const handleAddNote = async () => {
-    console.log('Profile: Adding note, content:', newNote);
-    
     if (!newNote.trim()) {
-      console.log('Profile: Note content is empty');
       toast.error('Please enter a note');
       return;
     }
 
     setAddingNote(true);
-    console.log('Profile: Making request to /api/notes with content:', newNote);
     
     try {
       const response = await axios.post('/api/notes', {
         content: newNote
       });
-      console.log('Profile: Note added successfully:', response.data);
-      console.log('Profile: Response status:', response.status);
-      console.log('Profile: Response structure:', {
-        hasId: 'id' in response.data,
-        hasContent: 'content' in response.data,
-        hasCreatedAt: 'createdAt' in response.data,
-        responseKeys: Object.keys(response.data),
-        actualResponse: response.data
-      });
       
-      // Simplified validation - just check if we have data
       if (response.data && response.status === 200) {
-        console.log('Profile: Response is valid, adding to notes list');
-        console.log('Profile: Current notes length before:', notes.length);
-        setNotes(prev => {
-          const newNotes = [response.data, ...prev];
-          console.log('Profile: New notes length after:', newNotes.length);
-          return newNotes;
-        });
+        setNotes(prev => [response.data, ...prev]);
         setNewNote('');
-        console.log('Profile: Showing success toast');
         toast.success('Note added successfully');
       } else {
-        console.error('Profile: Response validation failed:', {
-          hasData: !!response.data,
-          status: response.status,
-          data: response.data
-        });
         toast.error('Note was saved but response format is unexpected');
       }
     } catch (error) {
-      console.error('Profile: Error adding note:', error);
-      console.error('Profile: Note error response:', error.response?.data);
-      console.error('Profile: Note error status:', error.response?.status);
+      console.error('Error adding note:', error);
       toast.error('Failed to add note');
     } finally {
       setAddingNote(false);
@@ -281,17 +164,12 @@ export default function Profile() {
   };
 
   const handleDeleteNote = async (noteId) => {
-    console.log('Profile: Deleting note with ID:', noteId);
-    
     try {
       await axios.delete(`/api/notes/${noteId}`);
-      console.log('Profile: Note deleted successfully');
       setNotes(prev => prev.filter(note => note.id !== noteId));
       toast.success('Note deleted successfully');
     } catch (error) {
-      console.error('Profile: Error deleting note:', error);
-      console.error('Profile: Delete note error response:', error.response?.data);
-      console.error('Profile: Delete note error status:', error.response?.status);
+      console.error('Error deleting note:', error);
       toast.error('Failed to delete note');
     }
   };
@@ -324,7 +202,6 @@ export default function Profile() {
                     alt="Profile" 
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      console.log('Profile: Avatar failed to load, falling back to placeholder');
                       e.target.src = '/profilePictureIcon.png';
                     }}
                   />
@@ -333,9 +210,7 @@ export default function Profile() {
                     src="/profilePictureIcon.png" 
                     alt="Default Profile" 
                     className="w-full h-full object-cover"
-                    onLoad={() => console.log('Profile: Default avatar placeholder loaded successfully')}
                     onError={(e) => {
-                      console.error('Profile: Default avatar placeholder failed to load, falling back to UserIcon');
                       // If profilePictureIcon.png fails to load, show UserIcon as ultimate fallback
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'block';

@@ -25,17 +25,7 @@ const Layout = ({ children, onLogout }) => {
   useEffect(() => {
     setMounted(true);
     
-    // Log current color scheme for debugging
-    console.log('Layout Debug - Current theme:', {
-      darkMode,
-      location: location.pathname,
-      cssVariables: {
-        primary: getComputedStyle(document.documentElement).getPropertyValue('--primary'),
-        secondary: getComputedStyle(document.documentElement).getPropertyValue('--secondary'),
-        bg: getComputedStyle(document.documentElement).getPropertyValue('--bg'),
-        'bg-light': getComputedStyle(document.documentElement).getPropertyValue('--bg-light')
-      }
-    });
+
     
     return () => setMounted(false);
   }, [darkMode, location.pathname]);
@@ -50,14 +40,7 @@ const Layout = ({ children, onLogout }) => {
 
   const isActive = (path) => location.pathname === path;
 
-  const handleNavHover = (itemName, isEntering) => {
-    console.log('Navigation hover debug:', {
-      item: itemName,
-      isEntering,
-      currentPath: location.pathname,
-      timestamp: new Date().toISOString()
-    });
-  };
+
 
   return (
     <div className="flex h-screen bg-bg text-text">
@@ -114,8 +97,7 @@ const Layout = ({ children, onLogout }) => {
                 key={item.name}
                 to={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                onMouseEnter={() => handleNavHover(item.name, true)}
-                onMouseLeave={() => handleNavHover(item.name, false)}
+
                 className={`
                   menu-item-hover flex items-center px-4 py-3.5 rounded-xl transition-all duration-300 group
                   ${active 
