@@ -13,10 +13,25 @@ def initialize_database():
                 email TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
                 name TEXT,
+                bio TEXT,
+                avatar TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 reset_token TEXT
             )
         ''')
+        
+        # Add bio and avatar columns if they don't exist (for existing databases)
+        try:
+            cursor.execute('ALTER TABLE users ADD COLUMN bio TEXT')
+            print("Added bio column to users table")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
+            
+        try:
+            cursor.execute('ALTER TABLE users ADD COLUMN avatar TEXT')
+            print("Added avatar column to users table")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
         
         conn.commit()
         print("Database initialized successfully!")
