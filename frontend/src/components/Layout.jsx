@@ -170,7 +170,7 @@ const Layout = ({ children, onLogout }) => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* main content */}
       <div className="flex-1 overflow-auto lg:ml-0">
         <div className="lg:hidden h-16"></div> {/* Spacer for mobile menu button */}
         {children}
